@@ -50,7 +50,7 @@ export default function Discover() {
 
       <div className="mt-2">
         <Segmented label="Filter nach" joined value={group} onChange={setGroup} options={(Object.keys(TAG_GROUP_LABEL) as TagGroup[]).map((g) => ({ id: g, label: TAG_GROUP_LABEL[g] }))} />
-        <div className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5 md:-mx-6 md:flex-wrap md:px-6">
+        <div className="hscroll mt-3 gap-2 md:flex-wrap">
           {TAGS.filter((t) => t.group === group).map((t) => <Pill key={t.id} on={tags.includes(t.id)} onClick={() => set({ tags: tags.includes(t.id) ? tags.filter((x) => x !== t.id) : [...tags, t.id] })}>{t.label}</Pill>)}
         </div>
       </div>

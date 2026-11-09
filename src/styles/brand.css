@@ -116,3 +116,19 @@ button:active .mood-face { transform: scale(.9); }
 /* Fester Abstand zum Rand, auch ohne Notch (pt-safe allein ergab am Rechner 0 px) */
 .top-safe { padding-top: calc(env(safe-area-inset-top) + 16px); }
 .bottom-safe { padding-bottom: calc(env(safe-area-inset-bottom) + 24px); }
+
+/* Seitlich wischbare Reihen (Karten, Artikel, Filter): laufen bis an den Bildschirmrand, beginnen aber immer mit
+   demselben Abstand wie der Seiteninhalt (20 px, ab md 24 px) und rasten auch dort ein – nie ganz links am Rand. */
+.hscroll {
+  display: flex;
+  overflow-x: auto;
+  margin-inline: -20px;
+  padding-inline: 20px;
+  scroll-padding-inline: 20px;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.hscroll::-webkit-scrollbar { display: none; }
+@media (min-width: 768px) {
+  .hscroll { margin-inline: -24px; padding-inline: 24px; scroll-padding-inline: 24px; }
+}

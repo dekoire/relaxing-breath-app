@@ -90,7 +90,7 @@ export default function Home() {
       )}
 
       <Section title={last ? "Passt zu dir jetzt" : part === "evening" ? "Für deinen Abend" : part === "morning" ? "Für deinen Morgen" : "Für zwischendurch"} action={<Link to="/entdecken" className="text-small font-semibold text-muted hover:text-fg">Alle {EXERCISES.length}</Link>}>
-        <div className="no-scrollbar -mx-5 flex snap-x scroll-px-5 gap-3 overflow-x-auto px-5 md:-mx-6 md:scroll-px-6 md:px-6">
+        <div className="hscroll snap-x gap-3">
           {picks.map((e) => <div key={e.id} className="w-[46%] shrink-0 snap-start sm:w-[30%]"><ExerciseCard e={e} tall /></div>)}
         </div>
       </Section>
@@ -107,7 +107,7 @@ export default function Home() {
       )}
 
       <Section title="Gut zu wissen">
-        <div className="no-scrollbar -mx-5 flex snap-x scroll-px-5 gap-3 overflow-x-auto px-5 md:-mx-6 md:scroll-px-6 md:px-6">
+        <div className="hscroll snap-x gap-3">
           {ARTICLES.map((a) => (
             <Link key={a.id} to={`/artikel/${a.id}`} className="press relative block aspect-[4/5] w-[62%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-surface-3 text-white sm:w-[38%]">
               <img src={articleImage(a, 600)} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />

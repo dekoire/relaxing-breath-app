@@ -26,4 +26,5 @@
 - **Dunkel ist Standard** (`atem:theme` leer = dunkel; Wahl Dunkel · Hell · Wie Gerät; `index.html` gleiche Regel).
 - **Kacheln | Liste** (`Prefs.layout`, Schalter oben rechts in Entdecken und im Profil): Liste = `LongTile`/`ExerciseLong` in `Art.tsx` (Bild links, läuft per Maske nach rechts in die Karte aus). Kategorien haben Fotos (`categoryImage`), dazu „Gut erforscht“ (`?gut=1`).
 - **Heute**: unter dem Check-in „Ich brauche jetzt Hilfe“ (direkt `/atmen/seufzer`, ohne Fragen), „Gut zu wissen“ = Artikel (`src/data/articles.ts`, Seite `/artikel/:id`).
+- **Wischbare Reihen** immer mit `.hscroll` (`brand.css`): bis an den Rand, aber Anfang, Ende und Einrasten bündig mit dem Seiteninhalt (nie ganz links). Keine eigenen `-mx`/`px`-Kombinationen.
 - Übung zeigt, wie gut sie erforscht ist (`EVIDENCE_LABEL`, Studie). Keine Gedankenstriche in sichtbaren Texten.
