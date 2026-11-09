@@ -108,14 +108,14 @@ const FADE = "linear-gradient(90deg, #000 22%, rgba(0,0,0,.6) 52%, rgba(0,0,0,.1
 export function LongTile({ to, img, bg, title, sub, meta, right }: { to: string; img: string; bg: string; title: string; sub: string; meta?: string; right?: React.ReactNode }) {
   return (
     <div className="group relative">
-      <Link to={to} className="press relative flex min-h-[108px] items-stretch overflow-hidden rounded-[22px] border border-card-line bg-surface">
+      <Link to={to} className="press relative flex min-h-[124px] items-stretch overflow-hidden rounded-[22px] border border-card-line bg-surface">
         <span aria-hidden className="absolute inset-y-0 left-0 w-[58%] max-w-[260px] overflow-hidden" style={{ background: bg, WebkitMaskImage: FADE, maskImage: FADE }}>
           <img src={img} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
         </span>
-        <span className="relative ml-[40%] flex min-w-0 flex-1 flex-col justify-center py-3.5 pr-12 pl-2 sm:ml-[180px]">
-          <span className="block truncate text-[16px] leading-6 font-semibold">{title}</span>
-          <span className="mt-0.5 line-clamp-2 text-[13.5px] leading-[19px] text-muted">{sub}</span>
-          {meta && <span className="mt-1 text-caption font-semibold text-soft tabular-nums">{meta}</span>}
+        <span className="relative ml-[40%] flex min-w-0 flex-1 flex-col justify-center py-4 pr-12 pl-2 sm:ml-[180px]">
+          <span className="line-clamp-2 text-[16px] leading-[21px] font-semibold">{title}</span>
+          <span className="mt-1 line-clamp-2 text-[13.5px] leading-[19px] text-muted">{sub}</span>
+          {meta && <span className="mt-1.5 text-caption font-semibold text-soft tabular-nums">{meta}</span>}
         </span>
         {!right && <ChevronRight size={18} className="absolute top-1/2 right-4 -translate-y-1/2 text-muted" />}
       </Link>
