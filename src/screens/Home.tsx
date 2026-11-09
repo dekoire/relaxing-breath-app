@@ -100,9 +100,9 @@ export default function Home() {
 
       {/* einmal fragen, ob täglich erinnert werden soll */}
       {!prefs.remind.on && !remindHidden && notifySupported() && (
-        <div className="mt-3 flex items-center gap-3 rounded-[22px] border border-card-line bg-surface py-3 pr-2 pl-3">
+        <div className="mt-3 flex items-center gap-3 rounded-full border border-card-line bg-surface py-2 pr-2 pl-2">
           <span className="accent-chip grid h-10 w-10 shrink-0 place-items-center rounded-full"><Bell size={18} /></span>
-          <span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold">Täglich erinnern?</span><span className="block text-caption text-muted">Morgens um 8 und abends um 21 Uhr. Änderbar im Profil.</span></span>
+          <span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold">Täglich erinnern?</span><span className="block truncate text-caption text-muted">Morgens um 8 und abends um 21 Uhr</span></span>
           <button type="button" onClick={async () => { if (await askNotify()) setPrefs({ remind: { ...prefs.remind, on: true } }); else hideRemind(); }} className="h-10 shrink-0 rounded-full bg-brand-500 px-4 text-small font-semibold text-white">Ja, bitte</button>
           <button type="button" onClick={hideRemind} aria-label="Nicht jetzt" className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-muted hover:bg-fg/[0.06]"><X size={17} /></button>
         </div>
