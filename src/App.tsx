@@ -19,6 +19,7 @@ import Review from "@/screens/Review";
 import ArticlePage from "@/screens/Article";
 import Settings from "@/screens/Settings";
 import TimerPage from "@/screens/Timer";
+import NovaChat from "@/screens/NovaChat";
 import { BadgeWatcher } from "@/components/Progress";
 import { RemindWatcher } from "@/components/Reminders";
 
@@ -66,6 +67,7 @@ export function App() {
           <Route path="/checkin" element={<CheckInPage />} />
           <Route path="/atmen/:id" element={<BreathePage />} />
           <Route path="/timer" element={<TimerPage />} />
+          <Route path="/nova" element={<NovaChat />} />
           <Route path="*" element={
             <Shell>
               <Routes>

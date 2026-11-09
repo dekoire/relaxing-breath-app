@@ -18,17 +18,32 @@ const STONES = [P("1601850141256-e326878aeec3", "Mor Shani"), P("1646909106850-8
 const WATER = [P("1503891617560-5b8c2e28cbf6", "Ian Keefe"), P("1581284943246-0eb528155992", "Sami Matias Breilin")];
 const FOREST = [P("1707336575595-2b302f5a353e", "Diana Roberts"), P("1572994384812-d66fea58513f", "Alessio Soggetti")];
 
+// passendere Bilder (Nutzerwunsch): Menschen beim Atmen, Feuer, Eis, Laufen, Arbeitsplatz, Schlaf
+const BREATH = [P("1518708909080-704599b19972", "Darius Bashar"), P("1506126613408-eca07ce68773", "Jared Rice"), P("1601763011535-37a74c49c696", "Dmitry Osipenko"), P("1541588007165-da26f41a1996", "eniko kis")];
+const FIRE = [P("1470549584009-d347338fc0ff", "CHUTTERSNAP"), P("1625119161833-57f8a7009f7b", "Hans")];
+const ICE = [P("1519937010618-f8c8b7e135b7", "Bryan Rodriguez"), P("1565895852923-aba9405b8ac8", "Joakim Nådell")];
+const RUN = [P("1522040942177-269680274214", "Sage Friedman"), P("1533240332313-0db49b459ad6", "Joel & Jasmin Førestbird")];
+const DESK = [P("1587522384446-64daf3e2689a", "Andres Jasso"), P("1563253746-350a0a877afa", "Michael Soledad")];
+const SLEEP = [P("1519097521188-cba100b96377", "Robert Nelson"), P("1585332757084-e9622d190a51", "Tim Durgan")];
+
+/** feste Bilder für einzelne Übungen */
+const BY_ID: Record<string, Photo> = {
+  "wim-hof": ICE[0], "co2-toleranz": ICE[1], holotrop: FIRE[1], "fokus-start": DESK[0], "lern-pause": DESK[1], "nasen-sport": RUN[0],
+  seufzer: BREATH[0], "laenger-aus": BREATH[1], "schlaf-48": SLEEP[0], "nachts-wach": SLEEP[1], "einschlaf-leiter": SLEEP[0],
+};
+
 const BY_MOTIF: Record<Motif, Photo[]> = {
-  flower: FLOWER, heart: FLOWER, bee: FLOWER,
-  wave: SEA, drop: WATER, lungs: WATER, circle: WATER,
-  moon: MOON, sun: LIGHT, stairs: LIGHT,
-  square: STONES, triangle: STONES, spiral: STONES, hand: STONES,
-  flame: FLAME, mountain: MOUNTAIN, leaf: FOREST,
+  flower: FLOWER, heart: BREATH, bee: FLOWER,
+  wave: SEA, drop: WATER, lungs: BREATH, circle: WATER,
+  moon: [...MOON, ...SLEEP], sun: LIGHT, stairs: RUN,
+  square: [...STONES, ...DESK], triangle: DESK, spiral: STONES, hand: BREATH,
+  flame: [...FIRE, ...FLAME], mountain: [...MOUNTAIN, RUN[1]], leaf: FOREST,
 };
 
 const hash = (s: string) => [...s].reduce((n, c) => (n * 31 + c.charCodeAt(0)) >>> 0, 7);
 
 export function photoOf(e: Pick<Exercise, "id" | "art">): Photo {
+  if (BY_ID[e.id]) return BY_ID[e.id];
   const list = BY_MOTIF[e.art.motif];
   return list[hash(e.id) % list.length];
 }
@@ -40,6 +55,6 @@ export const imageOf = (e: Pick<Exercise, "id" | "art" | "image">, w = 600) => e
 
 /** ein ruhiges Bild je Kategorie (Entdecken) */
 const CATEGORY_PHOTO: Record<string, Photo> = {
-  akut: WATER[0], beruhigen: SEA[0], schlafen: MOON[0], fokus: STONES[0], energie: LIGHT[0], balance: MOUNTAIN[0], koerper: FOREST[0], gut: FLOWER[1],
+  akut: BREATH[0], beruhigen: SEA[0], schlafen: SLEEP[0], fokus: DESK[0], energie: RUN[0], balance: MOUNTAIN[0], koerper: BREATH[1], gut: FLOWER[1],
 };
 export const categoryImage = (id: string, w = 600) => photoUrl(CATEGORY_PHOTO[id] ?? SEA[1], w);

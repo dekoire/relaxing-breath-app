@@ -10,7 +10,7 @@ import { PART_TITLE, partOf, recommend, QUADRANT, quadrantOf } from "@/lib/check
 import { exerciseById } from "@/data/exercises";
 import { todayIso } from "@/lib/types";
 import { ARTICLES, articleImage } from "@/data/articles";
-import { ExerciseCard, ExerciseRow, LogoMark } from "@/components/Art";
+import { ExerciseCard, ExerciseRow } from "@/components/Art";
 import { Nova } from "@/components/Nova";
 import { MoodFace, MOOD_FLAT } from "@/components/MoodFace";
 import { Section } from "@/components/primitives";
@@ -49,7 +49,7 @@ export default function Home() {
           <p className="text-small font-semibold text-muted">{date}</p>
           <h1 className="text-[34px] leading-[40px] font-bold tracking-tight">{PART_TITLE[part]}</h1>
         </div>
-        <LogoMark size={40} />
+        <Link to="/nova" aria-label="Frag Nova" className="press"><Nova size={48} /></Link>
       </header>
 
       {/* Check-in: groß, eine Fläche, ein Knopf */}
@@ -75,6 +75,13 @@ export default function Home() {
           <Link to="/checkin" className="mt-5 grid h-12 place-items-center rounded-full bg-fg/[0.08] text-[15px] font-semibold hover:bg-fg/[0.13]">Wie geht's dir jetzt?</Link>
         </div>
       )}
+
+      {/* Frag Nova: was brauchst du gerade? */}
+      <Link to="/nova" className="press mt-3 flex items-center gap-3.5 rounded-full border border-card-line bg-surface py-2 pr-5 pl-2">
+        <span className="grid h-11 w-11 shrink-0 place-items-center"><Nova size={44} /></span>
+        <span className="min-w-0 flex-1"><span className="block text-[16px] font-semibold">Frag Nova</span><span className="block truncate text-small text-muted">Was brauchst du gerade? Nova sucht die passende Übung.</span></span>
+        <ChevronRight size={18} className="text-muted" />
+      </Link>
 
       {/* Sofort-Hilfe: immer da, ohne Fragen direkt in die Übung */}
       <Link to="/atmen/seufzer" className="press mt-3 flex items-center gap-3.5 rounded-full border border-card-line bg-surface py-2.5 pr-5 pl-2.5">
