@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 export type ThemeChoice = "dark" | "light" | "system";
 const KEY = "atem:theme";
-const BG = { dark: "#121214", light: "#f4f4f6" } as const;
+const BG = { dark: "#1d2129", light: "#f4f4f6" } as const;
 
 export function readChoice(): ThemeChoice {
   try {

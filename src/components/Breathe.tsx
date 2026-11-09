@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AudioLines, Bell, BellOff, Check, ChevronLeft, Circle, Flower2, Music, Smartphone, TriangleAlert, Vibrate, Volume1, Volume2, VolumeX, X } from "lucide-react";
+import { AudioLines, Bell, BellOff, Check, ChevronLeft, Flower2, Music, Smartphone, TriangleAlert, Vibrate, Volume1, Volume2, VolumeX, X } from "lucide-react";
 import { type Exercise, type PhaseKind, durationLabel, flexible, rhythmLabel, steps as stepsOf, totalSec } from "@/data/exercises";
 import { bell, startMusic, unlockBreathAudio, TRACKS, type Pad, type Track } from "@/lib/sound";
 import { play, canVibrate, isNative, type HapticLevel } from "@/lib/haptics";
 import { hush, say as speak } from "@/lib/speech";
 import { usePrefs } from "@/lib/prefs";
 import { MoodFace } from "@/components/MoodFace";
+import { Nova } from "@/components/Nova";
 
 /**
  * Die Atemübung im Vollbild (aufgebaut wie „Atmen mit Nova“ in Notara, `src/components/Breathe.tsx`): Blume (oder
@@ -16,8 +17,9 @@ import { MoodFace } from "@/components/MoodFace";
  * Ablauf: Bereit (Dauer, Bedienung, Vorsicht) → Einleitung (gesprochen, Runden starten erst danach) → Schritte aus
  * `steps()` → „Wie fühlst du dich jetzt?“ → `onDone`.
  */
-const TOP = "#121214";
-const BG = `radial-gradient(110% 70% at 50% 42%, rgba(109,74,255,.30) 0%, transparent 62%), linear-gradient(${TOP} 0%, ${TOP} 7%, #1d1830 34%, #141124 70%, #0b0a12 100%)`;
+/** flacher Verlauf von oben links nach unten rechts, gedecktes Blau-Grau (Nutzerwunsch) */
+const TOP = "#2a2f3b";
+const BG = "linear-gradient(135deg, #2e3441 0%, #232833 55%, #1b1f28 100%)";
 type Music = Track | "off";
 
 export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood = true }: {
@@ -134,37 +136,31 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
 
   const open = stage === "done" ? true : stage === "pick" ? false : kind === "in" || kind === "in2" ? true : kind === "out" ? false : openBefore(list, idx);
   const dur = step ? step.s * 1000 : 1500;
+  /** vor dem Start und während der Einleitung halb offen – nie nur ein Punkt */
+  const half = stage === "pick" || (stage === "run" && idx < 0);
   const progress = stage === "run" ? 1 - left / (total * 1000) : stage === "done" ? 1 : 0;
   const mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
   const trackName = TRACKS.find((t) => t.id === prefs.music)?.label ?? "Aus";
   const vibOk = canVibrate();
 
-  const ctrl = (key: string, icon: React.ReactNode, label: string, value: string, on: boolean, onClick: () => void, disabled = false) => (
-    <button key={key} type="button" onClick={onClick} disabled={disabled} aria-label={`${label}: ${value}`} className={`flex w-full min-w-0 items-center gap-3 rounded-2xl px-3 py-2 text-left transition active:scale-[.98] disabled:opacity-40 ${on ? "bg-white/[0.1]" : "bg-white/[0.05]"} hover:bg-white/[0.14]`}>
-      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-[12px] [&>svg]:h-[19px] [&>svg]:w-[19px] ${on ? "bg-brand-500 text-white" : "bg-white/[0.08] text-white/55"}`}>{icon}</span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-[12px] leading-4 text-white/55">{label}</span>
-        <span className={`block truncate text-[15px] leading-5 font-semibold ${on ? "" : "text-white/60"}`}>{value}</span>
-      </span>
+  /** EINE kompakte Leiste (Nutzerwunsch): sechs runde Knöpfe mit kleinem Wort, vor und während der Übung an derselben Stelle */
+  const ctrl = (key: string, icon: React.ReactNode, label: string, on: boolean, onClick: () => void, disabled = false) => (
+    <button key={key} type="button" onClick={onClick} disabled={disabled} aria-pressed={on} aria-label={label} className="flex min-w-0 flex-col items-center gap-1.5 transition active:scale-95 disabled:opacity-35">
+      <span className={`grid h-12 w-12 place-items-center rounded-full [&>svg]:h-[20px] [&>svg]:w-[20px] ${on ? "bg-brand-500 text-white" : "bg-white/[0.08] text-white/60"}`}>{icon}</span>
+      <span className={`w-full truncate text-center text-[11.5px] leading-4 font-semibold ${on ? "text-white/85" : "text-white/45"}`}>{label}</span>
     </button>
   );
   const HAPTIC_NEXT: Record<HapticLevel, HapticLevel> = { strong: "soft", soft: "off", off: "strong" };
-  const HAPTIC_LABEL: Record<HapticLevel, string> = { strong: "Deutlich", soft: "Sanft", off: "Aus" };
+  const HAPTIC_LABEL: Record<HapticLevel, string> = { strong: "Vibration", soft: "Sanft", off: "Vibr. aus" };
   const controls = (
-    <div className="grid grid-cols-2 gap-2">
-      {ctrl("look", prefs.look === "orb" ? <Circle /> : <Flower2 />, "Bild", prefs.look === "orb" ? "Kugel" : "Blume", true, () => setPrefs({ look: prefs.look === "orb" ? "flower" : "orb" }))}
-      {ctrl("vib", <Vibrate />, "Vibration", vibOk ? HAPTIC_LABEL[prefs.haptics] : "Nicht möglich", vibOk && prefs.haptics !== "off", () => setPrefs({ haptics: HAPTIC_NEXT[prefs.haptics] }), !vibOk)}
-      {ctrl("voice", voice ? <AudioLines /> : <VolumeX />, "Stimme", voice ? "An" : "Aus", voice, () => setPrefs({ voice: !prefs.voice, silent: false }), silent)}
-      {ctrl("bowl", bowl ? <Bell /> : <BellOff />, "Klangschale", bowl ? "An" : "Aus", bowl, () => { const v = !prefs.bowl; setPrefs({ bowl: v, silent: false }); if (v) { unlockBreathAudio(); bell(0.22); } }, silent)}
-      <div className="col-span-2">{ctrl("music", <Music />, "Musik", silent ? "Aus" : trackName, music !== "off", () => setPicking("music"), silent)}</div>
+    <div className="grid grid-cols-6 gap-1">
+      {ctrl("look", prefs.look === "flower" ? <Flower2 /> : <Nova size={22} />, prefs.look === "flower" ? "Blume" : "Nova", true, () => setPrefs({ look: prefs.look === "flower" ? "nova" : "flower" }))}
+      {ctrl("vib", <Vibrate />, vibOk ? HAPTIC_LABEL[prefs.haptics] : "Vibration", vibOk && prefs.haptics !== "off", () => setPrefs({ haptics: HAPTIC_NEXT[prefs.haptics] }), !vibOk)}
+      {ctrl("voice", voice ? <AudioLines /> : <VolumeX />, "Stimme", voice, () => setPrefs({ voice: !prefs.voice, silent: false }), silent)}
+      {ctrl("bowl", bowl ? <Bell /> : <BellOff />, "Schale", bowl, () => { const v = !prefs.bowl; setPrefs({ bowl: v, silent: false }); if (v) { unlockBreathAudio(); bell(0.22); } }, silent)}
+      {ctrl("music", <Music />, silent || music === "off" ? "Musik" : trackName, music !== "off", () => setPicking("music"), silent)}
+      {ctrl("silent", <Smartphone />, "Lautlos", silent, () => setPrefs({ silent: !silent }))}
     </div>
-  );
-  const silentToggle = (
-    <button type="button" onClick={() => setPrefs({ silent: !silent })} aria-pressed={silent} className={`mt-2 flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition ${silent ? "bg-brand-500/90" : "bg-white/[0.05] hover:bg-white/[0.1]"}`}>
-      <Smartphone size={19} className="shrink-0" />
-      <span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold">Nur Vibration</span><span className="block text-[12.5px] text-white/60">Ohne Ton, fürs Büro oder die Hosentasche</span></span>
-      <span className={`h-6 w-10 shrink-0 rounded-full p-0.5 transition ${silent ? "bg-white" : "bg-white/20"}`}><span className={`block h-5 w-5 rounded-full transition ${silent ? "translate-x-4 bg-brand-500" : "bg-white"}`} /></span>
-    </button>
   );
 
   return (
@@ -179,22 +175,24 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
         <div className="relative grid place-items-center">
           <ProgressRing p={progress} />
           <div className="absolute inset-0 grid place-items-center">
-            {prefs.look === "orb" ? <Orb open={open} half={stage === "pick"} ms={dur} still={stage !== "run"} /> : <Flower open={open} half={stage === "pick"} ms={dur} still={stage !== "run"} />}
+            {prefs.look === "flower" ? <Flower open={open} half={half} ms={dur} still={stage !== "run"} /> : <NovaBreath open={open} half={half} ms={dur} still={stage !== "run"} />}
           </div>
         </div>
-        <p key={`${stage}${idx}`} className="breathe-word mt-6 min-h-9 text-center text-[26px] font-light tracking-wide text-white/90">
+        {/* feste Höhen: Wort und Zeile darunter springen nicht, das Bild bleibt stehen */}
+        <p key={`${stage}${idx}`} className="breathe-word mt-5 flex h-10 items-center justify-center text-center text-[26px] font-light tracking-wide text-white/90">
           {stage === "pick" ? "Bereit?" : stage === "done" ? (result?.completed ? "Schön gemacht." : "Gut, dass du da warst.") : step ? step.word : "Mach es dir bequem"}
         </p>
-        {stage === "run" && step && (step.kind === "in" || step.kind === "out") && step.s >= 2 && !step.thought ? (
-          <span key={`a${idx}`} className="breathe-word mt-1 flex flex-col items-center text-[14px] text-white/55">
-            <span className="text-white/80"><AirIcon kind={step.kind} ms={dur} /></span>{step.hint ?? (step.kind === "in" ? "durch die Nase" : "langsam ausatmen")}
-          </span>
-        ) : (
-          <p className="mx-auto mt-2 min-h-6 max-w-[20rem] text-center text-[15px] leading-6 text-white/60">
-            {stage === "run" ? (step ? step.thought ?? step.hint ?? step.blockLabel ?? "" : e.intro) : stage === "done" ? "Nimm diese Ruhe mit." : `${rhythmLabel(e)} · ${durationLabel(total)}`}
-          </p>
-        )}
-        {stage === "run" && step?.blockLabel && step.thought && <p className="mt-1 text-[12.5px] text-white/40">{step.blockLabel}</p>}
+        <div className="flex h-[88px] w-full flex-col items-center justify-start overflow-hidden">
+          {stage === "run" && step && (step.kind === "in" || step.kind === "out") && step.s >= 2 && !step.thought ? (
+            <span key={`a${idx}`} className="breathe-word flex flex-col items-center text-[14px] text-white/55">
+              <span className="text-white/80"><AirIcon kind={step.kind} ms={dur} /></span>{step.hint ?? (step.kind === "in" ? "durch die Nase" : "langsam ausatmen")}
+            </span>
+          ) : (
+            <p className="mx-auto mt-1 line-clamp-3 max-w-[20rem] text-center text-[15px] leading-6 text-white/60">
+              {stage === "run" ? (step ? step.thought ?? step.hint ?? step.blockLabel ?? "" : e.intro) : stage === "done" ? "Nimm diese Ruhe mit." : `${rhythmLabel(e)} · ${durationLabel(total)}`}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="mx-auto w-full max-w-md px-5" style={{ paddingBottom: "max(2rem, calc(env(safe-area-inset-bottom) + 1.25rem))" }}>
@@ -202,21 +200,20 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
           <>
             {e.caution && <p className="mb-3 flex gap-2.5 rounded-2xl bg-white/[0.07] px-3.5 py-3 text-[13px] leading-[19px] text-white/75"><TriangleAlert size={17} className="mt-px shrink-0 text-[#c4b5ff]" />{e.caution}</p>}
             {flexible(e) && (
-              <div className="mb-3 grid grid-cols-4 gap-1 rounded-full bg-white/[0.07] p-1">
+              <div className="mb-4 grid grid-cols-4 gap-1 rounded-full bg-white/[0.07] p-1">
                 {[1, 3, 5, 10].map((x) => <button key={x} type="button" onClick={() => setMinutes(x)} className={`h-11 rounded-full text-[15px] font-semibold transition ${x === minutes ? "bg-white text-[#141522]" : "text-white/70 hover:text-white"}`}>{x} Min.</button>)}
               </div>
             )}
             {controls}
-            {silentToggle}
-            {!vibOk && <p className="mt-2 text-center text-[12px] text-white/45">{isNative() ? "" : "Vibration gibt es in der App (iPhone und Android) und in Android-Browsern."}</p>}
+            {!vibOk && !isNative() && <p className="mt-2 text-center text-[12px] text-white/45">Vibration gibt es in der App (iPhone und Android) und in Android-Browsern.</p>}
             <button type="button" onClick={go} className="mt-4 h-14 w-full rounded-full bg-white text-[17px] font-semibold text-[#141522] hover:bg-white/90">Los geht's</button>
           </>
         )}
         {stage === "run" && (
-          <div className="grid grid-cols-[1fr_auto] gap-2">
-            <button type="button" onClick={stopEarly} className="h-12 rounded-full bg-white/[0.08] text-[15px] font-semibold text-white/80 hover:bg-white/[0.14]">Beenden</button>
-            <button type="button" onClick={() => setPrefs({ silent: !silent })} aria-pressed={silent} aria-label="Nur Vibration" className={`grid h-12 w-12 place-items-center rounded-full ${silent ? "bg-brand-500" : "bg-white/[0.08]"}`}><Smartphone size={19} /></button>
-          </div>
+          <>
+            {controls}
+            <button type="button" onClick={stopEarly} className="mt-4 h-12 w-full rounded-full bg-white/[0.08] text-[15px] font-semibold text-white/80 hover:bg-white/[0.14]">Beenden</button>
+          </>
         )}
         {stage === "done" && (
           <div className="grid gap-2.5">
@@ -289,7 +286,7 @@ function ProgressRing({ p }: { p: number }) {
 
 /** Blume aus acht Blättern (1:1 Notara): öffnet sich beim Einatmen, schließt sich beim Ausatmen */
 function Flower({ open, half, ms, still }: { open: boolean; half?: boolean; ms: number; still: boolean }) {
-  const sc = half ? 0.6 : open ? 1 : 0.2;
+  const sc = open ? 1 : half ? 0.7 : 0.45;
   const petals = Array.from({ length: 8 }, (_, i) => i * 45);
   const t = `transform ${still ? 1200 : ms}ms cubic-bezier(.45,0,.55,1), opacity ${still ? 1200 : ms}ms ease-in-out`;
   return (
@@ -304,7 +301,7 @@ function Flower({ open, half, ms, still }: { open: boolean; half?: boolean; ms: 
       <g style={{ transform: `rotate(${open ? 30 : half ? 15 : 0}deg) scale(${sc})`, transition: t }}>
         {petals.map((a) => (
           <g key={a} transform={`rotate(${a})`}>
-            <ellipse cx="0" cy="-48" rx="26" ry="50" fill="url(#petal)" style={{ mixBlendMode: "screen", transform: `translateY(${open || half ? 0 : 18}px)`, transition: t }} />
+            <ellipse cx="0" cy="-48" rx="26" ry="50" fill="url(#petal)" style={{ mixBlendMode: "screen", transform: `translateY(${open || half ? 0 : 10}px)`, transition: t }} />
           </g>
         ))}
       </g>
@@ -313,13 +310,14 @@ function Flower({ open, half, ms, still }: { open: boolean; half?: boolean; ms: 
   );
 }
 
-/** Kugel: wächst beim Einatmen, schrumpft beim Ausatmen, mit weichem Schein */
-function Orb({ open, half, ms, still }: { open: boolean; half?: boolean; ms: number; still: boolean }) {
+/** Nova in Lila (wie „Atmen mit Nova“ in Notara): groß beim Einatmen, klein beim Ausatmen, dahinter ein weicher Schein */
+function NovaBreath({ open, half, ms, still }: { open: boolean; half?: boolean; ms: number; still: boolean }) {
   const t = `transform ${still ? 1200 : ms}ms cubic-bezier(.45,0,.55,1), opacity ${still ? 1200 : ms}ms ease-in-out`;
+  const sc = open ? 1.15 : half ? 0.9 : 0.68;
   return (
     <div className="relative grid h-[82%] w-[82%] place-items-center" aria-hidden>
-      <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(155,123,255,.55)_0%,rgba(109,74,255,.18)_45%,transparent_70%)]" style={{ transform: `scale(${open ? 1.1 : 0.5})`, opacity: open ? 1 : 0.5, transition: t }} />
-      <div className="h-[56%] w-[56%] rounded-full bg-[radial-gradient(circle_at_35%_30%,#efe9ff,#9b7bff_45%,#4a2fd1)] shadow-[0_0_60px_rgba(139,107,255,.6)]" style={{ transform: `scale(${open ? 1 : half ? 0.7 : 0.42})`, transition: t }} />
+      <div className="absolute inset-[6%] rounded-full bg-[radial-gradient(circle,rgba(139,108,255,.38)_0%,rgba(109,74,255,.12)_45%,transparent_70%)]" style={{ transform: `scale(${open ? 1.1 : 0.6})`, opacity: open ? 1 : 0.5, transition: t }} />
+      <div style={{ transform: `scale(${sc})`, transition: t }}><Nova size={170} state={open && !still ? "listen" : "idle"} /></div>
     </div>
   );
 }

@@ -11,10 +11,10 @@ const config: CapacitorConfig = {
   appId: "de.dekoire.atem",
   appName: "Atem",
   webDir: "dist",
-  backgroundColor: "#121214",
+  backgroundColor: "#1d2129",
   ...(url ? { server: { url, cleartext: url.startsWith("http://") } } : {}),
-  ios: { contentInset: "never", backgroundColor: "#121214" },
-  android: { backgroundColor: "#121214" },
+  ios: { contentInset: "never", backgroundColor: "#1d2129" },
+  android: { backgroundColor: "#1d2129" },
 };
 
 export default config;

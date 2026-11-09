@@ -7,7 +7,8 @@ import type { HapticLevel } from "@/lib/haptics";
 import type { Track } from "@/lib/sound";
 import type { Length } from "@/lib/checkin";
 
-export type Look = "flower" | "orb";
+/** Bild der Übung: Nova (Vorgabe, wie in Notara) oder die Blume */
+export type Look = "nova" | "flower";
 export type Prefs = {
   /** Stimme spricht mit */
   voice: boolean;
@@ -28,12 +29,12 @@ export type Prefs = {
   minutes: Record<string, number>;
 };
 
-export const DEFAULT_PREFS: Prefs = { voice: true, voiceName: "", readAloud: false, bowl: true, music: "off", volume: 0.35, haptics: "strong", silent: false, look: "flower", length: "normal", favorites: [], minutes: {} };
+export const DEFAULT_PREFS: Prefs = { voice: true, voiceName: "", readAloud: false, bowl: true, music: "off", volume: 0.35, haptics: "strong", silent: false, look: "nova", length: "normal", favorites: [], minutes: {} };
 const KEY = "atem:prefs";
 const EVT = "atem:prefs-change";
 
 export function readPrefs(): Prefs {
-  try { return { ...DEFAULT_PREFS, ...(JSON.parse(localStorage.getItem(KEY) ?? "{}") as Partial<Prefs>) }; } catch { return DEFAULT_PREFS; }
+  try { const p = { ...DEFAULT_PREFS, ...(JSON.parse(localStorage.getItem(KEY) ?? "{}") as Partial<Prefs>) }; if (p.look !== "flower") p.look = "nova"; return p; } catch { return DEFAULT_PREFS; }
 }
 let syncer: ((json: string) => void) | undefined;
 /** Store meldet sich hier an, um Änderungen ins Konto zu schreiben */

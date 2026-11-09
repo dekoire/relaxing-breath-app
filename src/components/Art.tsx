@@ -3,6 +3,7 @@ import { Heart } from "lucide-react";
 import type { Exercise, Motif } from "@/data/exercises";
 import { categoryOf, durationLabel, totalSec } from "@/data/exercises";
 import { toggleFavorite, usePrefs } from "@/lib/prefs";
+import { imageOf } from "@/data/photos";
 
 /** Produktname an genau einer Stelle (Arbeitsname). */
 export const APP_NAME = "Atem";
@@ -44,7 +45,19 @@ export function MotifSvg({ motif, className = "" }: { motif: Motif; className?: 
   return <svg viewBox="0 0 100 100" className={className} aria-hidden>{g}</svg>;
 }
 
-export const artBg = (e: Pick<Exercise, "art">) => `radial-gradient(120% 90% at 20% 0%, ${e.art.from} 0%, transparent 70%), linear-gradient(160deg, ${e.art.from} 0%, ${e.art.to} 100%)`;
+/** flacher Verlauf von oben links nach unten rechts: die Farbe der Übung, stark ins Blau-Grau gemischt (Nutzerwunsch: keine runden, starken Verläufe) */
+export const flatBg = (from: string, to: string) => `linear-gradient(135deg, color-mix(in srgb, ${from} 42%, #4a5162) 0%, color-mix(in srgb, ${to} 42%, #20242d) 100%)`;
+export const artBg = (e: Pick<Exercise, "art">) => flatBg(e.art.from, e.art.to);
+
+/** Foto der Übung, leicht ins Blau-Grau getönt (flacher Schleier von oben links nach unten rechts), damit alle Bilder zusammenpassen */
+export function Photo({ e, w = 600, className = "" }: { e: Exercise; w?: number; className?: string }) {
+  return (
+    <>
+      <img src={imageOf(e, w)} alt="" loading="lazy" decoding="async" className={`absolute inset-0 h-full w-full object-cover ${className}`} />
+      <span aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(42,47,59,.18) 0%, rgba(29,33,41,.42) 100%)" }} />
+    </>
+  );
+}
 
 /** Karte wie bei Pinterest: großes Bild, darunter Name und eine Zeile; Höhe wechselt für das Mauerwerk */
 export function ExerciseCard({ e, tall, minutes }: { e: Exercise; tall?: boolean; minutes?: number }) {
@@ -54,7 +67,7 @@ export function ExerciseCard({ e, tall, minutes }: { e: Exercise; tall?: boolean
     <div className="group relative">
       <Link to={`/uebung/${e.id}`} className="press block">
         <div className="relative overflow-hidden rounded-[22px]" style={{ background: artBg(e), aspectRatio: tall ? "3 / 4" : "1 / 1" }}>
-          {e.image ? <img src={e.image} alt="" className="absolute inset-0 h-full w-full object-cover" /> : <MotifSvg motif={e.art.motif} className="absolute inset-[16%] h-[68%] w-[68%] transition-transform duration-500 group-hover:scale-105" />}
+          <Photo e={e} className="transition-transform duration-500 group-hover:scale-[1.03]" />
           <span className="absolute bottom-2.5 left-2.5 rounded-full bg-black/35 px-2.5 py-1 text-[12px] font-semibold text-white backdrop-blur">{durationLabel(totalSec(e, minutes ?? e.minutes))}</span>
         </div>
         <div className="px-1 pt-2">
@@ -73,7 +86,7 @@ export function ExerciseCard({ e, tall, minutes }: { e: Exercise; tall?: boolean
 export function ExerciseRow({ e, sub, onClick, to }: { e: Exercise; sub?: string; onClick?: () => void; to?: string }) {
   const inner = (
     <>
-      <span className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-2xl" style={{ background: artBg(e) }}><MotifSvg motif={e.art.motif} className="h-11 w-11" /></span>
+      <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl" style={{ background: artBg(e) }}><Photo e={e} w={160} /></span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[16px] font-semibold">{e.name}</span>
         <span className="mt-0.5 line-clamp-2 block text-[13.5px] leading-[19px] text-muted">{sub ?? e.short}</span>

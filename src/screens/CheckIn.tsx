@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { ArrowRight, Check, ChevronLeft, Mic, Square, Volume2, VolumeX, X, LifeBuoy } from "lucide-react";
 import { BODY, CONTROL, CRISIS, EMOTIONS, ENERGY, INFLUENCES, MOODS, PART_TITLE, QUADRANT, partOf, quadrantOf, recommend, reflectQuestions, type Control, type Energy } from "@/lib/checkin";
 import { MoodFace } from "@/components/MoodFace";
-import { ExerciseRow, artBg, MotifSvg } from "@/components/Art";
+import { ExerciseRow, Photo } from "@/components/Art";
 import { useStore } from "@/lib/store";
 import { usePrefs } from "@/lib/prefs";
 import { hush, say, useDictation } from "@/lib/speech";
@@ -125,8 +125,9 @@ export default function CheckInPage() {
             <>
               {mood && mood <= 1 && <p className="mb-5 flex gap-3 rounded-2xl bg-fg/[0.06] px-4 py-3.5 text-small leading-[21px] text-soft"><LifeBuoy size={20} className="shrink-0 text-brand-400" />{CRISIS}</p>}
               {picks[0] && (
-                <button type="button" onClick={() => start(picks[0].exercise.id)} className="press relative block w-full overflow-hidden rounded-[28px] p-5 text-left text-white" style={{ background: artBg(picks[0].exercise) }}>
-                  <MotifSvg motif={picks[0].exercise.art.motif} className="absolute -right-6 -bottom-6 h-44 w-44 opacity-60" />
+                <button type="button" onClick={() => start(picks[0].exercise.id)} className="press relative block w-full overflow-hidden rounded-[28px] p-5 text-left text-white" style={{ background: "#262b35" }}>
+                  <Photo e={picks[0].exercise} w={900} />
+                  <span aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(42,47,59,.55) 0%, rgba(29,33,41,.8) 100%)" }} />
                   <span className="relative text-small font-semibold text-white/75">Für dich jetzt</span>
                   <span className="relative mt-1 block text-[26px] leading-8 font-bold">{picks[0].exercise.name}</span>
                   <span className="relative mt-2 block max-w-[85%] text-body leading-6 text-white/85">{picks[0].reason}</span>

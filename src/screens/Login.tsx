@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { ArrowLeft, Check, Eye, EyeOff, KeyRound, Lock, Mail, ShieldCheck, Smile, Wind, Vibrate } from "lucide-react";
+import { ArrowLeft, Check, Eye, EyeOff, KeyRound, Lock, Mail, Smile, Wind, Vibrate } from "lucide-react";
 import { Button } from "@/components/primitives";
-import { Logo, LogoMark } from "@/components/Art";
+import { Logo } from "@/components/Art";
+import { Nova } from "@/components/Nova";
 
 /**
- * 1:1 aus Notara (src/screens/Login.tsx). Statt Nova atmet das Logo. Anmelden / Registrieren wie in Finastry: links das Formular (Felder mit Symbolen, Passwort-Stärke beim Registrieren),
- * rechts ab Desktop eine flache Fläche (volle Höhe, Linie links), das Logo groß und atmend, darunter drei Versprechen.
+ * 1:1 aus Notara (src/screens/Login.tsx). Nova wie in Notara, in Lila. Anmelden / Registrieren wie in Finastry: links das Formular (Felder mit Symbolen, Passwort-Stärke beim Registrieren),
+ * rechts ab Desktop eine flache Fläche (volle Höhe, Linie links), Nova groß, darunter drei Versprechen.
  * Mit Convex echte Konten (Convex Auth), ohne Convex ein Demo-Konto im Browser.
  */
 type Flow = "signIn" | "signUp";
@@ -152,9 +153,9 @@ function LoginView({ onSubmit, demoMode = false, reset }: { onSubmit: Submit; de
           <Link to="/" className="inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-[13.5px] font-semibold text-muted hover:bg-surface hover:text-fg"><ArrowLeft size={15} /> Start</Link>
         </div>
         <div className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-center py-8">
-          {/* atmendes Logo mit Sprechblase */}
+          {/* Nova mit Sprechblase */}
           <div className="mb-6 flex items-end gap-3">
-            <span className="splash-breathe shrink-0"><LogoMark size={72} /></span>
+            <Nova size={76} state={busy ? "think" : "idle"} label="Nova" className="mb-1 shrink-0" />
             <p key={novaSay} className="reveal-up mb-5 rounded-2xl rounded-bl-md bg-surface-3 px-3.5 py-2 text-[14px] font-medium text-fg">{novaSay}</p>
           </div>
           <h1 className="text-[30px] leading-9 font-[680] tracking-tight">{forgot ? "Passwort vergessen" : flow === "signIn" ? "Willkommen zurück" : "Konto anlegen"}</h1>
@@ -191,13 +192,12 @@ function LoginView({ onSubmit, demoMode = false, reset }: { onSubmit: Submit; de
             <p className="mt-5 text-center text-[14px] text-muted"><button type="button" onClick={() => { setForgot(undefined); setErr(undefined); setCode(""); setPassword(""); }} className="font-semibold text-fg hover:underline">Zurück zum Anmelden</button></p>
           ) : null}
         </div>
-        <p className="flex items-center justify-center gap-1.5 text-[12.5px] text-muted"><ShieldCheck size={14} /> Verschlüsselte Verbindung · deine Daten gehören dir</p>
       </div>
 
-      {/* rechts: flache Fläche über die ganze Höhe und Breite der Spalte, Logo groß */}
+      {/* rechts: flache Fläche über die ganze Höhe und Breite der Spalte, Nova groß */}
       <aside className="hidden border-l border-fg/10 bg-surface lg:flex lg:flex-col lg:justify-center">
         <div className="mx-auto w-full max-w-xl px-12 py-12">
-          <span className="splash-breathe inline-block"><LogoMark size={120} /></span>
+          <Nova size={130} label="Nova" />
           <h2 className="mt-8 text-[36px] leading-[42px] font-[680] tracking-tight">Ein Atemzug. <span className="text-brand-500">Dann weiter.</span></h2>
           <p className="mt-3 max-w-md text-[16px] leading-7 text-soft">Jeden Tag ein bisschen gelassener, wie ein Stoiker.</p>
           {/* reine Aufzählung (nicht anklickbar): Symbol in Farbe, Titel, ein Satz, ohne Rahmen und Trennlinien */}

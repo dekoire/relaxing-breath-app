@@ -1,7 +1,8 @@
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { ChevronLeft, Heart, Play, TriangleAlert } from "lucide-react";
 import { categoryOf, durationLabel, exerciseById, rhythmLabel, tagOf, totalSec } from "@/data/exercises";
-import { MotifSvg, artBg } from "@/components/Art";
+import { Photo, artBg } from "@/components/Art";
+import { photoOf } from "@/data/photos";
 import { BreatheView } from "@/components/Breathe";
 import { Badge, EmptyState } from "@/components/primitives";
 import { toggleFavorite, usePrefs } from "@/lib/prefs";
@@ -21,12 +22,14 @@ export default function ExercisePage() {
   return (
     <div>
       <div className="relative -mx-4 -mt-4 overflow-hidden md:mx-0 md:mt-0 md:rounded-[28px]" style={{ background: artBg(e) }}>
-        <div className="pt-safe flex items-center justify-between px-4 pt-3">
+        <Photo e={e} w={1080} />
+        <span aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(29,33,41,0) 35%, rgba(29,33,41,.85) 100%)" }} />
+        <div className="pt-safe relative flex items-center justify-between px-4 pt-3">
           <button type="button" onClick={() => nav(-1)} aria-label="Zurück" className="grid h-11 w-11 place-items-center rounded-full bg-black/25 text-white backdrop-blur"><ChevronLeft size={21} /></button>
           <button type="button" onClick={() => toggleFavorite(e.id)} aria-pressed={fav} aria-label={fav ? "Aus Favoriten entfernen" : "Zu Favoriten"} className="grid h-11 w-11 place-items-center rounded-full bg-black/25 text-white backdrop-blur"><Heart size={19} fill={fav ? "currentColor" : "none"} /></button>
         </div>
-        <MotifSvg motif={e.art.motif} className="mx-auto my-4 h-56 w-56" />
-        <div className="px-5 pb-6 text-white">
+        <div className="h-56" />
+        <div className="relative px-5 pb-6 text-white">
           <p className="text-small font-semibold text-white/70">{categoryOf(e.category).label} · {e.level}</p>
           <h1 className="mt-1 text-[32px] leading-[38px] font-bold tracking-tight">{e.name}</h1>
           <p className="mt-2 text-body leading-6 text-white/85">{e.short}</p>
@@ -60,7 +63,7 @@ export default function ExercisePage() {
       <div className="mt-3 flex flex-wrap gap-2">
         {e.tags.map((t) => <button key={t} type="button" onClick={() => nav(`/entdecken?tag=${t}`)}><Badge>{tagOf(t)?.label ?? t}</Badge></button>)}
       </div>
-      <p className="mt-8 text-caption leading-5 text-muted">Atemübungen ersetzen keine ärztliche oder psychotherapeutische Behandlung.</p>
+      <p className="mt-8 text-caption leading-5 text-muted">Foto: {e.image ? "eigenes Bild" : `${photoOf(e).by} · Unsplash`}. Atemübungen ersetzen keine ärztliche oder psychotherapeutische Behandlung.</p>
     </div>
   );
 }

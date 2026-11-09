@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 import { Search, X } from "lucide-react";
 import { CATEGORIES, EXERCISES, TAGS, TAG_GROUP_LABEL, search, tagOf, type Category, type TagGroup } from "@/data/exercises";
-import { ExerciseCard } from "@/components/Art";
+import { ExerciseCard, flatBg } from "@/components/Art";
 import { PageTitle, Pill, Segmented } from "@/components/primitives";
 
 /**
@@ -56,7 +56,7 @@ export default function Discover() {
       {!filtering && (
         <div className="mt-6 grid grid-cols-2 gap-3">
           {CATEGORIES.map((c, k) => (
-            <button key={c.id} type="button" onClick={() => set({ kat: c.id })} className={`press relative overflow-hidden rounded-[22px] p-4 text-left text-white ${k === 0 ? "col-span-2 min-h-[120px]" : "min-h-[104px]"}`} style={{ background: `linear-gradient(150deg, ${c.from} 0%, ${c.to} 100%)` }}>
+            <button key={c.id} type="button" onClick={() => set({ kat: c.id })} className={`press relative overflow-hidden rounded-[22px] p-4 text-left text-white ${k === 0 ? "col-span-2 min-h-[120px]" : "min-h-[104px]"}`} style={{ background: flatBg(c.from, c.to) }}>
               <span className="block text-[19px] leading-6 font-bold">{c.label}</span>
               <span className="mt-0.5 block text-small text-white/75">{c.sub}</span>
               <span className="absolute right-4 bottom-3 text-caption font-semibold text-white/60">{EXERCISES.filter((e) => e.category === c.id).length}</span>

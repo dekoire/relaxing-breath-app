@@ -8,6 +8,7 @@ import { PART_TITLE, partOf, recommend, QUADRANT, quadrantOf } from "@/lib/check
 import { EXERCISES, exerciseById } from "@/data/exercises";
 import { todayIso } from "@/lib/types";
 import { ExerciseCard, ExerciseRow, LogoMark } from "@/components/Art";
+import { Nova } from "@/components/Nova";
 import { MoodFace, MOOD_FLAT } from "@/components/MoodFace";
 import { Section } from "@/components/primitives";
 
@@ -47,8 +48,8 @@ export default function Home() {
 
       {/* Check-in: groß, eine Fläche, ein Knopf */}
       {!last ? (
-        <Link to="/checkin" className="press relative block overflow-hidden rounded-[28px] p-6 text-white" style={{ background: "radial-gradient(120% 90% at 85% 0%, #9b82ff 0%, transparent 60%), linear-gradient(150deg, #6d4aff 0%, #2a1a7a 100%)" }}>
-          <div className="pointer-events-none absolute -right-10 -bottom-10 h-48 w-48 rounded-full bg-white/10 splash-breathe" />
+        <Link to="/checkin" className="press relative block overflow-hidden rounded-[28px] p-6 text-white" style={{ background: "linear-gradient(135deg, #5c49d8 0%, #45407e 100%)" }}>
+          <span className="absolute top-5 right-5"><Nova size={64} /></span>
           <p className="relative text-small font-semibold text-white/75">Check-in · 2 Minuten</p>
           <p className="relative mt-1 text-[30px] leading-9 font-bold">Wie geht's dir?</p>
           <p className="relative mt-2 max-w-[80%] text-body leading-6 text-white/80">Kurz hinspüren, reflektieren, dann die passende Atemübung.</p>
