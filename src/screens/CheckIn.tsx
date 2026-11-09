@@ -134,14 +134,16 @@ export default function CheckInPage() {
             <>
               {mood && mood <= 1 && <p className="mb-5 flex gap-3 rounded-2xl bg-fg/[0.06] px-4 py-3.5 text-small leading-[21px] text-soft"><LifeBuoy size={20} className="shrink-0 text-brand-400" />{CRISIS}</p>}
               {picks[0] && (
-                <button type="button" onClick={() => start(picks[0].exercise.id)} className="press relative block w-full overflow-hidden rounded-[28px] p-5 text-left text-white" style={{ background: "#262b35" }}>
-                  <Photo e={picks[0].exercise} w={900} />
-                  <span aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(42,47,59,.55) 0%, rgba(29,33,41,.8) 100%)" }} />
-                  <span className="relative text-small font-semibold text-white/75">Passt am besten</span>
-                  <span className="relative mt-1 block text-[26px] leading-8 font-bold">{picks[0].exercise.name}</span>
-                  <span className="relative mt-2 block max-w-[85%] text-body leading-6 text-white/85">{picks[0].reason}</span>
-                  <span className="relative mt-5 inline-flex h-12 items-center gap-2 rounded-full bg-white px-5 text-[16px] font-semibold text-[#141522]">Jetzt atmen <ArrowRight size={18} /></span>
-                </button>
+                <div className="overflow-hidden rounded-[28px] border border-card-line bg-surface">
+                  {/* Bild für sich, Text und Knopf darunter auf der normalen Kachel */}
+                  <button type="button" onClick={() => start(picks[0].exercise.id)} className="relative block aspect-[16/9] w-full" style={{ background: "#262b35" }} aria-label={`${picks[0].exercise.name} starten`}><Photo e={picks[0].exercise} w={900} /></button>
+                  <div className="p-5">
+                    <p className="text-small font-semibold text-muted">Passt am besten</p>
+                    <p className="mt-1 text-[24px] leading-8 font-bold">{picks[0].exercise.name}</p>
+                    <p className="mt-1.5 text-body leading-6 text-soft">{picks[0].reason}</p>
+                    <button type="button" onClick={() => start(picks[0].exercise.id)} className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-full bg-brand-500 text-[17px] font-semibold text-white">Jetzt atmen <ArrowRight size={18} /></button>
+                  </div>
+                </div>
               )}
               <p className="mt-6 mb-1 text-small font-semibold text-muted">Oder eine von diesen</p>
               {picks.slice(1).map((p) => <ExerciseRow key={p.exercise.id} e={p.exercise} sub={p.reason} onClick={() => start(p.exercise.id)} />)}
