@@ -117,8 +117,8 @@ export default function CheckInPage() {
           )}
           {step === "words" && q && (
             <>
-              <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-fg/[0.06] px-3 py-1.5 text-small font-semibold"><span className="h-2.5 w-2.5 rounded-full" style={{ background: QUADRANT[q].color }} />{QUADRANT[q].label} · {QUADRANT[q].sub}</p>
-              <Chips items={EMOTIONS[q].map((e) => e.w)} on={emotions} onToggle={(w) => toggle(emotions, w, setEmotions, 3)} />
+              <p className="mb-6 inline-flex items-center gap-2.5 rounded-full bg-fg/[0.06] px-4 py-2.5 text-small font-semibold"><span className="h-3 w-3 rounded-full" style={{ background: QUADRANT[q].color }} />{QUADRANT[q].label} · {QUADRANT[q].sub}</p>
+              <Chips dot={QUADRANT[q].color} items={EMOTIONS[q].map((e) => e.w)} on={emotions} onToggle={(w) => toggle(emotions, w, setEmotions, 3)} />
             </>
           )}
           {step === "body" && <Chips items={BODY.map((b) => b.label)} on={body.map((id) => BODY.find((b) => b.id === id)!.label)} onToggle={(l) => toggle(body, BODY.find((b) => b.label === l)!.id, setBody, 99, "nichts")} />}
@@ -191,12 +191,12 @@ function Tile({ on, onClick, children }: { on: boolean; onClick: () => void; chi
   );
 }
 
-function Chips({ items, on, onToggle }: { items: string[]; on: string[]; onToggle: (x: string) => void }) {
+function Chips({ items, on, onToggle, dot }: { items: string[]; on: string[]; onToggle: (x: string) => void; dot?: string }) {
   return (
     <div className="flex flex-wrap gap-2.5">
       {items.map((x) => {
         const sel = on.includes(x);
-        return <button key={x} type="button" onClick={() => onToggle(x)} aria-pressed={sel} className={`press inline-flex h-12 items-center gap-2 rounded-full px-5 text-[16px] font-semibold ${sel ? "bg-brand-500 text-white" : "bg-surface shadow-[inset_0_0_0_1px_var(--color-card-line)] hover:bg-surface-2"}`}>{sel && <Check size={16} />}{x}</button>;
+        return <button key={x} type="button" onClick={() => onToggle(x)} aria-pressed={sel} className={`press inline-flex h-12 items-center gap-2 rounded-full px-5 text-[16px] font-semibold ${sel ? "bg-brand-500 text-white" : "bg-surface shadow-[inset_0_0_0_1px_var(--color-card-line)] hover:bg-surface-2"}`}>{sel ? <Check size={16} /> : dot && <span aria-hidden className="h-2.5 w-2.5 rounded-full" style={{ background: dot }} />}{x}</button>;
       })}
     </div>
   );

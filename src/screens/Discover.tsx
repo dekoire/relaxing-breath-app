@@ -4,7 +4,8 @@ import { FlaskConical, Search, X } from "lucide-react";
 import { CATEGORIES, EXERCISES, TAGS, TAG_GROUP_LABEL, search, tagOf, type Category, type TagGroup } from "@/data/exercises";
 import { categoryImage } from "@/data/photos";
 import { ExerciseGrid, LayoutSwitch, LongTile, flatBg } from "@/components/Art";
-import { PageTitle, Pill, Segmented } from "@/components/primitives";
+import { PageTitle, Pill } from "@/components/primitives";
+import { GROUP_ICON, TagMark } from "@/components/TagLook";
 import { usePrefs } from "@/lib/prefs";
 
 /**
@@ -49,9 +50,14 @@ export default function Discover() {
       </div>
 
       <div className="mt-2">
-        <Segmented label="Filter nach" joined value={group} onChange={setGroup} options={(Object.keys(TAG_GROUP_LABEL) as TagGroup[]).map((g) => ({ id: g, label: TAG_GROUP_LABEL[g] }))} />
-        <div className="hscroll mt-3 gap-2 md:flex-wrap">
-          {TAGS.filter((t) => t.group === group).map((t) => <Pill key={t.id} on={tags.includes(t.id)} onClick={() => set({ tags: tags.includes(t.id) ? tags.filter((x) => x !== t.id) : [...tags, t.id] })}>{t.label}</Pill>)}
+        {/* Gruppen als kleine Reiter mit Symbol, darunter EINE Reihe zum Wischen (spart Platz) */}
+        <div role="tablist" aria-label="Filter nach" className="hscroll gap-1.5">
+          {(Object.keys(TAG_GROUP_LABEL) as TagGroup[]).map((g) => { const I = GROUP_ICON[g]; const on = group === g; return (
+            <button key={g} type="button" role="tab" aria-selected={on} onClick={() => setGroup(g)} className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-small font-semibold transition-colors ${on ? "bg-fg text-canvas" : "text-muted hover:text-fg"}`}><I size={15} />{TAG_GROUP_LABEL[g]}</button>
+          ); })}
+        </div>
+        <div className="hscroll mt-2.5 gap-2">
+          {TAGS.filter((t) => t.group === group).map((t) => <Pill key={t.id} on={tags.includes(t.id)} icon={<TagMark id={t.id} group={t.group} />} onClick={() => set({ tags: tags.includes(t.id) ? tags.filter((x) => x !== t.id) : [...tags, t.id] })}>{t.label}</Pill>)}
         </div>
       </div>
 
@@ -59,7 +65,7 @@ export default function Discover() {
         <div className="mt-4 flex flex-wrap items-center gap-2">
           {cat && <Pill on onClick={() => set({ kat: null })}>{CATEGORIES.find((c) => c.id === cat)?.label} <X size={14} /></Pill>}
           {gut && <Pill on onClick={() => set({ gut: false })}>{GUT.label} <X size={14} /></Pill>}
-          {tags.map((t) => <Pill key={t} on onClick={() => set({ tags: tags.filter((x) => x !== t) })}>{tagOf(t)?.label} <X size={14} /></Pill>)}
+          {tags.map((t) => <Pill key={t} on icon={<TagMark id={t} group={tagOf(t)?.group ?? ""} />} onClick={() => set({ tags: tags.filter((x) => x !== t) })}>{tagOf(t)?.label} <X size={14} /></Pill>)}
           <span className="text-small text-muted">{results.length} {results.length === 1 ? "Übung" : "Übungen"}</span>
         </div>
       )}
