@@ -31,7 +31,7 @@
   --color-brand-400: #b3a1ff;
   --color-brand-500: #6d4aff;
   --color-brand-600: #7d5cff;
-  --color-lavender: #24203a;
+  --color-lavender: rgb(255 255 255 / 0.08);
   --color-selected: #ffffff;
   /* Dunkel: Blau-Grau, Karten eine Stufe heller */
   /* Nutzerwunsch: gedecktes Blau-Grau statt Schwarz – nicht zu hell, nicht zu dunkel */
@@ -132,3 +132,8 @@ button:active .mood-face { transform: scale(.9); }
 @media (min-width: 768px) {
   .hscroll { margin-inline: -24px; padding-inline: 24px; scroll-padding-inline: 24px; }
 }
+
+/* Kleine Akzent-Kachel (Nummer, Symbol im Kreis). Nie dunkles Lila auf Lila (im Dunklen kaum lesbar):
+   hell = zartes Lila mit kräftigem Lila, dunkel = helles Glas mit fast weißer, leicht lila Schrift. */
+.accent-chip { background: #f0edff; color: #5b43f5; }
+[data-theme="dark"] .accent-chip { background: rgb(255 255 255 / 0.1); color: #e6dfff; }
