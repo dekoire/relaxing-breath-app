@@ -1,0 +1,263 @@
+/*
+ * Finova Design-Tokens – Quelle: Style.md §16 (+ Anhänge A, B, D).
+ * Gemeinsam genutzt von apps/web (Server/öffentliche Seiten) und apps/client (Desktop-/Mobile-App).
+ * Einbinden NACH `@import "tailwindcss";`.
+ */
+/* Dark-Mode über data-theme (siehe Style.md §12) – nicht über automatische Invertierung */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * Design-Tokens = Style.md §16 (Quelle der Wahrheit). Tailwind-Utilities referenzieren
+ * diese Variablen; [data-theme="dark"] überschreibt sie. Zusätzliche Tokens aus
+ * Style.md Anhang A/D sind als solche kommentiert.
+ */
+@theme {
+  /*
+   * Neutrale Graustufen nach Pinterest Gestalt (gray-roboflow): kein Blaustich, klare Kontraste,
+   * Tiefe über Flächen statt Schatten. Weiß als Grund, Karten mit feinem Rahmen, graue Flächen
+   * für Buttons/Chips (#e9e9e9) und verschachtelte Kacheln (#f1f1f1).
+   */
+  --color-canvas: #ffffff;
+  /* Seitenhintergrund: leicht grau, damit weiße Karten sich abheben (wie im Dunkeln: Grund dunkler als Karten) */
+  --color-page: #f3f4f6;
+  --color-surface: #ffffff;
+  --color-surface-2: #f5f6f8; /* verschachtelte Kacheln – heller, leicht kühl (Wunsch: Grau zu stark auf Weiß) */
+  --color-surface-3: #eef0f3; /* sekundäre Buttons, Chips */
+  --color-date-tile: #e1e4e9; /* Datums-Kachel: dunkler als der Seitengrund, damit sie sich abhebt */
+  --color-line: #f0f1f4; /* Trennlinien */
+  --color-line-strong: #cdcdcd; /* Gestalt gray-300 */
+  --color-card-line: #e6e8ec; /* Kartenrahmen – fein, trägt die Kante */
+  --color-control: #767676; /* Gestalt gray-500 (4,5:1) */
+  --color-fg: #111111; /* Gestalt cosmicore-900 */
+  --color-soft: #4a4a4a; /* Gestalt gray-600 */
+  --color-muted: #767676; /* Gestalt text-subtle */
+
+  --color-brand-300: #8296ff;
+  --color-brand-400: #3155f5; /* Link-/Akzenttext */
+  --color-brand-500: #3155f5; /* = --color-primary · Deep Palette: Royal Blue, aktive Elemente */
+  --color-brand-600: #2849e6; /* = --color-primary-hover */
+  --color-indigo: #5546e8;
+  --color-lavender: #eef0ff;
+  --color-selected: #2849e6; /* Anhang A: --color-selected-text */
+  --color-on-primary: #ffffff;
+
+  --color-positive: #1f9688; /* Icons, Diagramme – = Türkis */
+  --color-positive-text: #157368; /* Text (5,6:1 auf Weiß) */
+  /* Zweite Markenfarbe Türkis: Akzente, Erfolg, „läuft gut“ – neben Blau für Aktionen */
+  --color-teal-50: #e8f5f3;
+  --color-teal-100: #cdebe6;
+  --color-teal-400: #2fae9e;
+  --color-teal-500: #1f9688;
+  --color-teal-600: #177d71;
+  --color-teal-text: #157368;
+  --color-negative: #e3173e; /* kräftiges Rot mit Pink-Stich: drüber, kritisch */
+  --color-negative-text: #cc1238; /* Text (5,4:1) */
+  --color-amber: #b45309; /* Anhang D: "Prüfen"-Hinweise (Text 5,0:1); Status mit Icon + Text */
+  /* Hinweis-Kästen: deckend statt transparent (Wunsch Product Owner) */
+  --color-attention-bg: #fff6e0;
+  --color-attention-border: #fbd38d;
+
+  /*
+   * Finastry Deep Palette – Kategorie-Farben für alle Diagramme und Icons. Bewusst dunkel und
+   * kontrolliert gesättigt, alle in derselben visuellen Intensität; „Sonstiges“ tritt zurück.
+   * Kategorie-Farben sind keine Bedeutungsfarben (Einnahme/Warnung/kritisch stehen separat).
+   */
+  --color-cat-living: #526581; /* Wohnen · Steel Blue */
+  --color-cat-food: #087f5b; /* Lebensmittel · Forest Emerald */
+  --color-cat-restaurants: #be4565; /* Restaurants · Deep Rose */
+  --color-cat-mobility: #0f827c; /* Mobilität · Deep Teal */
+  --color-cat-leisure: #c47a12; /* Freizeit · Burnt Amber */
+  --color-cat-shopping: #2563c7; /* Shopping · Deep Blue */
+  --color-cat-health: #8052b8; /* Gesundheit · Deep Violet */
+  --color-cat-subscriptions: #5546d9; /* Abos · Deep Indigo */
+  --color-cat-insurance: #087da4; /* Versicherungen · Ocean Blue */
+  --color-cat-cash: #be4565; /* Bargeld · Deep Rose (im Donut nie neben Restaurants – die sind Unterkategorie) */
+  --color-cat-other: #94a3b8; /* Sonstiges · Slate Gray */
+
+  /* Bedeutungsfarben und Diagramm-Stil */
+  --color-series-income: #087f5b; /* Einnahmen */
+  --color-series-expense: #111111; /* Ausgaben */
+  --color-warning: #c47a12;
+  --color-grid: #efefef;
+  --color-axis: #767676;
+  --color-tooltip: #111111;
+
+  --font-sans: "Inter Variable", var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Vorgabe Product Owner: Karten 10px (statt 16), Hero/Dialoge 14px,
+     Buttons & Textfelder voll rund, Logos 4px. */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  /* Gestalt rounding: Karten 16px, Dialoge/Panels 24px, Buttons voll rund */
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+
+  /* Gestalt elevation: Karten flach (kein Schatten), nur Schwebendes (Menüs, Panels) hebt sich ab */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-card: none;
+  --shadow-md: 0 0 8px rgba(0, 0, 0, 0.1); /* = elevation-floating */
+  --shadow-lg: 0 2px 16px rgba(0, 0, 0, 0.14);
+}
+
+:root {
+  --gradient-brand: linear-gradient(120deg, #365cff 0%, #5546e8 55%, #8d79f6 100%);
+  /* Kennzahl-Karten (weißer Text geprüft: ≥4,5:1 am hellen Ende) */
+  /* links (Text) ≥ 4,6:1 für Weiß, nach rechts heller statt dunkler */
+  --gradient-positive: linear-gradient(120deg, #177d71 0%, #1f9688 55%, #36b3a2 100%);
+  --gradient-teal: linear-gradient(120deg, #177d71 0%, #1f9688 55%, #36b3a2 100%);
+  /* Türkis → Blau: die beiden Markenfarben zusammen (Abschluss-Bänder, Hervorhebungen) */
+  /* Schwarz als Akzent im hellen Design (z. B. Saldo-Kachel); im Dunklen wird daraus der Blau-Verlauf */
+  --gradient-ink: linear-gradient(125deg, #0b0f19 0%, #1b2130 55%, #2a3245 100%);
+  /* Silber: dezente Kacheln für eigene Ziele */
+  --gradient-silver: linear-gradient(120deg, #f8f9fb 0%, #f1f3f7 55%, #eaedf2 100%);
+  --gradient-duo: linear-gradient(120deg, #1f9688 0%, #2b7fc9 50%, #365cff 100%);
+  --gradient-negative: linear-gradient(120deg, #c4103a 0%, #e3173e 60%, #f0446b 100%);
+  /* Lila für die AI-Sparmöglichkeiten (weißer Text ≥ 4,5:1 am hellen Ende) */
+  --gradient-purple: linear-gradient(120deg, #5530c9 0%, #6438da 55%, #7650e6 100%);
+  /* Blau wie „Finanzcoach für heute“ und „Tipps für dich“ */
+  --gradient-blue: linear-gradient(120deg, #2453d6 0%, #2b5fe6 55%, #3f74f0 100%);
+  /* Bernstein für Kredite/Serien – weißer Text links ≥ 4,5:1 */
+  --gradient-amber: linear-gradient(120deg, #f26a0e 0%, #f7841c 55%, #fb9b2c 100%); /* helles, kräftiges Gelb-Orange, sanfter Verlauf */
+  /* Kleine Kennzahl-Kacheln: dieselben Farben in den hellen Mitteltönen, kaum Verlauf – auf kleiner Fläche wirkt er sonst zu stark */
+  --tile-teal: linear-gradient(120deg, #1f9688 0%, #27a294 100%);
+  --tile-negative: linear-gradient(120deg, #d4143c 0%, #e8305a 100%);
+  --tile-blue: linear-gradient(120deg, #2b5fe6 0%, #3a6cf0 100%);
+  --tile-amber: linear-gradient(120deg, #f37310 0%, #f99027 100%);
+  --tile-ink: linear-gradient(120deg, #1b2130 0%, #262d3d 100%);
+  --tile-contrast: linear-gradient(120deg, #1b2130 0%, #262d3d 100%);
+  /* Neutrale Kachel: im hellen Design schwarz, im dunklen hell (Gegenfarbe zum Hintergrund) */
+  --gradient-contrast: linear-gradient(125deg, #0b0f19 0%, #1b2130 55%, #2a3245 100%);
+  --color-on-contrast: #ffffff;
+  --sidebar-width: 248px;
+  --sidebar-collapsed: 72px;
+  --header-height: 72px;
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
+  --duration-slow: 260ms;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  /* Gestalt dunkel: #111 als Grund, erhöhte Flächen #2b2b2b, neutral ohne Blaustich */
+  --color-canvas: #111111;
+  --color-page: #111111;
+  --color-surface: #191919;
+  --color-surface-2: #242424;
+  --color-surface-3: #2b2b2b;
+  --color-date-tile: #333333;
+  --color-line: #262626;
+  --color-line-strong: #4a4a4a;
+  --color-card-line: #2b2b2b;
+  --color-control: #767676;
+  --color-fg: #ffffff;
+  --color-soft: #cdcdcd;
+  --color-muted: #a5a5a5;
+  --color-brand-300: #a3b0ff;
+  --color-brand-400: #8296ff;
+  --color-brand-500: #4361ff; /* kräftiges Blau für Flächen – Weiß darauf 4,8:1, gegen den Grund 3,9:1 */
+  --color-brand-600: #5a75ff;
+  --color-lavender: #1d2340;
+  --color-selected: #a3b0ff;
+  --color-on-primary: #ffffff;
+  --color-positive: #45c7b5;
+  --color-positive-text: #5fd3c3;
+  --color-teal-50: #10302c;
+  --color-teal-100: #164039;
+  --color-teal-400: #5fd3c3;
+  --color-teal-500: #45c7b5;
+  --color-teal-600: #7adccf;
+  --color-teal-text: #5fd3c3;
+  --color-negative: #ff4d6d;
+  --color-negative-text: #ff7a90;
+  --color-amber: #fbbf24;
+  --color-attention-bg: #33290f;
+  --color-attention-border: #6b5414;
+  /* Deep Palette im Dunkeln: gleiche Töne, heller, damit sie auf dunklen Flächen gleich stark wirken */
+  /* leuchtende Kategoriefarben auf dunklem Grund (wie auf farbigen Kacheln) */
+  --color-cat-living: #60a5fa;
+  --color-cat-food: #34d399;
+  --color-cat-restaurants: #fb7185;
+  --color-cat-mobility: #fbbf24;
+  --color-cat-leisure: #fb923c;
+  --color-cat-shopping: #c084fc;
+  --color-cat-health: #f472b6;
+  --color-cat-subscriptions: #22d3ee;
+  --color-cat-insurance: #818cf8;
+  --color-cat-cash: #f87171;
+  --color-cat-other: #94a3b8;
+  --color-series-income: #2fb589;
+  --color-series-expense: #e5e7eb;
+  --color-warning: #e19a3c;
+  --color-grid: #2b2b2b;
+  --color-axis: #a5a5a5;
+  --color-tooltip: #000000;
+  --shadow-card: none;
+  --shadow-md: 0 0 0 1px #2b2b2b, 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 0 0 1px #2b2b2b, 0 8px 32px rgba(0, 0, 0, 0.6);
+  --gradient-ink: linear-gradient(120deg, #365cff 0%, #5546e8 55%, #8d79f6 100%);
+  --gradient-silver: linear-gradient(120deg, #1f2633 0%, #262e3d 55%, #2e3747 100%);
+  --gradient-contrast: linear-gradient(120deg, #f6f7fa 0%, #e9ecf2 55%, #dde2ea 100%);
+  --color-on-contrast: #0b0f19;
+  --tile-contrast: linear-gradient(120deg, #eef0f4 0%, #e6e9ef 100%);
+  --tile-ink: linear-gradient(120deg, #3157e8 0%, #3a5ff0 100%);
+}
+
+body {
+  @apply bg-canvas text-fg antialiased;
+  font-size: 16px; /* Gestalt font-size-300 */
+  line-height: 24px;
+  font-feature-settings: "cv11";
+}
+
+/* „Beträge verbergen“: alle Geldbeträge (Klasse money) und verborgene Stellen (privacy-dots) zeigen Punkte statt
+   des Betrags – überall gleich. Der Betrag bleibt unsichtbar im Platz, damit nichts springt. */
+[data-privacy="hidden"] .money,
+.privacy-dots {
+  visibility: hidden;
+  position: relative;
+  display: inline-block;
+  user-select: none;
+}
+[data-privacy="hidden"] .money::after,
+.privacy-dots::after {
+  content: "••••";
+  visibility: visible;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  text-align: inherit;
+}
+/* verschachtelt (Private um Money): nur einmal Punkte */
+.privacy-dots .money::after,
+.privacy-dots .privacy-dots::after {
+  content: none;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.bg-hero {
+  background-image: var(--gradient-brand);
+}
+
+/* Fokus: sichtbarer 2px-Ring mit 2px Abstand (§4). data-own-focus: der umgebende Rahmen zeigt den Fokus (z. B. Chat-Eingabe) */
+:where(a, button, input, select, textarea, [tabindex]):not([data-own-focus]):focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+}

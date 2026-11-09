@@ -1,0 +1,43 @@
+/*
+ * U29/U30 (UX-Check Nov. 2026): Notaras eigene Stufen, zusätzlich zu tokens.css (die Kopie aus Finastry bleibt
+ * unverändert). Eingebunden in app.css direkt nach tokens.css (einzige Abweichung von Finastry).
+ *
+ * Rundungen: vier Stufen. tag 6 (Marken, Zeit-Pillen) · tile 10 (Symbol-Kacheln) · card 16 (Karten, Fenster) · full.
+ * Die alten Stufen zeigen auf diese: md = tag, lg/xl = tile, 2xl/3xl = card.
+ *
+ * Schrift: sieben Stufen mit Namen. Nur die Größe (die Zeilenhöhe bleibt, wie sie war).
+ * display 28 Seitentitel · title 20 Detailtitel · heading 16 Kartentitel · body 15 Fließtext und Zeilen ·
+ * small 13,5 Zusatz unter Zeilen · caption 12 Datum, Zähler · label 11 Abschnitt.
+ */
+@theme {
+  --radius-tag: 6px;
+  --radius-tile: 10px;
+  --radius-card: 16px;
+  /* N247: Auswahl-Kacheln in Fragen (Antworten untereinander), Nutzerwunsch 8 px */
+  --radius-choice: 8px;
+  --radius-md: 6px;
+  --radius-xl: 10px;
+  --radius-3xl: 16px;
+
+  /* U27: Zustandsfarben (gleich wie STATE in areaColors.ts), nur als Text oder Punkt */
+  --color-done: #3ee886;
+  --color-soon: #f5b942;
+  --color-late: #ff6b78;
+  --color-info: #6e9bff;
+
+  --text-display: 28px;
+  --text-title: 20px;
+  --text-heading: 16px;
+  --text-body: 15px;
+  --text-small: 13.5px;
+  --text-caption: 12px;
+  --text-label: 11px;
+}
+
+/* N314: Zustandsfarben im hellen Design dunkler, damit sie auf Weiß lesbar sind */
+:root[data-theme="light"] {
+  --color-done: #0f8a46;
+  --color-soon: #a8590a;
+  --color-late: #c8243a;
+  --color-info: #1d4ed8;
+}

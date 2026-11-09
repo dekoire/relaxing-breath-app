@@ -1,0 +1,626 @@
+/* 1:1 aus Notara/Finastry (src/styles/app.css) übernommen – nicht direkt ändern, eigene Farben in brand.css. */
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "./tokens.css";
+@import "./theme.css"; /* Notara: Stufen für Rundung und Schrift (U29/U30) */
+
+/* Platz für die mobile Bottom-Navigation inkl. Safe Area (Style.md §7) */
+:root {
+  --bottom-nav-height: calc(77px + env(safe-area-inset-bottom));
+}
+
+/* App-Gefühl: kein Doppeltipp-Zoom (iOS ignoriert user-scalable=no dafür) */
+html {
+  touch-action: manipulation;
+}
+
+/*
+ * Auswahlfelder: eigener Look statt nativer Darstellung (Safari ignoriert sonst die Rundung).
+ * Pill, Rand und Schatten wie sekundäre Buttons, eigener Pfeil (Style.md Anhang D).
+ */
+@layer base {
+  /* Luft vor Abschnitten mit Überschrift auf allen Seiten: eine Überschrift (oder ein Block, der mit einer
+     beginnt) rückt deutlich vom vorigen Abschnitt ab. Nicht in Zeilen und Rastern (flex/grid), eigene mt-Klassen gewinnen.
+     Ränder untereinander fallen zusammen, es zählt also der größere. */
+  main :is(h2, div, section):not(:first-child):not(.absolute, .fixed):not(:is(.flex, .grid, .inline-flex) > *):is(h2, :has(> h2:first-child), :has(> div:first-child > h2:first-child)) {
+    margin-top: 2.5rem;
+  }
+  @media (min-width: 768px) {
+    main :is(h2, div, section):not(:first-child):not(.absolute, .fixed):not(:is(.flex, .grid, .inline-flex) > *):is(h2, :has(> h2:first-child), :has(> div:first-child > h2:first-child)) {
+      margin-top: 3rem;
+    }
+  }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 9999px;
+    padding-right: 2.5rem !important;
+    background-color: var(--color-surface);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    background-size: 16px;
+    cursor: pointer;
+  }
+}
+
+/*
+ * Nicht gewählte Pills, Tabs und runde Knöpfe: auf der grauen Seite weiß, in einer Kachel, einem Panel oder
+ * Menü grau. So heben sie sich überall ab, ohne dass jede Stelle wissen muss, worauf sie liegt.
+ */
+@utility chip-idle {
+  background-color: var(--color-surface);
+  :where(.bg-surface, .bg-canvas, [role="dialog"], [role="menu"]) & {
+    background-color: var(--color-surface-3);
+  }
+}
+
+/* Strich nur an einer Seite (Akzent links/rechts/oben/unten an einer Kachel): immer eckig, nie gerundet */
+.border-l-2, .border-l-4, .border-r-2, .border-r-4, .border-l-\[3px\], .accent-bar { border-radius: 0 !important; }
+
+/* Seitlich wischbare Leisten (Tabs auf dem Handy) ohne sichtbare Scrollbar */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Detail-Panels (SidePanel): Handy von unten, ab lg von rechts – beim Schließen wieder hinaus */
+@keyframes panel-fade { from { background-color: transparent; } }
+@keyframes panel-fade-out { to { background-color: transparent; } }
+@keyframes panel-up { from { transform: translateY(100%); } }
+@keyframes panel-down { to { transform: translateY(100%); } }
+@keyframes panel-in-right { from { transform: translateX(100%); } }
+@keyframes panel-in-left { from { transform: translateX(-100%); } }
+@keyframes chat-pop { from { opacity: 0; transform: scale(.96); } }
+@keyframes voice-wave { 0%, 100% { transform: scaleY(0.25); } 50% { transform: scaleY(1); } }
+@keyframes panel-out-right { to { transform: translateX(100%); } }
+.panel-backdrop { animation: panel-fade 0.22s ease-out both; }
+.panel-backdrop[data-closing] { animation: panel-fade-out 0.2s ease-in both; }
+.panel-sheet { animation: panel-up 0.34s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.panel-sheet[data-closing] { animation: panel-down 0.2s ease-in both; }
+@media (min-width: 1024px) {
+  .panel-sheet { animation-name: panel-in-right; }
+  .panel-sheet[data-closing] { animation-name: panel-out-right; }
+}
+
+/* Budget übernehmen: Vorschlag blendet aus, neue Karte kommt mit grünem Ring */
+@keyframes budget-leave { to { opacity: 0; transform: scale(0.96); } }
+@keyframes budget-in { from { opacity: 0; transform: translateY(12px); } }
+@keyframes budget-ring { 0%, 60% { box-shadow: 0 0 0 3px var(--color-positive); } 100% { box-shadow: 0 0 0 0 transparent; } }
+.budget-leave { animation: budget-leave 0.2s ease-in both; }
+.budget-arrive { animation: budget-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both, budget-ring 1.6s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .budget-leave { animation: none; }
+  .budget-arrive { animation: budget-ring 1.6s ease-out both; }
+}
+
+/* Übernommen: Haken springt kurz auf und bleibt */
+@keyframes check-pop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(1); } }
+.check-pop { animation: check-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@media (prefers-reduced-motion: reduce) { .check-pop { animation: none; } }
+
+/* App-Dialog (askConfirm): Handy von unten, ab sm leicht aufploppen */
+@keyframes dialog-pop { from { opacity: 0; transform: scale(0.96); } }
+@keyframes dialog-out { to { opacity: 0; transform: scale(0.97); } }
+.dialog-card { animation: panel-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.dialog-card[data-closing] { animation: panel-down 0.16s ease-in both; }
+@media (min-width: 640px) {
+  .dialog-card { animation: dialog-pop 0.18s ease-out both; }
+  .dialog-card[data-closing] { animation: dialog-out 0.14s ease-in both; }
+}
+
+/* Hilfe-Knopf: Fenster ploppt leicht von unten rechts auf */
+@keyframes help-pop { from { opacity: 0; transform: translateY(8px) scale(0.97); } }
+.help-pop { animation: help-pop 0.18s ease-out both; transform-origin: bottom right; }
+@keyframes tip-fade { from { opacity: 0; transform: translateX(8px); } }
+.tip-fade { animation: tip-fade 0.22s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .tip-fade, .help-pop { animation: none; } }
+
+/* Start: Logo blendet sanft ein (nach kurzer Pause, damit es bei schnellem Laden nicht flackert) */
+@keyframes splash-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+.anim-splash { display: inline-block; opacity: 0; animation: splash-in 0.4s ease-out 0.15s forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .anim-splash { animation: none; opacity: 1; }
+}
+
+/* iOS Safari: Datumsfelder haben eine feste Mindestbreite und ragen sonst aus schmalen Spalten heraus */
+input[type="date"] {
+  min-width: 0;
+  max-width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+
+/* Fällige Forderung: Glocke läutet beim ersten Erscheinen kurz */
+@keyframes bell-ring {
+  0%, 100% { transform: rotate(0); }
+  10%, 30%, 50% { transform: rotate(14deg); }
+  20%, 40%, 60% { transform: rotate(-14deg); }
+  70% { transform: rotate(6deg); }
+  80% { transform: rotate(-4deg); }
+}
+.bell-ring { animation: bell-ring 1.2s ease-in-out 0.3s 2 both; transform-origin: 50% 10%; }
+@media (prefers-reduced-motion: reduce) { .bell-ring { animation: none; } }
+
+/* KI-Logo (AiOrb): weißes App-Logo auf grünem Verlauf. data-animate: Verlauf fließt langsam + feiner Lichtstreifen; data-busy: ruhiges Atmen */
+/* KI-Symbol: sauberes Dunkelgrün, weißes Logo – ohne Verlauf und ohne Animation */
+.ai-orb { border-radius: 9999px; background: var(--color-teal-text); }
+:root[data-theme="dark"] .ai-orb { background: #1f9688; }
+/* „denkt nach …“: drei hüpfende Punkte */
+@keyframes typing-dot { 0%, 60%, 100% { transform: translateY(0); opacity: .45; } 30% { transform: translateY(-5px); opacity: 1; } }
+.typing-dot { animation: typing-dot 1.1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .typing-dot { animation: none; opacity: .7; } }
+@keyframes nudge-x { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+.nudge-x { animation: nudge-x 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .nudge-x { animation: none; } }
+
+/* Startseiten-Kachel AI-Chat: heller Grünverlauf (dunkel: tiefes Grün), ohne Schatten */
+/* AI-Chat-Kachel: weiß wie die übrigen Karten; Grün nur im Logo und in den Vorschlägen */
+.chat-tile { background: var(--color-surface); }
+@keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* Kachelreihen am Handy: nebeneinander zum Wischen statt untereinander (Klasse „swipe-row“ auf dem Raster) */
+@media (max-width: 639.98px) {
+  .swipe-row {
+    display: flex !important;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .swipe-row::-webkit-scrollbar { display: none; }
+  /* mehr Luft zwischen den Bereichen einer Seite */
+  :is(main, .page-in) > :is(.mb-4, .mb-5, .mb-6) { margin-bottom: 1.75rem; }
+  :is(main, .page-in) > .mb-8 { margin-bottom: 2.25rem; }
+  .swipe-row > * {
+    flex: 0 0 80%;
+    min-height: 118px;
+    scroll-snap-align: start;
+  }
+  /* große Karten (z. B. Coach und Tipps): breiter, nur ein Stück der nächsten schaut heraus */
+  .swipe-row.swipe-wide > * { flex-basis: 90%; }
+  /* eine Karte füllt die Breite, Punkte darunter zeigen die weiteren */
+  .swipe-row.swipe-full > * { flex-basis: 100%; min-width: 0; }
+  /* Zwischen-Behälter (z. B. Kopfkacheln, Coach + Tipps) lösen sich auf: ihre Karten werden selbst Teil der Reihe */
+  .swipe-row .swipe-pass { display: contents; }
+  /* gleiche Größe für alle Karten einer Reihe – auch die aus Zwischen-Behältern */
+  .swipe-row .swipe-pass > * { flex: 0 0 80%; min-width: 0; scroll-snap-align: start; }
+  .swipe-row.swipe-wide .swipe-pass > * { flex-basis: 90%; }
+  .swipe-row.swipe-full .swipe-pass > * { flex-basis: 100%; }
+}
+
+/* Handy: alles gleichmäßig etwas kleiner (Schrift, Abstände, Symbole) – Tablet und Desktop bleiben */
+@media (max-width: 767.98px) {
+  #root { zoom: 0.9; }
+  /* Metall-Ring (metal-fx) misst den Knopf nach dem Zoom und zeichnet dann noch einmal gezoomt → Ring schief/abgeschnitten.
+     Darum den Zoom für den Ring aufheben und nur den Knopf darin wieder verkleinern – gleiche Größe, Ring sitzt genau. */
+  #root .metal-fx-root { zoom: calc(1 / 0.9); }
+  #root .metal-fx-root > .metal-fx-content { zoom: 0.9; }
+  /* durch den Zoom ist min-h-screen etwas kürzer: darunter dieselbe Seitenfarbe statt eines hellen Streifens */
+  /* auch hinter der Statusleiste grau (gleich wie Kopfleiste und Seite) */
+  html, body { background-color: var(--color-page); }
+}
+
+/* Startseite bearbeiten: Kacheln wackeln leicht (wie auf dem Handy-Homescreen) */
+@keyframes tile-wiggle { 0%, 100% { transform: rotate(-0.35deg); } 50% { transform: rotate(0.35deg); } }
+.tile-wiggle { animation: tile-wiggle 0.32s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .tile-wiggle { animation: none; } }
+/* beim Anpassen der Startseite stört das Schnellmenü die Leiste unten */
+body:has([data-tile-editing]) .fab-root { display: none; }
+@keyframes nav-pop { 0% { transform: scale(.8); } 55% { transform: scale(1.14) translateY(-2px); } 100% { transform: none; } }
+@keyframes fab-in { from { opacity: 0; transform: translateY(12px) scale(.9); } }
+
+/* Auswahlknöpfe auf farbiger Fläche (z. B. Berichte-Kopf): durchsichtig, weißer Rahmen, weiße Schrift – nicht in aufgeklappten Menüs */
+.oncolor button[aria-expanded]:not([role="dialog"] button, [role="listbox"] button, [role="menu"] button, .fixed button) {
+  background: transparent !important;
+  border: 1px solid rgb(255 255 255 / 0.7) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+.oncolor button[aria-expanded]:not([role="dialog"] button, [role="listbox"] button, [role="menu"] button, .fixed button):hover { background: rgb(255 255 255 / 0.1) !important; }
+.oncolor button[aria-expanded]:not([role="dialog"] button, [role="listbox"] button, [role="menu"] button, .fixed button) * { color: inherit !important; }
+
+/* Grafiken und Tabellen direkt auf einer farbigen Fläche (Buchungen blau, Kontostand grün …):
+   Achsen, Linien und Schrift weiß, Balken und Linien in hellen, kräftigen Farben – gleich im hellen und dunklen Design */
+.on-color {
+  /* Zahl auf einer Fläche in --color-brand-500 (hier weiß), z. B. Abbuchungskalender: dunkel statt weiß auf weiß */
+  --cal-ink: #0b1f2a;
+  --color-fg: #ffffff;
+  --color-soft: rgb(255 255 255 / 0.88);
+  --color-muted: rgb(255 255 255 / 0.72);
+  --color-axis: rgb(255 255 255 / 0.72);
+  --color-grid: rgb(255 255 255 / 0.16);
+  --color-line: rgb(255 255 255 / 0.18);
+  --color-line-strong: rgb(255 255 255 / 0.45);
+  --color-card-line: rgb(255 255 255 / 0.3);
+  --color-surface: rgb(255 255 255 / 0.1);
+  --color-surface-2: rgb(255 255 255 / 0.12);
+  --color-surface-3: rgb(255 255 255 / 0.18);
+  --color-series-income: #5fe0c4;
+  --color-series-expense: #ff9aa6;
+  --color-teal-100: rgb(95 224 196 / 0.3);
+  --color-teal-400: #5fe0c4;
+  --color-teal-500: #5fe0c4;
+  --color-teal-text: #5fe0c4;
+  --color-positive: #5fe0c4;
+  --color-positive-text: #5fe0c4;
+  --color-negative: #ff9aa6;
+  --color-negative-text: #ff9aa6;
+  --color-brand-500: #ffffff;
+  --color-amber: #ffd08a;
+  --color-selected: #ffffff;
+  --color-lavender: rgb(255 255 255 / 0.15);
+  color: #ffffff;
+}
+/* Kategoriefarben in Grafiken und Symbolen auf farbigen Kacheln: leuchtend und harmonisch (die Kachel selbst behält ihre Farbe) */
+.on-color * {
+  --color-cat-living: #60a5fa; --color-cat-food: #34d399; --color-cat-restaurants: #fb7185; --color-cat-mobility: #fbbf24;
+  --color-cat-leisure: #fb923c; --color-cat-shopping: #c084fc; --color-cat-health: #f472b6; --color-cat-subscriptions: #22d3ee;
+  --color-cat-insurance: #818cf8; --color-cat-cash: #f87171; --color-cat-other: #94a3b8;
+}
+/* Menüs, Listen und Panels, die innerhalb einer solchen Fläche aufgehen, bleiben normal (weiß bzw. dunkel) */
+:root {
+  --oc-fg: var(--color-fg); --oc-soft: var(--color-soft); --oc-muted: var(--color-muted); --oc-line: var(--color-line);
+  --oc-card-line: var(--color-card-line); --oc-surface: var(--color-surface); --oc-surface-2: var(--color-surface-2); --oc-surface-3: var(--color-surface-3);
+  --oc-brand-500: var(--color-brand-500); --oc-selected: var(--color-selected); --oc-lavender: var(--color-lavender);
+  --oc-positive: var(--color-positive); --oc-positive-text: var(--color-positive-text); --oc-negative: var(--color-negative); --oc-negative-text: var(--color-negative-text);
+  --oc-teal-500: var(--color-teal-500); --oc-teal-text: var(--color-teal-text); --oc-amber: var(--color-amber);
+  --oc-cat-living: var(--color-cat-living); --oc-cat-food: var(--color-cat-food); --oc-cat-restaurants: var(--color-cat-restaurants); --oc-cat-mobility: var(--color-cat-mobility); --oc-cat-leisure: var(--color-cat-leisure); --oc-cat-shopping: var(--color-cat-shopping); --oc-cat-health: var(--color-cat-health); --oc-cat-subscriptions: var(--color-cat-subscriptions); --oc-cat-insurance: var(--color-cat-insurance); --oc-cat-cash: var(--color-cat-cash); --oc-cat-other: var(--color-cat-other);
+}
+.on-color :is([role="listbox"], [role="menu"], [role="dialog"], .fixed, .oc-reset) {
+  --color-fg: var(--oc-fg); --color-soft: var(--oc-soft); --color-muted: var(--oc-muted); --color-line: var(--oc-line);
+  --color-card-line: var(--oc-card-line); --color-surface: var(--oc-surface); --color-surface-2: var(--oc-surface-2); --color-surface-3: var(--oc-surface-3);
+  --color-brand-500: var(--oc-brand-500); --color-selected: var(--oc-selected); --color-lavender: var(--oc-lavender);
+  --color-positive: var(--oc-positive); --color-positive-text: var(--oc-positive-text); --color-negative: var(--oc-negative); --color-negative-text: var(--oc-negative-text);
+  --color-teal-500: var(--oc-teal-500); --color-teal-text: var(--oc-teal-text); --color-amber: var(--oc-amber);
+  color: var(--oc-fg);
+}
+/* … und darin die normalen Kategoriefarben */
+.on-color :is([role="listbox"], [role="menu"], [role="dialog"], .fixed, .oc-reset), .on-color :is([role="listbox"], [role="menu"], [role="dialog"], .fixed, .oc-reset) * {
+  --color-cat-living: var(--oc-cat-living); --color-cat-food: var(--oc-cat-food); --color-cat-restaurants: var(--oc-cat-restaurants); --color-cat-mobility: var(--oc-cat-mobility); --color-cat-leisure: var(--oc-cat-leisure); --color-cat-shopping: var(--oc-cat-shopping); --color-cat-health: var(--oc-cat-health); --color-cat-subscriptions: var(--oc-cat-subscriptions); --color-cat-insurance: var(--oc-cat-insurance); --color-cat-cash: var(--oc-cat-cash); --color-cat-other: var(--oc-cat-other);
+}
+
+/* Vorgemerkte Buchungen: Schrift, Beträge und Symbole blau */
+.pending-blue {
+  --color-fg: var(--color-selected);
+  --color-soft: color-mix(in srgb, var(--color-selected) 85%, transparent);
+  --color-muted: color-mix(in srgb, var(--color-selected) 70%, transparent);
+  --color-positive-text: var(--color-selected);
+  --color-negative-text: var(--color-selected);
+  color: var(--color-selected);
+}
+.pending-blue .cat-icon { color: var(--color-selected) !important; background: color-mix(in srgb, var(--color-selected) 10%, transparent) !important; }
+
+/* Infoboxen an Diagrammen: schwarz mit Weichzeichner dahinter, überall gleich – auch auf farbigen Karten.
+   Farben im Inneren auf Dunkel umgestellt, damit „muted“, Rot und Grün lesbar bleiben. */
+.chart-tip {
+  background: rgb(12 12 14 / 0.8);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  color: #fff;
+  --color-fg: #ffffff;
+  --color-soft: rgb(255 255 255 / 0.8);
+  --color-muted: rgb(255 255 255 / 0.62);
+  --color-negative-text: #ff9aa6;
+  --color-positive-text: #5fe0c4;
+  --color-teal-text: #5fe0c4;
+  --color-line: rgb(255 255 255 / 0.14);
+}
+
+/* Balken auf hellen Flächen: leichter Verlauf (auf farbigen Kacheln bleiben Balken einfarbig) */
+.bar-pos { background-image: linear-gradient(90deg, #0f9d84, #34d3b2); }
+.bar-neg { background-image: linear-gradient(90deg, #c4103a, #ff5c7a); }
+.bar-amber { background-image: linear-gradient(90deg, #d98a00, #fbbf24); }
+.bar-brand { background-image: linear-gradient(90deg, #2453d6, #3a78f2); }
+
+/* Listenzeilen auf weißen Kacheln (Nächste Zahlungen, Offene Punkte): weicher Schatten; im dunklen Design ohne */
+.row-lift {
+  box-shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 6px 16px -6px rgb(16 24 40 / 0.14);
+}
+[data-theme="dark"] .row-lift {
+  box-shadow: none;
+}
+
+/* Kalender-Tage (Tageslimit): grau mit leichtem Silber-Verlauf – vergangene etwas dunkler, kommende heller; gewählter Tag blau */
+.day-past { background-image: linear-gradient(160deg, #f1f3f6 0%, #e2e5ea 100%); }
+.day-future { background-image: linear-gradient(160deg, #fafbfc 0%, #f3f4f7 100%); }
+.day-sel { background-image: linear-gradient(150deg, #2453d6 0%, #4f80ff 100%); }
+[data-theme="dark"] .day-past { background-image: linear-gradient(160deg, #2a2c31 0%, #222429 100%); }
+[data-theme="dark"] .day-future { background-image: linear-gradient(160deg, #1c1d21 0%, #18191c 100%); }
+
+/* Chat im Stil eines Fensters (wie z.ai): graue Fläche mit Gesprächsleiste, das Gespräch als weißes Fenster mit Rahmen */
+.chat-shell { background: #f7f7f8; }
+.chat-win { background: var(--color-surface); border: 1px solid #e8e8ea; border-radius: 16px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.04); overflow: hidden; }
+.chat-box { border-color: #e4e4e7; box-shadow: 0 4px 24px -6px rgb(0 0 0 / 0.08), 0 1px 3px rgb(0 0 0 / 0.04); }
+.chat-active { background: rgb(0 0 0 / 0.06); }
+.chat-hover:hover { background: rgb(0 0 0 / 0.04); }
+[data-theme="dark"] .chat-shell { background: #111113; }
+[data-theme="dark"] .chat-win { border-color: #2a2a2e; box-shadow: none; }
+[data-theme="dark"] .chat-box { border-color: #2f2f33; box-shadow: none; }
+[data-theme="dark"] .chat-active { background: rgb(255 255 255 / 0.08); }
+[data-theme="dark"] .chat-hover:hover { background: rgb(255 255 255 / 0.05); }
+/* Lade-Logo im Chat: springt leicht */
+@keyframes typing-hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-6px); } 60% { transform: translateY(0); } 75% { transform: translateY(-2px); } }
+.typing-hop { animation: typing-hop 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .typing-hop { animation: none; } }
+
+/* ================= Bewegung (siehe lib/motion.tsx) =================
+   Nur transform/opacity/clip-path – läuft flüssig auch auf älteren Handys. Bei „Bewegung reduzieren“ aus. */
+:root { --ease-out: cubic-bezier(0.22, 1, 0.36, 1); --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1); }
+
+/* --- Seitenwechsel (View Transitions): nur während des Wechsels benannt, sonst keine Nebenwirkungen --- */
+html.vt-nav .vt-page { view-transition-name: page; }
+html.vt-nav .vt-topbar { view-transition-name: topbar; }
+html.vt-nav .vt-bottomnav { view-transition-name: bottomnav; }
+html.vt-nav .vt-sidebar { view-transition-name: sidebar; }
+html.vt-nav .fab-root { view-transition-name: fab; }
+/* Kopf, Tab-Leiste und Seitenleiste stehen still (die Tab-Leiste animiert ihre Markierung selbst) */
+::view-transition-group(topbar), ::view-transition-group(bottomnav), ::view-transition-group(sidebar), ::view-transition-group(fab), ::view-transition-group(page) { animation: none; }
+::view-transition-old(topbar), ::view-transition-old(bottomnav), ::view-transition-old(sidebar), ::view-transition-old(fab) { display: none; }
+::view-transition-new(topbar), ::view-transition-new(bottomnav), ::view-transition-new(sidebar), ::view-transition-new(fab) { animation: none; }
+::view-transition-group(root) { animation-duration: 0.25s; }
+::view-transition-old(page) { animation: vt-fade-out 0.16s ease-in both; }
+::view-transition-new(page) { animation: vt-rise 0.34s var(--ease-out) both; }
+html[data-nav-dir="forward"]::view-transition-old(page) { animation: vt-out-left 0.3s var(--ease-out) both; }
+html[data-nav-dir="forward"]::view-transition-new(page) { animation: vt-in-right 0.36s var(--ease-out) both; }
+html[data-nav-dir="back"]::view-transition-old(page) { animation: vt-out-right 0.3s var(--ease-out) both; }
+html[data-nav-dir="back"]::view-transition-new(page) { animation: vt-in-left 0.36s var(--ease-out) both; }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-rise { from { opacity: 0; transform: translateY(10px); } }
+@keyframes vt-out-left { to { opacity: 0; transform: translateX(-14%); } }
+@keyframes vt-in-right { from { opacity: 0; transform: translateX(22%); } }
+@keyframes vt-out-right { to { opacity: 0; transform: translateX(14%); } }
+@keyframes vt-in-left { from { opacity: 0; transform: translateX(-22%); } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
+/* --- Seitenabschnitte blenden gestaffelt ein (auch was später nachlädt). Abschnitte mit fest positionierten
+   Elementen bleiben unbewegt, weil ein transform deren Bezugsrahmen verschieben würde. Ein KI-Licht ([data-beam],
+   src/components/Fx.tsx) auch nicht: seine eigene Animation trägt das Licht, rise-in würde sie überschreiben. --- */
+@keyframes rise-in { from { opacity: 0; transform: translateY(12px); } }
+:is(.page-in > :not(:only-child), .page-in > :only-child > *, .stagger-kids > *):not(:has(.fixed, [class*=":fixed"])):not(.fixed):not([data-beam]) {
+  animation: rise-in 0.45s var(--ease-out) backwards;
+}
+:is(.page-in > *, .page-in > :only-child > *, .stagger-kids > *):nth-child(2) { animation-delay: 40ms; }
+:is(.page-in > *, .page-in > :only-child > *, .stagger-kids > *):nth-child(3) { animation-delay: 80ms; }
+:is(.page-in > *, .page-in > :only-child > *, .stagger-kids > *):nth-child(4) { animation-delay: 120ms; }
+:is(.page-in > *, .page-in > :only-child > *, .stagger-kids > *):nth-child(5) { animation-delay: 160ms; }
+:is(.page-in > *, .page-in > :only-child > *, .stagger-kids > *):nth-child(6) { animation-delay: 200ms; }
+:is(.page-in > *, .page-in > :only-child > *, .stagger-kids > *):nth-child(n + 7) { animation-delay: 240ms; }
+.page-in { display: contents; }
+
+/* --- Buchungszeilen: die ersten Zeilen je Tag blenden nacheinander ein (auch nach Filterwechsel) --- */
+@keyframes row-in { from { opacity: 0; transform: translateY(6px); } }
+.tx-rows > :nth-child(-n + 8) { animation: row-in 0.35s var(--ease-out) backwards; }
+.tx-rows > :nth-child(2) { animation-delay: 30ms; }
+.tx-rows > :nth-child(3) { animation-delay: 60ms; }
+.tx-rows > :nth-child(4) { animation-delay: 90ms; }
+.tx-rows > :nth-child(5) { animation-delay: 120ms; }
+.tx-rows > :nth-child(n + 6) { animation-delay: 150ms; }
+
+/* --- Aufklappen: Inhalt direkt nach einem aufgeklappten Knopf fährt von oben auf (clip statt transform,
+   damit Menüs mit fester Position nicht springen) --- */
+@keyframes unfold { from { opacity: 0; clip-path: inset(0 -24px 100% -24px); } to { opacity: 1; clip-path: inset(-24px -24px -24px -24px); } }
+:is(button, [role="button"])[aria-expanded="true"] + :not(button, [role="button"], svg) { animation: unfold 0.32s var(--ease-out); }
+
+/* --- Balken wachsen beim Erscheinen: Fortschrittsbalken von links, Säulen von unten --- */
+@keyframes fill-x { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes fill-y { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+.overflow-hidden.rounded-full > .h-full[style*="width"], .bar-pos, .grow-x { animation: fill-x 0.7s var(--ease-out) 0.12s backwards; }
+div[data-bar], .grow-y { animation: fill-y 0.6s var(--ease-out) backwards; }
+:nth-child(2) > div[data-bar], .grow-y:nth-child(2), :nth-child(2) > .grow-y { animation-delay: 50ms; }
+:nth-child(3) > div[data-bar], :nth-child(3) > .grow-y { animation-delay: 100ms; }
+:nth-child(4) > div[data-bar], :nth-child(4) > .grow-y { animation-delay: 150ms; }
+:nth-child(5) > div[data-bar], :nth-child(5) > .grow-y { animation-delay: 200ms; }
+:nth-child(n + 6) > div[data-bar], :nth-child(n + 6) > .grow-y { animation-delay: 250ms; }
+/* Kreisdiagramm dreht sich beim Erscheinen auf */
+@keyframes donut-in { from { opacity: 0; transform: rotate(-60deg) scale(0.86); } }
+.donut-in { animation: donut-in 0.7s var(--ease-out) both; transform-origin: center; }
+
+/* --- Tabs: die Markierung gleitet zum gewählten Tab (primitives.tsx, Segmented) --- */
+.seg-thumb { transition: transform 0.36s var(--ease-spring), width 0.36s var(--ease-spring); }
+
+/* --- Ladeflächen: sanfter Glanz statt Blinken --- */
+@keyframes shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+.skeleton-shimmer {
+  background: linear-gradient(100deg, var(--color-surface-2) 30%, var(--color-surface-3) 50%, var(--color-surface-2) 70%) 0 0 / 200% 100%;
+  animation: shimmer 1.3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-in > *, .page-in > :only-child > *, .stagger-kids > *, .tx-rows > *, :is(button, [role="button"])[aria-expanded="true"] + *, .donut-in, div[data-bar], .grow-x, .grow-y, .bar-pos, .skeleton-shimmer { animation: none !important; }
+}
+
+/* Tastatur offen (lib/keyboard.tsx): Tab-Leiste und Plus-Knopf weg, der Chat füllt den sichtbaren Bereich bis zur Tastatur */
+@media (max-width: 767.98px) {
+  html[data-keyboard] .vt-bottomnav, html[data-keyboard] .fab-root { display: none; }
+  html[data-keyboard] .chat-mobile { top: var(--vv-top, 0px); bottom: auto; height: var(--vv-height, 100%); }
+}
+
+/* Pop-up „Mitteilungen erlauben“ (components/PushPrompt.tsx): Glocke schwingt, Wellen breiten sich aus, Beispiele schweben */
+.push-hero { background: radial-gradient(120% 90% at 50% 0%, #4f7bff 0%, #2b5fe6 45%, #1d3fb8 100%); }
+@keyframes push-swing { 0%, 55%, 100% { transform: rotate(0); } 60% { transform: rotate(16deg); } 66% { transform: rotate(-14deg); } 72% { transform: rotate(10deg); } 78% { transform: rotate(-6deg); } 84% { transform: rotate(3deg); } }
+.push-bell { animation: push-swing 2.6s ease-in-out 0.4s infinite; transform-origin: 50% 8%; }
+@keyframes push-dot { 0%, 55% { transform: scale(0); } 62% { transform: scale(1.25); } 70%, 100% { transform: scale(1); } }
+.push-dot { animation: push-dot 2.6s ease-out 0.4s infinite; }
+@keyframes push-wave { from { scale: 0.8; opacity: 0.8; } to { scale: 2.3; opacity: 0; } }
+.push-wave { animation: push-wave 2.2s ease-out infinite; }
+@keyframes push-float { from { translate: 0 0; } to { translate: 0 -6px; } }
+@keyframes push-in-l { from { opacity: 0; transform: translateX(-30px) rotate(-3deg); } }
+@keyframes push-in-r { from { opacity: 0; transform: translateX(30px) rotate(2deg); } }
+.push-float-a { animation: push-in-l 0.6s var(--ease-out) 0.25s both, push-float 3.2s ease-in-out 0.9s infinite alternate; }
+.push-float-b { animation: push-in-r 0.6s var(--ease-out) 0.55s both, push-float 3.6s ease-in-out 1.2s infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .push-bell, .push-dot, .push-wave, .push-float-a, .push-float-b { animation: none; } }
+
+/* Buchungsdetail (Handy wie Desktop): Knöpfe und Auswahlfelder füllen die Zeile (zwei nebeneinander teilen sie sich) */
+.detail-fill > *,
+.detail-fill > div.relative,
+.detail-fill > * > div.relative,
+.detail-fill > button,
+.detail-fill > * > button,
+.detail-fill > div.relative > button,
+.detail-fill > * > div.relative > button { width: 100%; max-width: 100%; }
+.detail-fill > span.flex-col { align-items: stretch; }
+.detail-fill > span.flex-wrap > div.relative { flex-basis: 100%; }
+.detail-fill button:not(.border):not([role="option"]):not([role="menuitem"]) { justify-content: center; }
+
+/* Chat denkt: Text mit wanderndem Schimmer */
+@keyframes text-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.text-shimmer {
+  background: linear-gradient(90deg, var(--color-muted) 0%, var(--color-muted) 35%, var(--color-fg) 50%, var(--color-muted) 65%, var(--color-muted) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: text-shimmer 1.8s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) { .text-shimmer { animation: none; color: var(--color-muted); background: none; } }
+
+/* Tageswechsel in „Letzte Ausgaben“: neuer Tag blendet kurz ein */
+@keyframes page-swap { from { opacity: 0; transform: translateY(6px); } }
+.page-swap { animation: page-swap 0.28s var(--ease-out); }
+@media (prefers-reduced-motion: reduce) { .page-swap { animation: none; } }
+
+/* ---------- Kachel-Varianten (Startseite anpassen): jede Kachel hell oder farbig ----------
+   „hell“ macht eine farbige Kachel weiß: Fläche, Schrift und durchscheinende Weißtöne werden zu den normalen Farben.
+   „farbig“ legt eine helle Kachel auf einen Verlauf: `on-color` färbt Flächen und Schrift weiß-durchscheinend. */
+.tile-light [data-tile-surface] {
+  background: var(--color-surface) !important;
+  color: var(--color-fg);
+  border: 1px solid var(--color-card-line);
+  box-shadow: var(--shadow-card);
+}
+.tile-light [data-tile-surface] :is(.text-white, .text-white\/95, .text-white\/90) { color: var(--color-fg); }
+.tile-light [data-tile-surface] :is(.text-white\/85, .text-white\/80) { color: var(--color-soft); }
+.tile-light [data-tile-surface] :is(.text-white\/75, .text-white\/70, .text-white\/60) { color: var(--color-muted); }
+.tile-light [data-tile-surface] :is(.bg-white\/10, .bg-white\/12, .bg-white\/15) { background-color: var(--color-surface-2); }
+.tile-light [data-tile-surface] :is(.bg-white\/20, .bg-white\/25, .bg-white\/35) { background-color: var(--color-surface-3); }
+.tile-light [data-tile-surface] :is(.border-white\/15, .border-white\/20, .border-white\/25, .border-white\/45, .border-white\/60, .border-white\/70) { border-color: var(--color-card-line); }
+.tile-light [data-tile-surface] :is(.divide-white\/15, .divide-white\/20) > :not(:last-child) { border-color: var(--color-line); }
+.tile-light [data-tile-surface] :is(.ring-white\/15, .ring-white\/35, .ring-white\/40, .ring-white\/70) { --tw-ring-color: var(--color-card-line); }
+/* weiße Pillen und Logo-Kacheln: auf Weiß mit feinem Rand */
+.tile-light [data-tile-surface] .bg-white:not(.h-full) { box-shadow: inset 0 0 0 1px var(--color-card-line); }
+/* weiße Balkenfüllung: auf Weiß dunkel */
+.tile-light [data-tile-surface] .h-full.bg-white { background-color: var(--color-fg); }
+.tile-light [data-tile-surface] .text-\[\#ff9aa6\] { color: var(--color-negative-text); }
+.tile-light [data-tile-surface] :is(.text-\[\#5fe0c4\]) { color: var(--color-positive-text); }
+/* Grafiken auf durchscheinender Fläche: wieder die normalen Farben */
+.tile-light [data-tile-surface] :is(.on-color, .oncolor) {
+  --color-fg: var(--oc-fg); --color-soft: var(--oc-soft); --color-muted: var(--oc-muted); --color-line: var(--oc-line);
+  --color-card-line: var(--oc-card-line); --color-surface: var(--oc-surface); --color-surface-2: var(--oc-surface-2); --color-surface-3: var(--oc-surface-3);
+  --color-brand-500: var(--oc-brand-500); --color-selected: var(--oc-selected); --color-lavender: var(--oc-lavender);
+  --color-positive: var(--oc-positive); --color-positive-text: var(--oc-positive-text); --color-negative: var(--oc-negative); --color-negative-text: var(--oc-negative-text);
+  --color-teal-500: var(--oc-teal-500); --color-teal-text: var(--oc-teal-text); --color-amber: var(--oc-amber);
+  --cal-ink: #ffffff;
+  color: var(--oc-fg);
+}
+.tile-light [data-tile-surface] .on-color { background-color: var(--color-surface-2); }
+/* Auswahlfelder, die auf Farbe weiß-umrandet sind: auf Weiß wie überall */
+.tile-light [data-tile-surface] .oncolor button[aria-expanded]:not([role="dialog"] button, [role="listbox"] button, [role="menu"] button, .fixed button) {
+  border-color: var(--color-card-line) !important; color: var(--color-fg) !important; background: var(--color-surface) !important;
+}
+.tile-light [data-tile-surface] :is(.on-color, .oncolor) * {
+  --color-cat-living: var(--oc-cat-living); --color-cat-food: var(--oc-cat-food); --color-cat-restaurants: var(--oc-cat-restaurants); --color-cat-mobility: var(--oc-cat-mobility); --color-cat-leisure: var(--oc-cat-leisure); --color-cat-shopping: var(--oc-cat-shopping); --color-cat-health: var(--oc-cat-health); --color-cat-subscriptions: var(--oc-cat-subscriptions); --color-cat-insurance: var(--oc-cat-insurance); --color-cat-cash: var(--oc-cat-cash); --color-cat-other: var(--oc-cat-other);
+}
+
+/* „farbig“: die helle Kachel liegt auf dem Verlauf, ihre eigene Fläche wird durchscheinend */
+.tile-color { border-radius: 1.5rem; box-shadow: var(--shadow-md, 0 4px 16px rgb(16 24 40 / .12)); color: #fff; }
+.tile-color section.rounded-3xl { border-color: transparent !important; box-shadow: none !important; background-color: transparent !important; }
+
+/* ---------- Bewegung auf der Startseite ----------
+   Kacheln erscheinen nacheinander von unten; verschieben, Größe und Variante gleiten (FLIP in HomeLayout). */
+@keyframes tile-in { from { opacity: 0; transform: translateY(14px) scale(.985); } }
+.tile-in { animation: tile-in .5s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes editor-in { from { opacity: 0; transform: translateY(18px) scale(.98); } }
+.editor-in { animation: editor-in .32s cubic-bezier(.22, 1, .36, 1) both; }
+.editor-in[data-closing] { animation: dialog-out .16s ease-in both; }
+@keyframes pop-in { 0% { transform: scale(.92); opacity: 0; } 60% { transform: scale(1.03); opacity: 1; } 100% { transform: none; } }
+.pop-in { animation: pop-in .35s cubic-bezier(.22, 1, .36, 1) both; }
+@media (prefers-reduced-motion: reduce) { .tile-in, .editor-in, .pop-in { animation: none; } }
+/* weiße Kästchen (Datum, Symbole) in einer farbig gezeigten hellen Kachel: Inhalt dunkel */
+.tile-color .bg-white { --color-fg: #0b0f19; --color-soft: #374151; --color-muted: #6b7280; --color-selected: #2453d6; color: #0b0f19; }
+/* Kurven zeichnen sich beim Erscheinen von links nach rechts */
+@keyframes draw-line { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.draw-line { stroke-dasharray: 1; animation: draw-line .9s cubic-bezier(.22, 1, .36, 1) both; }
+@media (prefers-reduced-motion: reduce) { .draw-line { animation: none; } }
+/* eigene Farbe für eine farbige Kachel (Startseite anpassen) */
+.tile-recolor [data-tile-surface] { background-image: var(--tile-bg) !important; background-color: transparent !important; }
+/* weiße Box auf farbiger Kachel (z. B. Finanzstatus): auch im Dunkel-Design weiß mit dunkler Schrift;
+   in der hellen Variante einer Kachel folgt sie wieder dem Design */
+.force-light:not(.tile-light .force-light) {
+  --color-fg: #111111; --color-soft: #4a4a4a; --color-muted: #767676; --color-line: #e5e7eb;
+  --color-positive-text: #157368; --color-negative-text: #cc1238;
+  color: var(--color-fg);
+}
+.tile-light [data-tile-surface] .force-light { background-color: var(--color-surface-2) !important; box-shadow: none !important; }
+/* falsche PIN: kurzes Schütteln */
+@keyframes pin-shake { 0%, 100% { transform: none; } 20% { transform: translateX(-8px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
+.pin-shake { animation: pin-shake .4s ease-in-out; }
+@media (prefers-reduced-motion: reduce) { .pin-shake { animation: none; } }
+
+/* eigenes Neuladen per Herunterziehen (PullToRefresh) statt des Browser-Neuladens */
+
+/* Assistent: kreisender Lichtrand innen an der Kante der Kachel – ohne Bewegung bei „weniger Bewegung“ */
+@property --beam-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.ai-beam::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 2px;
+  pointer-events: none;
+  background: conic-gradient(from var(--beam-angle), transparent 0deg 240deg, rgba(120, 146, 255, 0.9) 295deg, rgba(167, 139, 250, 0.95) 330deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: ai-beam-spin 4s linear infinite;
+}
+@keyframes ai-beam-spin { to { --beam-angle: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .ai-beam::before { animation: none; } }
+
+/* kein Neuladen-Kreis des Browsers (mit Pfeil) – Finastry hat seinen eigenen (PullToRefresh) */
+html { overscroll-behavior-y: contain; }
+
+/* Blaue Knöpfe schweben: leuchtend blauer Schatten (nur blau – schwarze und weiße Knöpfe ohne); nicht im Menü und nicht in Umschaltern */
+:is(button, a):is(.bg-brand-500, .bg-brand-600, .bg-primary):not(nav *):not([aria-pressed]):not([aria-current]):not(:disabled):not([class*="bg-fg"]) {
+  box-shadow: 0 6px 16px -4px rgb(49 85 245 / 0.5), 0 2px 4px -1px rgb(49 85 245 / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.18);
+  transition: box-shadow 0.15s ease-out, transform 0.15s ease-out, background-color 0.15s ease-out;
+}
+/* Schwarze Knöpfe (bg-fg, auch wenn sie aus einem blauen Grundknopf umgefärbt sind): nie blau leuchten, sondern dezent schwarzer Schatten */
+:is(button, a):is(.bg-brand-500, .bg-brand-600, .bg-primary)[class*="bg-fg"]:not(nav *):not([aria-pressed]):not([aria-current]):not(:disabled) {
+  box-shadow: 0 6px 16px -6px rgb(0 0 0 / 0.35), 0 2px 4px -1px rgb(0 0 0 / 0.18);
+}
+@media (hover: hover) {
+  :is(button, a):is(.bg-brand-500, .bg-brand-600, .bg-primary):not(nav *):not([aria-pressed]):not([aria-current]):not(:disabled):not([class*="bg-fg"]):hover {
+    box-shadow: 0 10px 24px -6px rgb(49 85 245 / 0.6), 0 3px 6px -2px rgb(49 85 245 / 0.32), inset 0 1px 0 rgb(255 255 255 / 0.18);
+  }
+}
+
+/* ===================================================================================
+   Navigation und Blätter wie in Lifevault (app/globals.css): Safe Areas, Bottom-Sheet, Menüs
+   =================================================================================== */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+.pt-safe { padding-top: env(safe-area-inset-top); }
+@keyframes pop-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+@keyframes rise { from { opacity: 0; transform: translateY(28px); } }
+@keyframes sheet-fade { from { background-color: transparent; } }
+.sheet-backdrop { animation: sheet-fade 0.22s ease-out both; }
+.sheet-rise { animation: rise .32s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.sheet-up, .pop-in { animation: pop-in .2s var(--ease-spring, cubic-bezier(0.22, 1, 0.36, 1)) both; transform-origin: top; }
+html[data-kb] .hide-on-kb { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .sheet-up, .sheet-rise, .pop-in, .sheet-backdrop { animation: none; } }
+
+/* Aufnahme: pulsierender Ring um den Mikrofon-Knopf, Pegel-Balken (voice-wave aus Finastry) */
+@keyframes rec-pulse { 0% { box-shadow: 0 0 0 0 rgb(227 23 62 / .45); } 100% { box-shadow: 0 0 0 22px rgb(227 23 62 / 0); } }
+.rec-pulse { animation: rec-pulse 1.4s ease-out infinite; }
+.voice-bar { animation: voice-wave 1s ease-in-out infinite; transform-origin: center; }
+@media (prefers-reduced-motion: reduce) { .rec-pulse, .voice-bar { animation: none; } }
