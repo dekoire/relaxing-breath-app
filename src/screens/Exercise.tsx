@@ -24,7 +24,7 @@ export default function ExercisePage() {
       <div className="relative -mx-4 -mt-4 overflow-hidden md:mx-0 md:mt-0 md:rounded-[28px]" style={{ background: artBg(e) }}>
         <Photo e={e} w={1080} />
         <span aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(29,33,41,0) 35%, rgba(29,33,41,.85) 100%)" }} />
-        <div className="pt-safe relative flex items-center justify-between px-4 pt-3">
+        <div className="top-safe relative flex items-center justify-between px-5">
           <button type="button" onClick={() => nav(-1)} aria-label="Zurück" className="grid h-11 w-11 place-items-center rounded-full bg-black/25 text-white backdrop-blur"><ChevronLeft size={21} /></button>
           <button type="button" onClick={() => toggleFavorite(e.id)} aria-pressed={fav} aria-label={fav ? "Aus Favoriten entfernen" : "Zu Favoriten"} className="grid h-11 w-11 place-items-center rounded-full bg-black/25 text-white backdrop-blur"><Heart size={19} fill={fav ? "currentColor" : "none"} /></button>
         </div>

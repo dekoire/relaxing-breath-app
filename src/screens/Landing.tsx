@@ -5,7 +5,7 @@ import { Nova } from "@/components/Nova";
 /** Startseite für Besucher: bewusst schlicht – Nova, ein Satz, zwei große Knöpfe */
 export default function Landing() {
   return (
-    <div className="pt-safe flex min-h-dvh flex-col bg-page px-6">
+    <div className="top-safe flex min-h-dvh flex-col bg-page px-6">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center text-center">
         <Nova size={130} label="Nova" />
         <h1 className="mt-8 text-[40px] leading-[46px] font-bold tracking-tight">{APP_NAME}</h1>

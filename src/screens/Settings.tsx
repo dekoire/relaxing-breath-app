@@ -33,7 +33,7 @@ export default function Settings() {
       </Group>
 
       <Group title="Vibration" foot={vib ? "So spürst du die Atemanweisung ohne Kopfhörer, wie bei der Apple Watch. Antippen zum Ausprobieren." : isNative() ? "" : "Vibration gibt es in der App fürs iPhone und Android und in Android-Browsern. Safari am iPhone kann nicht vibrieren."}>
-        <div className="p-3"><Segmented label="Stärke" joined value={prefs.haptics} onChange={(v: HapticLevel) => setPrefs({ haptics: v })} options={[{ id: "strong", label: "Deutlich" }, { id: "soft", label: "Sanft" }, { id: "off", label: "Aus" }]} /></div>
+        <div className="p-3"><Segmented label="Stärke" joined value={prefs.haptics} onChange={(v: HapticLevel) => setPrefs(v === "off" ? { haptics: v } : { haptics: v, hapticLevel: v })} options={[{ id: "strong", label: "Deutlich" }, { id: "soft", label: "Sanft" }, { id: "off", label: "Aus" }]} /></div>
         {LEARN.map((l) => (
           <Row key={l.label} onClick={() => play(l.cue, l.s, prefs.haptics === "off" ? "strong" : prefs.haptics)} disabled={!vib}>
             <span className="grid h-9 w-9 place-items-center rounded-tile bg-lavender text-brand-400"><Vibrate size={17} /></span>
@@ -41,7 +41,6 @@ export default function Settings() {
             <span className="text-small font-semibold text-brand-400">Spüren</span>
           </Row>
         ))}
-        <Toggle label="Nur Vibration" sub="Stimme, Klangschale und Musik aus" on={prefs.silent} onChange={(v) => setPrefs({ silent: v })} />
       </Group>
 
       <Group title="Stimme und Klang">

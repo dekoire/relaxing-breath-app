@@ -20,8 +20,10 @@ export type Prefs = {
   music: Track | "off";
   volume: number;
   haptics: HapticLevel;
-  /** „Nur Vibration“: Stimme, Klangschale und Musik aus – fürs Büro, Handy in der Hand oder Hosentasche */
-  silent: boolean;
+  /** Stärke, wenn Vibration an ist (an/aus merkt sich die Stärke) */
+  hapticLevel: "soft" | "strong";
+  /** zuletzt gewählte Musik (an/aus merkt sich das Stück) */
+  track: Track;
   look: Look;
   length: Length;
   favorites: string[];
@@ -29,7 +31,7 @@ export type Prefs = {
   minutes: Record<string, number>;
 };
 
-export const DEFAULT_PREFS: Prefs = { voice: true, voiceName: "", readAloud: false, bowl: true, music: "off", volume: 0.35, haptics: "strong", silent: false, look: "nova", length: "normal", favorites: [], minutes: {} };
+export const DEFAULT_PREFS: Prefs = { voice: true, voiceName: "", readAloud: false, bowl: true, music: "off", volume: 0.35, haptics: "strong", hapticLevel: "strong", track: "pad", look: "nova", length: "normal", favorites: [], minutes: {} };
 const KEY = "atem:prefs";
 const EVT = "atem:prefs-change";
 

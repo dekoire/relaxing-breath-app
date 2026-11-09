@@ -53,7 +53,13 @@ export type Exercise = {
   /** Bild (später echte Fotos über `image`) */
   art: { from: string; to: string; motif: Motif };
   image?: string;
+  /** wie gut erforscht: stark (mehrere Studien/Übersichten) · gut (gute Einzelstudien) · erste (erste kleine Studien) */
+  evidence?: Evidence;
+  /** kurze Quelle, z. B. „Balban et al., 2023“ */
+  study?: string;
 };
+export type Evidence = "stark" | "gut" | "erste";
+export const EVIDENCE_LABEL: Record<Evidence, string> = { stark: "Sehr gut erforscht", gut: "Gut erforscht", erste: "Erste Studien" };
 
 /* ---------- Schlagwörter: Gefühl, Körper, Ziel, Situation ---------- */
 
@@ -71,6 +77,11 @@ export const TAGS: Tag[] = [
   { id: "ueberfordert", label: "Überfordert", group: "gefuehl", words: ["überfordert", "überforderung", "zu viel", "alles zu viel", "überlastet"] },
   { id: "grübeln", label: "Grübeln", group: "gefuehl", words: ["grübeln", "gedankenkarussell", "gedanken", "kopf voll", "kopf zu voll", "gedankenkreisen", "zerdenken"] },
   { id: "muede", label: "Müde", group: "gefuehl", words: ["müde", "erschöpft", "erschöpfung", "schlapp", "kraftlos", "energielos", "antriebslos"] },
+  { id: "einsam", label: "Einsam", group: "gefuehl", words: ["einsam", "einsamkeit", "allein", "alleine", "verlassen"] },
+  { id: "trauer", label: "Trauer", group: "gefuehl", words: ["trauer", "trauern", "verlust", "abschied", "liebeskummer", "trennung"] },
+  { id: "ausgebrannt", label: "Ausgebrannt", group: "gefuehl", words: ["burnout", "ausgebrannt", "leer", "am ende", "keine kraft"] },
+  { id: "aufgeregt", label: "Aufgeregt", group: "gefuehl", words: ["aufgeregt", "aufregung", "hibbelig", "vorfreude", "kribbeln"] },
+  { id: "ungeduld", label: "Ungeduldig", group: "gefuehl", words: ["ungeduld", "ungeduldig", "warten", "genervt vom warten"] },
   { id: "dankbar", label: "Dankbar", group: "gefuehl", words: ["dankbar", "dankbarkeit", "glücklich", "zufrieden", "freude"] },
   // Körper
   { id: "herzrasen", label: "Herzrasen", group: "koerper", words: ["herzrasen", "herzklopfen", "puls", "herz", "schneller puls"] },
@@ -81,6 +92,14 @@ export const TAGS: Tag[] = [
   { id: "bauch", label: "Flaues Gefühl im Bauch", group: "koerper", words: ["bauch", "magen", "flau", "übelkeit", "übel", "bauchweh"] },
   { id: "hitze", label: "Hitze", group: "koerper", words: ["hitze", "heiß", "warm", "schwitzen", "hitzewallung"] },
   { id: "schmerz", label: "Schmerz", group: "koerper", words: ["schmerz", "schmerzen", "weh", "regelschmerz", "rückenschmerz"] },
+  { id: "nacken", label: "Nackenverspannung", group: "koerper", words: ["nacken", "nackenverspannung", "steifer nacken", "schulter", "schultern", "verspannte schultern"] },
+  { id: "ruecken", label: "Rückenschmerzen", group: "koerper", words: ["rücken", "rückenschmerzen", "kreuz", "hexenschuss", "lendenwirbel"] },
+  { id: "uebelkeit", label: "Übelkeit", group: "koerper", words: ["übelkeit", "übel", "reiseübelkeit", "seekrank", "brechreiz", "schlecht im magen"] },
+  { id: "schwindel", label: "Schwindel", group: "koerper", words: ["schwindel", "schwindelig", "benommen", "kribbeln in den händen"] },
+  { id: "zittern", label: "Zittern", group: "koerper", words: ["zittern", "zittrig", "wackelige knie", "adrenalin"] },
+  { id: "hitzewallung", label: "Hitzewallungen", group: "koerper", words: ["hitzewallung", "hitzewallungen", "wechseljahre", "menopause", "schweißausbruch"] },
+  { id: "blutdruck", label: "Hoher Blutdruck", group: "koerper", words: ["blutdruck", "bluthochdruck", "hypertonie", "hoher puls"] },
+  { id: "regel", label: "Regelschmerzen", group: "koerper", words: ["regelschmerzen", "periode", "menstruation", "krämpfe", "unterleib"] },
   // Ziel
   { id: "schlaf", label: "Einschlafen", group: "ziel", words: ["schlaf", "schlafen", "einschlafen", "durchschlafen", "schlaflos", "nacht", "bett", "insomnie"] },
   { id: "fokus", label: "Fokus", group: "ziel", words: ["fokus", "konzentration", "konzentrieren", "klar", "klarheit", "lernen", "arbeiten"] },
@@ -88,6 +107,7 @@ export const TAGS: Tag[] = [
   { id: "ruhe", label: "Ruhe finden", group: "ziel", words: ["ruhe", "entspannen", "entspannung", "runterkommen", "abschalten", "gelassen", "gelassenheit", "beruhigen"] },
   { id: "balance", label: "Gleichgewicht", group: "ziel", words: ["balance", "gleichgewicht", "ausgleich", "mitte", "zentrieren", "erden", "geerdet"] },
   { id: "achtsam", label: "Achtsamkeit", group: "ziel", words: ["achtsam", "achtsamkeit", "meditation", "meditieren", "präsent", "im moment"] },
+  { id: "erholung", label: "Erholung", group: "ziel", words: ["erholung", "erholen", "regeneration", "auftanken", "kraft sammeln"] },
   { id: "stoisch", label: "Gelassenheit (stoisch)", group: "ziel", words: ["stoisch", "stoiker", "stoa", "kontrolle", "loslassen", "akzeptieren", "seneca", "marc aurel", "epiktet"] },
   // Situation
   { id: "pruefung", label: "Prüfung", group: "situation", words: ["prüfung", "klausur", "test", "examen", "bewerbung", "vorstellungsgespräch"] },
@@ -97,6 +117,16 @@ export const TAGS: Tag[] = [
   { id: "abend", label: "Am Abend", group: "situation", words: ["abend", "abends", "feierabend", "tagesende"] },
   { id: "sport", label: "Sport", group: "situation", words: ["sport", "training", "laufen", "joggen", "erholung", "regeneration"] },
   { id: "unterwegs", label: "Unterwegs", group: "situation", words: ["unterwegs", "bahn", "zug", "flugzeug", "flugangst", "fliegen", "stau", "warten", "gehen", "spazieren"] },
+  { id: "geburt", label: "Geburt & Wehen", group: "situation", words: ["geburt", "wehen", "entbindung", "kreißsaal", "presswehen", "geburtsvorbereitung"] },
+  { id: "schwanger", label: "Schwangerschaft", group: "situation", words: ["schwanger", "schwangerschaft", "baby im bauch", "werdende mutter"] },
+  { id: "arzt", label: "Arzt & Zahnarzt", group: "situation", words: ["arzt", "zahnarzt", "krankenhaus", "op", "operation", "untersuchung", "mrt", "wartezimmer"] },
+  { id: "spritze", label: "Spritze & Blutabnahme", group: "situation", words: ["spritze", "impfung", "blutabnahme", "nadel", "piks"] },
+  { id: "streit", label: "Nach einem Streit", group: "situation", words: ["streit", "konflikt", "auseinandersetzung", "beleidigt", "verletzt"] },
+  { id: "albtraum", label: "Nach einem Albtraum", group: "situation", words: ["albtraum", "alptraum", "schlecht geträumt", "aufgeschreckt"] },
+  { id: "nachts", label: "Nachts wach", group: "situation", words: ["nachts wach", "aufgewacht", "kann nicht wieder einschlafen", "3 uhr", "durchschlafen"] },
+  { id: "auto", label: "Im Auto", group: "situation", words: ["auto", "autofahren", "stau", "fahrstunde", "rote ampel"] },
+  { id: "verlangen", label: "Verlangen & Sucht", group: "situation", words: ["rauchen", "zigarette", "rauchverlangen", "heißhunger", "süßes", "craving", "sucht", "handy weglegen", "alkohol"] },
+  { id: "eltern", label: "Stress mit Kindern", group: "situation", words: ["eltern", "kinder schreien", "trotzanfall", "baby schreit", "mama", "papa"] },
   { id: "kinder", label: "Für Kinder", group: "situation", words: ["kind", "kinder", "familie", "spielerisch"] },
 ];
 export const tagOf = (id: string) => TAGS.find((t) => t.id === id);
@@ -809,7 +839,179 @@ export const EXERCISES: Exercise[] = [
     intro: "Der Tag ist vorbei. Wie Seneca schauen wir freundlich zurück, und dann lassen wir ihn los.",
     art: { from: "#4c4596", to: "#110f2b", motif: "moon" },
   },
+
+  // ——— Situationen ———
+  {
+    id: "wehen",
+    name: "Wehen veratmen",
+    short: "Lang und tief ausatmen, die Welle kommen und gehen lassen.",
+    why: "Langsames, tiefes Ausatmen während einer Wehe hilft vielen Frauen, sich weniger zu verkrampfen und den Schmerz besser auszuhalten. Kleine Studien zeigen weniger empfundenen Schmerz und mehr Gefühl von Kontrolle.",
+    how: ["Ruhig durch die Nase einatmen", "Lang durch den Mund ausatmen, Ton oder Seufzer erlaubt", "Kiefer und Schultern locker lassen"],
+    cycle: simple(p("in", 4, undefined, NOSE), p("out", 8, "Lang aus, die Welle ziehen lassen", "Ton erlaubt")),
+    minutes: 2,
+    category: "koerper", level: "leicht",
+    tags: ["geburt", "schwanger", "schmerz", "angst"],
+    caution: "Ersetzt keine Hebamme. Sprich deine Atemtechnik für die Geburt mit Hebamme oder Geburtsvorbereitung ab.",
+    intro: "Die Welle kommt. Atme ruhig ein, und dann lang aus. Du musst nichts festhalten.",
+    evidence: "erste", study: "Yuksel et al., 2017",
+    art: { from: "#c58cff", to: "#4a2a99", motif: "wave" },
+  },
+  {
+    id: "wehen-pause",
+    name: "Zwischen den Wehen",
+    short: "Kurz erholen, Kraft sammeln für die nächste Welle.",
+    why: "Zwischen zwei Wehen wieder ruhig und gleichmäßig zu atmen, gibt dem Körper Erholung und hilft, nicht in Anspannung stecken zu bleiben.",
+    how: ["Gleichmäßig ein und aus", "Bei jedem Ausatmen schwerer werden", "Hände locker"],
+    cycle: simple(p("in", 5, "Ruhig ein"), p("out", 5, "Weich werden")),
+    minutes: 2,
+    category: "koerper", level: "leicht",
+    tags: ["geburt", "schwanger", "erholung", "ruhe"],
+    caution: "Ersetzt keine Hebamme. Sprich deine Atemtechnik für die Geburt mit Hebamme oder Geburtsvorbereitung ab.",
+    intro: "Die Welle ist vorbei. Lass dich jetzt ganz weich werden und sammle Kraft.",
+    art: { from: "#b48cff", to: "#3a2a70", motif: "drop" },
+  },
+  {
+    id: "hitzewallung",
+    name: "Gegen Hitzewallungen",
+    short: "Sechs Atemzüge pro Minute, wenn die Hitze kommt.",
+    why: "Langsames, gleichmäßiges Atmen (Paced Breathing) wurde bei Hitzewallungen in den Wechseljahren untersucht. Bei manchen Frauen wurden sie dadurch seltener oder schwächer.",
+    how: ["Beim ersten Anzeichen beginnen", "5 Sekunden ein, 7 Sekunden aus", "Zweimal am Tag 15 Minuten üben hilft am meisten"],
+    cycle: simple(p("in", 5, undefined, NOSE), p("out", 7, undefined, MOUTH)),
+    minutes: 5,
+    category: "koerper", level: "leicht",
+    tags: ["hitzewallung", "hitze", "ruhe", "schlaf"],
+    intro: "Lass uns die Hitze zusammen ausatmen. Langsam ein, noch langsamer aus.",
+    evidence: "erste", study: "Freedman & Woodward, 1992",
+    art: { from: "#9a7cf0", to: "#33246a", motif: "flame" },
+  },
+  {
+    id: "verlangen",
+    name: "Verlangen aussitzen",
+    short: "Für Rauchverlangen, Heißhunger, Handy: die Welle vorbeiziehen lassen.",
+    why: "Verlangen kommt wie eine Welle, steigt an und flacht nach einigen Minuten wieder ab. Bewusst zu atmen und das Verlangen nur zu beobachten („Urge Surfing“) hilft, nicht automatisch nachzugeben.",
+    how: ["Ruhig atmen", "Das Verlangen im Körper suchen und benennen", "Nicht dagegen kämpfen, nur zusehen, wie es schwächer wird"],
+    cycle: simple(p("in", 4, undefined, NOSE), p("out", 6)),
+    minutes: 3, rounds: 12,
+    category: "beruhigen", level: "leicht",
+    tags: ["verlangen", "unruhe", "stress", "achtsam"],
+    roundCues: ["Spür das Verlangen", "Wo sitzt es im Körper?", "Es ist eine Welle", "Sie steigt vielleicht noch", "Du musst nichts tun", "Nur zusehen", "Sie wird schwächer", "Du bist stärker als sie", "Atme weiter", "Fast vorbei", "Du hast entschieden", "Gut gemacht"],
+    intro: "Das Verlangen ist da. Du musst ihm nicht folgen. Wir sehen ihm zu, bis es vorbeizieht.",
+    evidence: "erste", study: "Bowen & Marlatt, 2009",
+    art: { from: "#8a86c9", to: "#262247", motif: "wave" },
+  },
+  {
+    id: "spritze",
+    name: "Bei Spritze & Blutabnahme",
+    short: "Lang ausatmen, genau wenn es piekst.",
+    why: "Beim langen Ausatmen entspannen sich die Muskeln und der Körper schaltet auf Ruhe. Viele empfinden den Stich so als weniger schlimm, wenn er in ein Ausatmen fällt.",
+    how: ["Ruhig einatmen", "Beim Stich lang und langsam ausatmen", "Schultern locker, Blick woanders hin"],
+    cycle: simple(p("in", 3, undefined, NOSE), p("out", 6, "Lang aus, Schultern weich", MOUTH)),
+    minutes: 1, rounds: 8,
+    category: "akut", level: "leicht",
+    tags: ["spritze", "arzt", "angst", "schmerz", "kinder"],
+    caution: "Wird dir oft schwarz vor Augen bei Spritzen, sag es vorher und lass dich hinlegen.",
+    intro: "Gleich ist es vorbei. Atme ruhig ein, und beim Piks ganz lang aus.",
+    evidence: "erste", study: "Bartlett et al., 2019",
+    art: { from: "#7f6ad6", to: "#2a2156", motif: "drop" },
+  },
+  {
+    id: "nachts-wach",
+    name: "Nachts wieder einschlafen",
+    short: "Wenn du um 3 Uhr wach liegst und der Kopf anspringt.",
+    why: "Langes Ausatmen bremst den Körper, das Zählen beschäftigt den Kopf, sodass Grübeln weniger Raum bekommt. Licht und Handy bleiben dabei aus, nur die Stimme oder Vibration führt.",
+    how: ["Auf dem Rücken oder auf der Seite liegen", "4 ein, 7 aus", "Beim Ausatmen innerlich zählen"],
+    cycle: simple(p("in", 4), p("out", 7)),
+    count: true,
+    minutes: 5,
+    category: "schlafen", level: "leicht",
+    tags: ["nachts", "albtraum", "schlaf", "grübeln", "angst"],
+    intro: "Du liegst wach, das ist okay. Wir atmen lang aus und zählen. Du musst nicht schlafen, nur ruhig werden.",
+    art: { from: "#2f3478", to: "#0b0c22", motif: "moon" },
+  },
+  {
+    id: "nach-streit",
+    name: "Nach einem Streit",
+    short: "Erst runterfahren, dann klar reden.",
+    why: "Nach einem Streit ist der Körper im Kampfmodus. Zwei Seufzer holen dich schnell runter, danach beruhigt längeres Ausatmen, bevor du antwortest.",
+    how: ["Erst dreimal den doppelten Seufzer", "Dann ruhig länger aus als ein", "Erst danach antworten"],
+    cycle: [
+      { phases: [p("in", 2.5), p("in2", 1, "Noch ein Schluck"), p("out", 6, "Lang aus")], repeat: 3, label: "Runterfahren" },
+      { phases: [p("in", 4), p("out", 6)], repeat: 9, label: "Ruhig werden" },
+    ],
+    minutes: 2, rounds: 1,
+    category: "beruhigen", level: "leicht",
+    tags: ["streit", "wut", "stress", "eltern", "herzrasen"],
+    intro: "Das war viel. Bevor du etwas sagst, holen wir deinen Körper runter.",
+    art: { from: "#7b5cff", to: "#341a5e", motif: "flame" },
+  },
 ];
+
+/* Mehr Wege zur selben Übung: Suchwörter und Situationen, unter denen eine Übung auch erscheinen soll */
+const ALSO: Record<string, string[]> = {
+  seufzer: ["streit", "arzt", "zittern", "aufgeregt", "auto", "eltern", "spritze"],
+  "erden-54321": ["albtraum", "schwindel", "einsam", "trauer"],
+  "buero-reset": ["nacken", "ungeduld", "auto", "aufgeregt"],
+  lippenbremse: ["schwindel", "zittern", "schwanger"],
+  "laenger-aus": ["blutdruck", "aufgeregt", "eltern", "arzt", "schwanger", "regel"],
+  "478": ["albtraum", "nachts", "arzt"],
+  bienen: ["eltern", "trauer", "ausgebrannt"],
+  dreieck: ["ungeduld"],
+  "eins-zu-zwei": ["blutdruck", "schwanger", "arzt"],
+  "wut-abkuehlen": ["streit", "eltern", "ungeduld"],
+  kuehlen: ["hitzewallung", "streit"],
+  mond: ["hitzewallung", "nachts"],
+  flugangst: ["auto", "arzt", "zittern", "uebelkeit"],
+  "schlaf-48": ["nachts", "albtraum", "trauer"],
+  "einschlaf-leiter": ["nachts", "ausgebrannt"],
+  "body-scan": ["nacken", "ruecken", "regel", "ausgebrannt", "erholung"],
+  zaehlen: ["nachts"],
+  box: ["aufgeregt", "ungeduld", "zittern"],
+  "mini-box": ["auto", "eltern"],
+  auftritt: ["aufgeregt", "zittern", "arzt"],
+  stoisch: ["streit", "ausgebrannt", "verlangen"],
+  "gedanken-parken": ["nachts", "trauer", "verlangen"],
+  "wach-werden": ["ausgebrannt"],
+  kohaerent: ["blutdruck", "erholung", "trauer", "einsam", "ausgebrannt"],
+  "resonanz-5": ["blutdruck", "erholung"],
+  bauch: ["uebelkeit", "regel", "schwanger", "geburt", "ruecken"],
+  ozean: ["erholung"],
+  "sanft-weniger": ["schwindel", "zittern"],
+  schultern: ["nacken", "ruecken"],
+  kiefer: ["nacken"],
+  schmerz: ["ruecken", "regel", "nacken", "geburt", "spritze"],
+  "bauch-beruhigen": ["uebelkeit", "regel", "arzt"],
+  "nach-sport": ["blutdruck", "erholung"],
+  herz: ["einsam", "trauer"],
+  dankbarkeit: ["einsam", "ausgebrannt"],
+  hand: ["spritze", "arzt", "eltern"],
+  kerze: ["eltern", "spritze"],
+  abend: ["ausgebrannt"],
+};
+for (const e of EXERCISES) for (const t of ALSO[e.id] ?? []) if (!e.tags.includes(t)) e.tags.push(t);
+
+/* Wie gut erforscht (vorsichtig eingestuft; ohne Angabe = Erfahrung und Tradition) */
+const EVIDENCE: Record<string, [Evidence, string]> = {
+  seufzer: ["gut", "Balban et al., 2023 (Stanford)"],
+  kohaerent: ["stark", "Lehrer et al., 2020 (Übersicht HRV-Biofeedback)"],
+  "resonanz-5": ["stark", "Lehrer et al., 2020 (Übersicht HRV-Biofeedback)"],
+  "laenger-aus": ["gut", "Zaccaro et al., 2018 (Übersicht langsames Atmen)"],
+  "eins-zu-zwei": ["gut", "Zaccaro et al., 2018 (Übersicht langsames Atmen)"],
+  lippenbremse: ["stark", "Bei Atemnot (COPD) gut untersucht"],
+  bauch: ["gut", "Ma et al., 2017"],
+  wechsel: ["gut", "Mehrere kleine Studien, z. B. Telles et al., 2017"],
+  "energie-runden": ["gut", "Kox et al., 2014 (PNAS)"],
+  "body-scan": ["gut", "Achtsamkeitsprogramme (MBSR), Übersichten"],
+  dankbarkeit: ["gut", "Emmons & McCullough, 2003"],
+  "478": ["erste", "Erste kleine Studien"],
+  box: ["erste", "Erste kleine Studien"],
+  bienen: ["erste", "Erste kleine Studien"],
+  kapalabhati: ["erste", "Erste kleine Studien"],
+  zaehlen: ["erste", "Achtsamkeitsforschung"],
+  "sanft-weniger": ["erste", "Buteyko bei Asthma, Cochrane-Übersicht"],
+  "schlaf-48": ["erste", "Erste kleine Studien"],
+  "nach-sport": ["erste", "Erste kleine Studien"],
+};
+for (const e of EXERCISES) { const v = EVIDENCE[e.id]; if (v && !e.evidence) { e.evidence = v[0]; e.study = v[1]; } }
 
 export const exerciseById = (id: string | undefined) => EXERCISES.find((e) => e.id === id);
 
@@ -893,11 +1095,12 @@ export function tagsFor(query: string): string[] {
  * Suche: Name, Kurzbeschreibung und Schlagwörter (auch Synonyme: „Herzklopfen“ findet „Herzrasen“). Treffer im Namen
  * zuerst, dann über Schlagwörter. Filter (`tags`) müssen alle passen.
  */
-export function search(query: string, filter: { tags?: string[]; category?: Category } = {}): Exercise[] {
+export function search(query: string, filter: { tags?: string[]; category?: Category; evidence?: boolean } = {}): Exercise[] {
   const q = fold(query);
   const qTags = tagsFor(query);
   const scored = EXERCISES.map((e) => {
     if (filter.category && e.category !== filter.category) return { e, s: -1 };
+    if (filter.evidence && e.evidence !== "stark" && e.evidence !== "gut") return { e, s: -1 };
     if (filter.tags?.length && !filter.tags.every((t) => e.tags.includes(t))) return { e, s: -1 };
     if (!q) return { e, s: 1 };
     let s = 0;
@@ -913,3 +1116,12 @@ export function search(query: string, filter: { tags?: string[]; category?: Cate
   });
   return scored.filter((x) => x.s > 0).sort((a, b) => b.s - a.s).map((x) => x.e);
 }
+
+/** „4 Sek. ein · 7 halten · 8 aus“ (Programme: die Abschnitte) – für die Zusammenfassung vor dem Start */
+export function rhythmWords(e: Exercise): string {
+  if (e.cycle.length > 1) return e.cycle.map((b) => b.label ?? "").filter(Boolean).join(" → ");
+  const W: Record<PhaseKind, string> = { in: "ein", in2: "nachatmen", hold: "halten", out: "aus", rest: "halten" };
+  return e.cycle[0].phases.map((p, i) => `${String(p.s).replace(".", ",")}${i === 0 ? " Sek." : ""} ${W[p.kind]}`).join(" · ");
+}
+/** was man davon hat: der erste Satz aus „warum“ */
+export const gainOf = (e: Exercise) => (e.why.match(/^.*?[.!?](\s|$)/)?.[0] ?? e.why).trim();

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AudioLines, Bell, BellOff, Check, ChevronLeft, Flower2, Music, Smartphone, TriangleAlert, Vibrate, Volume1, Volume2, VolumeX, X } from "lucide-react";
-import { type Exercise, type PhaseKind, durationLabel, flexible, rhythmLabel, steps as stepsOf, totalSec } from "@/data/exercises";
+import { AudioLines, Bell, BellOff, Check, Clock, Flower2, SlidersHorizontal, Sparkles, Wind, Music, TriangleAlert, Vibrate, Volume1, Volume2, VolumeX, X } from "lucide-react";
+import { type Exercise, type PhaseKind, durationLabel, flexible, gainOf, rhythmWords, steps as stepsOf, totalSec } from "@/data/exercises";
 import { bell, startMusic, unlockBreathAudio, TRACKS, type Pad, type Track } from "@/lib/sound";
 import { play, canVibrate, isNative, type HapticLevel } from "@/lib/haptics";
-import { hush, say as speak } from "@/lib/speech";
+import { hush, say as speak, useVoices } from "@/lib/speech";
 import { usePrefs } from "@/lib/prefs";
 import { MoodFace } from "@/components/MoodFace";
 import { Nova } from "@/components/Nova";
@@ -35,10 +35,10 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
   const [stage, setStage] = useState<"pick" | "run" | "done">("pick");
   const [idx, setIdx] = useState(-1);
   const [left, setLeft] = useState(0);
-  const [picking, setPicking] = useState<"music" | null>(null);
+  const [picking, setPicking] = useState<"adjust" | null>(null);
   const [result, setResult] = useState<{ seconds: number; completed: boolean }>();
-  const silent = prefs.silent;
-  const voice = prefs.voice && !silent, bowl = prefs.bowl && !silent, music: Music = silent ? "off" : prefs.music;
+  // jedes für sich an/aus, in jeder Kombination
+  const voice = prefs.voice, bowl = prefs.bowl, music: Music = prefs.music;
   const live = useRef({ voice, bowl, haptics: prefs.haptics as HapticLevel, voiceName: prefs.voiceName });
   live.current = { voice, bowl, haptics: prefs.haptics, voiceName: prefs.voiceName };
   const padRef = useRef<Pad | undefined>(undefined);
@@ -102,7 +102,7 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
   }, [stage, minutes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Musik läuft während der Übung und als Hörprobe in der Auswahl
-  const musicLive = stage === "run" || picking === "music";
+  const musicLive = stage === "run" || picking === "adjust";
   useEffect(() => {
     if (!musicLive || music === "off") return;
     const p = startMusic(music, prefs.volume);
@@ -142,6 +142,7 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
   const mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
   const trackName = TRACKS.find((t) => t.id === prefs.music)?.label ?? "Aus";
   const vibOk = canVibrate();
+  const voices = useVoices();
 
   /** EINE kompakte Leiste (Nutzerwunsch): sechs runde Knöpfe mit kleinem Wort, vor und während der Übung an derselben Stelle */
   const ctrl = (key: string, icon: React.ReactNode, label: string, on: boolean, onClick: () => void, disabled = false) => (
@@ -150,27 +151,51 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
       <span className={`w-full truncate text-center text-[11.5px] leading-4 font-semibold ${on ? "text-white/85" : "text-white/45"}`}>{label}</span>
     </button>
   );
-  const HAPTIC_NEXT: Record<HapticLevel, HapticLevel> = { strong: "soft", soft: "off", off: "strong" };
-  const HAPTIC_LABEL: Record<HapticLevel, string> = { strong: "Vibration", soft: "Sanft", off: "Vibr. aus" };
+  const vibOn = vibOk && prefs.haptics !== "off";
   const controls = (
-    <div className="grid grid-cols-6 gap-1">
-      {ctrl("look", prefs.look === "flower" ? <Flower2 /> : <Nova size={22} />, prefs.look === "flower" ? "Blume" : "Nova", true, () => setPrefs({ look: prefs.look === "flower" ? "nova" : "flower" }))}
-      {ctrl("vib", <Vibrate />, vibOk ? HAPTIC_LABEL[prefs.haptics] : "Vibration", vibOk && prefs.haptics !== "off", () => setPrefs({ haptics: HAPTIC_NEXT[prefs.haptics] }), !vibOk)}
-      {ctrl("voice", voice ? <AudioLines /> : <VolumeX />, "Stimme", voice, () => setPrefs({ voice: !prefs.voice, silent: false }), silent)}
-      {ctrl("bowl", bowl ? <Bell /> : <BellOff />, "Schale", bowl, () => { const v = !prefs.bowl; setPrefs({ bowl: v, silent: false }); if (v) { unlockBreathAudio(); bell(0.22); } }, silent)}
-      {ctrl("music", <Music />, silent || music === "off" ? "Musik" : trackName, music !== "off", () => setPicking("music"), silent)}
-      {ctrl("silent", <Smartphone />, "Lautlos", silent, () => setPrefs({ silent: !silent }))}
-    </div>
+    <>
+      <div className="grid grid-cols-5 gap-1">
+        {ctrl("look", prefs.look === "flower" ? <Flower2 /> : <Nova size={22} />, prefs.look === "flower" ? "Blume" : "Nova", true, () => setPrefs({ look: prefs.look === "flower" ? "nova" : "flower" }))}
+        {ctrl("vib", <Vibrate />, "Vibration", vibOn, () => setPrefs({ haptics: prefs.haptics === "off" ? prefs.hapticLevel : "off" }), !vibOk)}
+        {ctrl("voice", voice ? <AudioLines /> : <VolumeX />, "Stimme", voice, () => { setPrefs({ voice: !voice }); if (voice) hush(); })}
+        {ctrl("bowl", bowl ? <Bell /> : <BellOff />, "Schale", bowl, () => { setPrefs({ bowl: !bowl }); if (!bowl) { unlockBreathAudio(); bell(0.22); } })}
+        {ctrl("music", <Music />, "Musik", music !== "off", () => { if (music === "off") { unlockBreathAudio(); setPrefs({ music: prefs.track }); } else setPrefs({ music: "off" }); })}
+      </div>
+      <button type="button" onClick={() => setPicking("adjust")} className="mx-auto mt-2 flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[13.5px] font-semibold text-white/60 hover:bg-white/[0.08] hover:text-white"><SlidersHorizontal size={15} /> Anpassen</button>
+    </>
   );
 
   return (
     <div role="dialog" aria-modal aria-label={e.name} className="fixed inset-0 z-[300] flex flex-col text-white" style={{ background: BG }}>
-      <div className="pt-safe flex items-center justify-between px-4 py-3">
-        <button type="button" onClick={onClose} aria-label="Zurück" className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/80 hover:bg-white/[0.14]"><ChevronLeft size={21} /></button>
-        <span className="min-w-0 truncate px-2 text-[13px] font-semibold tracking-wide text-white/60 uppercase">{stage === "run" && idx >= 0 ? `${mm}:${String(ss).padStart(2, "0")}` : e.name}</span>
+      <div className="top-safe flex items-center justify-between px-5 pb-2">
+        <span className="w-11" />
+        <span className="min-w-0 truncate px-2 text-[13px] font-semibold tracking-wide text-white/55 tabular-nums">{stage === "run" && idx >= 0 ? `${mm}:${String(ss).padStart(2, "0")}` : ""}</span>
         <button type="button" onClick={onClose} aria-label="Schließen" className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/80 hover:bg-white/[0.14]"><X size={19} /></button>
       </div>
 
+      {stage === "pick" ? (
+        /* vor dem Start: ruhige Zusammenfassung – was dich erwartet, was du davon hast */
+        <div className="mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col justify-center overflow-y-auto px-6">
+          <div className="mx-auto h-28 w-28">{prefs.look === "flower" ? <Flower open={false} half ms={1200} still /> : <NovaBreath open={false} half ms={1200} still />}</div>
+          <h1 className="mt-3 text-center text-[28px] leading-9 font-semibold tracking-tight">{e.name}</h1>
+          <p className="mx-auto mt-1 max-w-[19rem] text-center text-[15px] leading-6 text-white/60">{e.short}</p>
+          <div className="mt-7 space-y-4">
+            <div>
+              <p className="mb-2 text-[12px] font-semibold tracking-wide text-white/45 uppercase">Was dich erwartet</p>
+              <ul className="space-y-2.5 text-[15px] leading-6 text-white/85">
+                <li className="flex gap-3"><Clock size={18} className="mt-0.5 shrink-0 text-[#b9a6ff]" />{durationLabel(total)}</li>
+                <li className="flex gap-3"><Wind size={18} className="mt-0.5 shrink-0 text-[#b9a6ff]" />{rhythmWords(e)}</li>
+                <li className="flex gap-3"><AudioLines size={18} className="mt-0.5 shrink-0 text-[#b9a6ff]" />{guideLine(voice, bowl, music !== "off" ? trackName : "", vibOn)}</li>
+              </ul>
+            </div>
+            <div>
+              <p className="mb-2 text-[12px] font-semibold tracking-wide text-white/45 uppercase">Was du davon hast</p>
+              <p className="flex gap-3 text-[15px] leading-6 text-white/85"><Sparkles size={18} className="mt-0.5 shrink-0 text-[#b9a6ff]" />{gainOf(e)}</p>
+            </div>
+            {e.caution && <p className="flex gap-3 text-[13px] leading-5 text-white/55"><TriangleAlert size={16} className="mt-0.5 shrink-0" />{e.caution}</p>}
+          </div>
+        </div>
+      ) : (
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-6">
         <div className="relative grid place-items-center">
           <ProgressRing p={progress} />
@@ -180,7 +205,7 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
         </div>
         {/* feste Höhen: Wort und Zeile darunter springen nicht, das Bild bleibt stehen */}
         <p key={`${stage}${idx}`} className="breathe-word mt-5 flex h-10 items-center justify-center text-center text-[26px] font-light tracking-wide text-white/90">
-          {stage === "pick" ? "Bereit?" : stage === "done" ? (result?.completed ? "Schön gemacht." : "Gut, dass du da warst.") : step ? step.word : "Mach es dir bequem"}
+          {stage === "done" ? (result?.completed ? "Schön gemacht." : "Gut, dass du da warst.") : step ? step.word : "Mach es dir bequem"}
         </p>
         <div className="flex h-[88px] w-full flex-col items-center justify-start overflow-hidden">
           {stage === "run" && step && (step.kind === "in" || step.kind === "out") && step.s >= 2 && !step.thought ? (
@@ -189,16 +214,16 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
             </span>
           ) : (
             <p className="mx-auto mt-1 line-clamp-3 max-w-[20rem] text-center text-[15px] leading-6 text-white/60">
-              {stage === "run" ? (step ? step.thought ?? step.hint ?? step.blockLabel ?? "" : e.intro) : stage === "done" ? "Nimm diese Ruhe mit." : `${rhythmLabel(e)} · ${durationLabel(total)}`}
+              {stage === "run" ? (step ? step.thought ?? step.hint ?? step.blockLabel ?? "" : e.intro) : "Nimm diese Ruhe mit."}
             </p>
           )}
         </div>
       </div>
+      )}
 
-      <div className="mx-auto w-full max-w-md px-5" style={{ paddingBottom: "max(2rem, calc(env(safe-area-inset-bottom) + 1.25rem))" }}>
+      <div className="bottom-safe mx-auto w-full max-w-md px-5 pt-3">
         {stage === "pick" && (
           <>
-            {e.caution && <p className="mb-3 flex gap-2.5 rounded-2xl bg-white/[0.07] px-3.5 py-3 text-[13px] leading-[19px] text-white/75"><TriangleAlert size={17} className="mt-px shrink-0 text-[#c4b5ff]" />{e.caution}</p>}
             {flexible(e) && (
               <div className="mb-4 grid grid-cols-4 gap-1 rounded-full bg-white/[0.07] p-1">
                 {[1, 3, 5, 10].map((x) => <button key={x} type="button" onClick={() => setMinutes(x)} className={`h-11 rounded-full text-[15px] font-semibold transition ${x === minutes ? "bg-white text-[#141522]" : "text-white/70 hover:text-white"}`}>{x} Min.</button>)}
@@ -231,34 +256,44 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
         )}
       </div>
 
-      {picking === "music" && (
+      {picking === "adjust" && (
         <div className="absolute inset-0 z-10 flex flex-col" style={{ background: BG }}>
-          <div className="pt-safe flex items-center justify-between px-4 py-3">
+          <div className="top-safe flex items-center justify-between px-5 pb-2">
             <span className="w-11" />
-            <span className="text-[15px] font-semibold">Musik im Hintergrund</span>
-            <button type="button" onClick={() => setPicking(null)} aria-label="Schließen" className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/80"><X size={19} /></button>
+            <span className="text-[15px] font-semibold">Anpassen</span>
+            <button type="button" onClick={() => { hush(); setPicking(null); }} aria-label="Schließen" className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/80"><X size={19} /></button>
           </div>
-          <p className="px-6 text-center text-[13.5px] text-white/50">Antippen zum Anhören und Übernehmen. Alles wird live erzeugt, ohne Download.</p>
-          <div className="pb-safe mx-auto mt-4 w-full max-w-md flex-1 overflow-y-auto px-4 pb-8">
-            {[{ id: "off" as Music, label: "Keine Musik", sub: "Nur Stimme und Klangschale" }, ...TRACKS].map((t) => {
-              const on = prefs.music === t.id;
-              return (
-                <button key={t.id} type="button" onClick={() => { if (t.id !== "off") unlockBreathAudio(); setPrefs({ music: t.id }); }} className={`flex min-h-[60px] w-full items-center gap-3 rounded-2xl px-3 py-2 text-left ${on ? "bg-white/[0.09]" : "hover:bg-white/[0.05]"}`}>
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/[0.08] text-white/80">{t.id === "off" ? <VolumeX size={17} /> : <Music size={17} />}</span>
-                  <span className="min-w-0 flex-1"><span className={`block truncate text-[16px] ${on ? "font-semibold" : "font-medium"}`}>{t.label}</span><span className="block truncate text-[13px] text-white/50">{t.sub}</span></span>
-                  {on && <Check size={17} />}
-                </button>
-              );
-            })}
-            <div className={`mt-5 rounded-2xl bg-white/[0.06] px-4 py-3.5 transition ${prefs.music === "off" ? "opacity-40" : ""}`}>
-              <div className="flex items-center justify-between text-[14px]"><span className="text-white/60">Lautstärke</span><span className="font-semibold tabular-nums">{Math.round(prefs.volume * 100)} %</span></div>
-              <div className="mt-2.5 flex items-center gap-3">
+          <div className="bottom-safe mx-auto mt-2 w-full max-w-md flex-1 space-y-6 overflow-y-auto px-5">
+            <Group title="Bild">
+              <Seg value={prefs.look} onChange={(v) => setPrefs({ look: v as "nova" | "flower" })} options={[["nova", "Nova"], ["flower", "Blume"]]} />
+            </Group>
+            <Group title="Vibration">
+              {vibOk ? <Seg value={prefs.haptics} onChange={(v) => { const h = v as HapticLevel; setPrefs(h === "off" ? { haptics: h } : { haptics: h, hapticLevel: h }); if (h !== "off") play("in", 2, h); }} options={[["off", "Aus"], ["soft", "Sanft"], ["strong", "Deutlich"]]} />
+                : <p className="text-[13.5px] text-white/50">Vibration gibt es in der App (iPhone und Android) und in Android-Browsern.</p>}
+            </Group>
+            <Group title="Stimme">
+              <div className="grid gap-1">
+                <Row on={!voice} onClick={() => { hush(); setPrefs({ voice: false }); }}>Ohne Stimme</Row>
+                {(voices.length ? voices : [{ name: "" } as SpeechSynthesisVoice]).map((v) => (
+                  <Row key={v.name || "auto"} on={voice && (prefs.voiceName === v.name || (!prefs.voiceName && v === voices[0]) || (!v.name && !prefs.voiceName))} onClick={() => { setPrefs({ voice: true, voiceName: v.name }); void speak("Einatmen. Und langsam ausatmen.", { voiceName: v.name }); }}>{v.name || "Stimme des Geräts"}</Row>
+                ))}
+              </div>
+            </Group>
+            <Group title="Klangschale">
+              <Seg value={bowl ? "on" : "off"} onChange={(v) => { setPrefs({ bowl: v === "on" }); if (v === "on") { unlockBreathAudio(); bell(0.22); } }} options={[["off", "Aus"], ["on", "An"]]} />
+            </Group>
+            <Group title="Musik">
+              <div className="grid gap-1">
+                <Row on={music === "off"} onClick={() => setPrefs({ music: "off" })}>Keine Musik</Row>
+                {TRACKS.map((t) => <Row key={t.id} on={music === t.id} sub={t.sub} onClick={() => { unlockBreathAudio(); setPrefs({ music: t.id, track: t.id }); }}>{t.label}</Row>)}
+              </div>
+              <div className={`mt-3 flex items-center gap-3 transition ${music === "off" ? "opacity-40" : ""}`}>
                 <Volume1 size={17} className="shrink-0 text-white/40" />
-                <input type="range" min={0} max={1} step={0.01} value={prefs.volume} disabled={prefs.music === "off"} onChange={(ev) => setPrefs({ volume: Number(ev.target.value) })} aria-label="Lautstärke der Musik" className="breathe-range flex-1 cursor-pointer" style={{ "--p": `${Math.round(prefs.volume * 100)}%` } as React.CSSProperties} />
+                <input type="range" min={0} max={1} step={0.01} value={prefs.volume} disabled={music === "off"} onChange={(ev) => setPrefs({ volume: Number(ev.target.value) })} aria-label="Lautstärke der Musik" className="breathe-range flex-1 cursor-pointer" style={{ "--p": `${Math.round(prefs.volume * 100)}%` } as React.CSSProperties} />
                 <Volume2 size={17} className="shrink-0 text-white/60" />
               </div>
-            </div>
-            <button type="button" onClick={() => setPicking(null)} className="mt-5 h-12 w-full rounded-full bg-white text-[15px] font-semibold text-[#141522] hover:bg-white/90">Fertig</button>
+            </Group>
+            <button type="button" onClick={() => { hush(); setPicking(null); }} className="h-12 w-full rounded-full bg-white text-[15px] font-semibold text-[#141522] hover:bg-white/90">Fertig</button>
           </div>
         </div>
       )}
@@ -339,5 +374,28 @@ function AirIcon({ kind, ms }: { kind: "in" | "out"; ms: number }) {
       <path d="M14 26.5c6 2 14 2 22 0" opacity=".55" />
       <g className="air-out" style={flow} opacity=".8"><path d="M44 20c4 1 7 3 9 6M46 27h10M44 33c4-1 7-3 9-6" /></g>
     </svg>
+  );
+}
+
+function guideLine(voice: boolean, bowl: boolean, track: string, vib: boolean): string {
+  const parts = [voice ? "Nova spricht dich durch" : "", bowl ? "Klangschale" : "", track ? `Musik: ${track}` : "", vib ? "Vibration hält den Takt" : ""].filter(Boolean);
+  return parts.length ? parts.join(" · ") : "Ganz leise, du folgst dem Bild";
+}
+function Group({ title, children }: { title: string; children: React.ReactNode }) {
+  return <section><p className="mb-2 text-[12px] font-semibold tracking-wide text-white/45 uppercase">{title}</p>{children}</section>;
+}
+function Seg({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: [string, string][] }) {
+  return (
+    <div className="grid gap-1 rounded-full bg-white/[0.07] p-1" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0,1fr))` }}>
+      {options.map(([id, l]) => <button key={id} type="button" onClick={() => onChange(id)} className={`h-10 rounded-full text-[14.5px] font-semibold transition ${value === id ? "bg-white text-[#141522]" : "text-white/70 hover:text-white"}`}>{l}</button>)}
+    </div>
+  );
+}
+function Row({ on, sub, onClick, children }: { on: boolean; sub?: string; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" onClick={onClick} className={`flex min-h-[52px] w-full items-center gap-3 rounded-2xl px-3.5 py-2 text-left ${on ? "bg-white/[0.1]" : "hover:bg-white/[0.05]"}`}>
+      <span className="min-w-0 flex-1"><span className={`block truncate text-[15.5px] ${on ? "font-semibold" : ""}`}>{children}</span>{sub && <span className="block truncate text-[12.5px] text-white/50">{sub}</span>}</span>
+      {on && <Check size={17} />}
+    </button>
   );
 }

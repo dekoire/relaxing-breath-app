@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { ArrowRight, Check, ChevronLeft, Mic, Square, Volume2, VolumeX, X, LifeBuoy } from "lucide-react";
+import { ArrowRight, Check, ChevronLeft, Clock, Hand, Mic, Sparkles, Square, Volume2, VolumeX, Wind, X, LifeBuoy } from "lucide-react";
 import { BODY, CONTROL, CRISIS, EMOTIONS, ENERGY, INFLUENCES, MOODS, PART_TITLE, QUADRANT, partOf, quadrantOf, recommend, reflectQuestions, type Control, type Energy } from "@/lib/checkin";
 import { MoodFace } from "@/components/MoodFace";
 import { ExerciseRow, Photo } from "@/components/Art";
@@ -18,7 +18,7 @@ import { newId, todayIso, type CheckIn as CheckInT } from "@/lib/types";
  * Schritte: Stimmung → Energie → Wort → Körper → Einfluss → In deiner Hand? → stoische Frage(n) → Empfehlung.
  * Gespeichert wird beim Start der Übung bzw. „Ohne Übung speichern“.
  */
-type StepId = "mood" | "energy" | "words" | "body" | "influence" | "control" | `q${number}` | "result";
+type StepId = "intro" | "mood" | "energy" | "words" | "body" | "influence" | "control" | `q${number}` | "result";
 
 export default function CheckInPage() {
   const nav = useNavigate();
@@ -27,7 +27,7 @@ export default function CheckInPage() {
   const part = useMemo(() => partOf(), []);
   const today = todayIso();
   const questions = useMemo(() => reflectQuestions(part, checkins, prefs.length, today), []); // eslint-disable-line react-hooks/exhaustive-deps
-  const order: StepId[] = ["mood", "energy", "words", "body", "influence", "control", ...questions.map((_, i) => `q${i}` as StepId), "result"];
+  const order: StepId[] = ["intro", "mood", "energy", "words", "body", "influence", "control", ...questions.map((_, i) => `q${i}` as StepId), "result"];
   const [i, setI] = useState(0);
   const step = order[i];
   const [mood, setMood] = useState<number>();
@@ -63,15 +63,15 @@ export default function CheckInPage() {
   useEffect(() => { if (prefs.readAloud) void say(title.q); return () => hush(); }, [step, prefs.readAloud]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const canNext = step === "mood" ? !!mood : step === "energy" ? !!energy : true;
-  const auto = step === "mood" || step === "energy" || step === "control";
+  const auto = step === "intro" || step === "mood" || step === "energy" || step === "control";
 
   return (
     <div className="fixed inset-0 z-[200] flex flex-col bg-page text-fg">
-      <header className="pt-safe shrink-0">
-        <div className="mx-auto flex max-w-xl items-center justify-between gap-3 px-4 py-3">
+      <header className="top-safe shrink-0">
+        <div className="mx-auto flex max-w-xl items-center justify-between gap-3 px-5 pb-2">
           <button type="button" onClick={back} aria-label="Zurück" className="grid h-11 w-11 place-items-center rounded-full bg-fg/[0.07] hover:bg-fg/[0.12]"><ChevronLeft size={21} /></button>
-          <div className="flex flex-1 justify-center gap-1.5" aria-label={`Schritt ${i + 1} von ${order.length}`}>
-            {order.map((s, k) => <span key={s} className={`h-1.5 rounded-full transition-all duration-300 ${k === i ? "w-6 bg-brand-500" : k < i ? "w-1.5 bg-fg/50" : "w-1.5 bg-fg/15"}`} />)}
+          <div className={`flex flex-1 justify-center gap-1.5 ${step === "intro" ? "invisible" : ""}`} aria-label={`Schritt ${i} von ${order.length - 1}`}>
+            {order.slice(1).map((s, k0) => { const k = k0 + 1; return <span key={s} className={`h-1.5 rounded-full transition-all duration-300 ${k === i ? "w-6 bg-brand-500" : k < i ? "w-1.5 bg-fg/50" : "w-1.5 bg-fg/15"}`} />; })}
           </div>
           <div className="flex gap-2">
             <button type="button" onClick={() => setPrefs({ readAloud: !prefs.readAloud })} aria-pressed={prefs.readAloud} aria-label={prefs.readAloud ? "Nicht mehr vorlesen" : "Fragen vorlesen"} className={`grid h-11 w-11 place-items-center rounded-full ${prefs.readAloud ? "bg-brand-500 text-white" : "bg-fg/[0.07] hover:bg-fg/[0.12]"}`}>{prefs.readAloud ? <Volume2 size={19} /> : <VolumeX size={19} />}</button>
@@ -86,6 +86,22 @@ export default function CheckInPage() {
         {title.sub && <p className="mt-2 text-body leading-6 text-muted">{title.sub}</p>}
 
         <div className="mt-7">
+          {step === "intro" && (
+            <div className="space-y-6">
+              <div>
+                <p className="mb-2.5 text-caption font-semibold tracking-wide text-muted uppercase">Was dich erwartet</p>
+                <ul className="space-y-2.5 text-body leading-6">
+                  <li className="flex gap-3"><Clock size={19} className="mt-0.5 shrink-0 text-brand-400" />Etwa 2 Minuten, {order.length - 2} kurze Fragen</li>
+                  <li className="flex gap-3"><Hand size={19} className="mt-0.5 shrink-0 text-brand-400" />Fast alles zum Antippen, nichts ist Pflicht</li>
+                  <li className="flex gap-3"><Wind size={19} className="mt-0.5 shrink-0 text-brand-400" />Am Ende eine passende Atemübung</li>
+                </ul>
+              </div>
+              <div>
+                <p className="mb-2.5 text-caption font-semibold tracking-wide text-muted uppercase">Was du davon hast</p>
+                <p className="flex gap-3 text-body leading-6"><Sparkles size={19} className="mt-0.5 shrink-0 text-brand-400" />Du merkst, wie es dir wirklich geht, und atmest genau so, wie es dir jetzt guttut. Mit der Zeit siehst du deine Muster.</p>
+              </div>
+            </div>
+          )}
           {step === "mood" && (
             <div className="grid gap-2.5">
               {[...MOODS].reverse().map((m) => (
@@ -148,7 +164,7 @@ export default function CheckInPage() {
           ) : (
             <>
               {!auto && <button type="button" onClick={next} className="h-14 rounded-full px-5 text-[16px] font-semibold text-muted hover:text-fg">Überspringen</button>}
-              <button type="button" onClick={next} disabled={!canNext} className="h-14 flex-1 rounded-full bg-brand-500 text-[17px] font-semibold text-white disabled:opacity-40">Weiter</button>
+              <button type="button" onClick={next} disabled={!canNext} className="h-14 flex-1 rounded-full bg-brand-500 text-[17px] font-semibold text-white disabled:opacity-40">{step === "intro" ? "Los geht's" : "Weiter"}</button>
             </>
           )}
         </div>
@@ -159,6 +175,7 @@ export default function CheckInPage() {
 
 function TITLES(step: StepId, questions: string[], part: ReturnType<typeof partOf>): { over: string; q: string; sub?: string } {
   switch (step) {
+    case "intro": return { over: PART_TITLE[part], q: "Kurzer Check-in" };
     case "mood": return { over: PART_TITLE[part], q: "Wie geht's dir gerade?", sub: "Ganz ehrlich, ohne nachzudenken." };
     case "energy": return { over: "Energie", q: "Wie viel Energie hast du?" };
     case "words": return { over: "Gefühl benennen", q: "Welches Wort passt am besten?", sub: "Bis zu drei. Ein Gefühl zu benennen nimmt ihm schon etwas Wucht." };
