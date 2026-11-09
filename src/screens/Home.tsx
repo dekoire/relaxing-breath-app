@@ -1,12 +1,13 @@
 import { useMemo } from "react";
 import { Link } from "react-router";
-import { ArrowRight, Flame, Timer } from "lucide-react";
+import { ArrowRight, ChevronRight, Flame, LifeBuoy, Timer } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { usePrefs } from "@/lib/prefs";
 import { dayStats, streak, week } from "@/lib/stats";
 import { PART_TITLE, partOf, recommend, QUADRANT, quadrantOf } from "@/lib/checkin";
 import { EXERCISES, exerciseById } from "@/data/exercises";
 import { todayIso } from "@/lib/types";
+import { ARTICLES, articleImage } from "@/data/articles";
 import { ExerciseCard, ExerciseRow, LogoMark } from "@/components/Art";
 import { Nova } from "@/components/Nova";
 import { MoodFace, MOOD_FLAT } from "@/components/MoodFace";
@@ -70,6 +71,16 @@ export default function Home() {
         </div>
       )}
 
+      {/* Sofort-Hilfe: immer da, ohne Fragen direkt in die Übung */}
+      <Link to="/atmen/seufzer" className="press mt-3 flex items-center gap-3.5 rounded-[22px] border border-card-line bg-surface px-4 py-3.5">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-500 text-white"><LifeBuoy size={21} /></span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[16px] font-semibold">Ich brauche jetzt Hilfe</span>
+          <span className="block text-small text-muted">Ohne Fragen, 1 Minute ruhiger</span>
+        </span>
+        <ChevronRight size={18} className="text-muted" />
+      </Link>
+
       {/* Heute geschafft: eine ruhige Zeile statt drei Zahl-Kacheln (eine Null wirkt wie ein Vorwurf) */}
       {(days > 0 || s.exercises > 0) && (
         <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 px-1 text-small text-muted">
@@ -79,7 +90,7 @@ export default function Home() {
       )}
 
       <Section title={last ? "Passt zu dir jetzt" : part === "evening" ? "Für deinen Abend" : part === "morning" ? "Für deinen Morgen" : "Für zwischendurch"} action={<Link to="/entdecken" className="text-small font-semibold text-muted hover:text-fg">Alle {EXERCISES.length}</Link>}>
-        <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 md:-mx-6 md:px-6">
+        <div className="no-scrollbar -mx-5 flex snap-x scroll-px-5 gap-3 overflow-x-auto px-5 md:-mx-6 md:scroll-px-6 md:px-6">
           {picks.map((e) => <div key={e.id} className="w-[46%] shrink-0 snap-start sm:w-[30%]"><ExerciseCard e={e} tall /></div>)}
         </div>
       </Section>
@@ -94,6 +105,21 @@ export default function Home() {
           <div className="grid gap-1">{recent.map((e) => <ExerciseRow key={e.id} e={e} to={`/uebung/${e.id}`} />)}</div>
         </Section>
       )}
+
+      <Section title="Gut zu wissen">
+        <div className="no-scrollbar -mx-5 flex snap-x scroll-px-5 gap-3 overflow-x-auto px-5 md:-mx-6 md:scroll-px-6 md:px-6">
+          {ARTICLES.map((a) => (
+            <Link key={a.id} to={`/artikel/${a.id}`} className="press relative block aspect-[4/5] w-[62%] shrink-0 snap-start overflow-hidden rounded-[22px] bg-surface-3 text-white sm:w-[38%]">
+              <img src={articleImage(a, 600)} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+              <span aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(20,22,30,.1) 25%, rgba(20,22,30,.88) 100%)" }} />
+              <span className="absolute inset-x-0 bottom-0 p-4">
+                <span className="block text-caption font-semibold text-white/70">{a.minutes} Min. lesen</span>
+                <span className="mt-1 block text-[17px] leading-[22px] font-bold">{a.title}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </Section>
 
       <Section title="Deine Woche" action={<Link to="/rueckblick" className="text-small font-semibold text-muted hover:text-fg">Rückblick</Link>}>
         <div className="grid grid-cols-7 gap-2 rounded-3xl border border-card-line bg-surface p-4">

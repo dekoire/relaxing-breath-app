@@ -13,6 +13,7 @@ import Discover from "@/screens/Discover";
 import ExercisePage, { BreathePage } from "@/screens/Exercise";
 import CheckInPage from "@/screens/CheckIn";
 import Review from "@/screens/Review";
+import ArticlePage from "@/screens/Article";
 import Settings from "@/screens/Settings";
 
 /** Nicht angemeldet: „/“ ist die schlichte Startseite, alles andere (/login, /register) die Anmeldung */
@@ -63,6 +64,7 @@ export function App() {
                 <Route path="/entdecken" element={<Discover />} />
                 <Route path="/uebung/:id" element={<ExercisePage />} />
                 <Route path="/rueckblick" element={<Review />} />
+                <Route path="/artikel/:id" element={<ArticlePage />} />
                 <Route path="/einstellungen" element={<Settings />} />
                 <Route path="/login" element={<Navigate to="/" replace />} />
                 <Route path="/register" element={<Navigate to="/" replace />} />

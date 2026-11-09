@@ -1,11 +1,11 @@
 import { ChevronRight, LogOut, Monitor, Moon, Sun, Vibrate } from "lucide-react";
 import { useThemeChoice, type ThemeChoice } from "@/lib/theme";
-import { usePrefs } from "@/lib/prefs";
+import { usePrefs, type Layout } from "@/lib/prefs";
 import { useStore } from "@/lib/store";
 import { useVoices, say } from "@/lib/speech";
 import { canVibrate, isNative, play, type Cue, type HapticLevel } from "@/lib/haptics";
 import { LENGTH, type Length } from "@/lib/checkin";
-import { PageTitle, Segmented } from "@/components/primitives";
+import { PageTitle, Pill, Segmented } from "@/components/primitives";
 
 /** Einstellungen wie die iOS-Einstellungen: Gruppen aus Zeilen auf weißen bzw. dunklen Karten */
 export default function Settings() {
@@ -25,22 +25,27 @@ export default function Settings() {
     <div>
       <PageTitle title="Profil" sub={account.email} />
 
-      <Group title="Design">
+      <Group title="Aussehen">
         <div className="p-3">
-          <Segmented label="Design" joined value={theme} onChange={(v: ThemeChoice) => setTheme(v)} options={[{ id: "system", label: "Automatisch" }, { id: "light", label: "Hell" }, { id: "dark", label: "Dunkel" }]} />
+          <Segmented label="Design" joined value={theme} onChange={(v: ThemeChoice) => setTheme(v)} options={[{ id: "dark", label: "Dunkel" }, { id: "light", label: "Hell" }, { id: "system", label: "Wie Gerät" }]} />
         </div>
         <p className="flex items-center gap-2 px-4 pb-3 text-small text-muted">{theme === "system" ? <Monitor size={15} /> : theme === "light" ? <Sun size={15} /> : <Moon size={15} />} {theme === "system" ? "Folgt deinem Gerät" : theme === "light" ? "Immer hell" : "Immer dunkel"}</p>
+        <div className="flex items-center gap-3 border-t border-line px-4 py-2.5">
+          <span className="min-w-0 flex-1"><span className="block text-[16px] font-medium">Übungen zeigen als</span><span className="block text-small text-muted">{prefs.layout === "list" ? "Liste mit Bild links" : "Kacheln wie bei Pinterest"}</span></span>
+          <div className="w-44"><Segmented label="Übungen zeigen als" joined value={prefs.layout} onChange={(v: Layout) => setPrefs({ layout: v })} options={[{ id: "tiles", label: "Kacheln" }, { id: "list", label: "Liste" }]} /></div>
+        </div>
       </Group>
 
-      <Group title="Vibration" foot={vib ? "So spürst du die Atemanweisung ohne Kopfhörer, wie bei der Apple Watch. Antippen zum Ausprobieren." : isNative() ? "" : "Vibration gibt es in der App fürs iPhone und Android und in Android-Browsern. Safari am iPhone kann nicht vibrieren."}>
+      <Group title="Vibration" foot={vib ? "So führt dich die Übung auch ohne Kopfhörer, wie die Apple Watch." : isNative() ? undefined : "Vibration gibt es in der App fürs iPhone und Android und in Android-Browsern. Safari am iPhone kann nicht vibrieren."}>
         <div className="p-3"><Segmented label="Stärke" joined value={prefs.haptics} onChange={(v: HapticLevel) => setPrefs(v === "off" ? { haptics: v } : { haptics: v, hapticLevel: v })} options={[{ id: "strong", label: "Deutlich" }, { id: "soft", label: "Sanft" }, { id: "off", label: "Aus" }]} /></div>
-        {LEARN.map((l) => (
-          <Row key={l.label} onClick={() => play(l.cue, l.s, prefs.haptics === "off" ? "strong" : prefs.haptics)} disabled={!vib}>
-            <span className="grid h-9 w-9 place-items-center rounded-tile bg-lavender text-brand-400"><Vibrate size={17} /></span>
-            <span className="min-w-0 flex-1"><span className="block text-[16px] font-medium">{l.label}</span><span className="block text-small text-muted">{l.sub}</span></span>
-            <span className="text-small font-semibold text-brand-400">Spüren</span>
-          </Row>
-        ))}
+        {vib && (
+          <div className="border-t border-line px-4 py-3">
+            <p className="flex items-center gap-2 text-small font-semibold text-soft"><Vibrate size={15} className="text-brand-400" /> Zum Spüren antippen</p>
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              {LEARN.map((l) => <Pill key={l.label} title={l.sub} onClick={() => play(l.cue, l.s, prefs.haptics === "off" ? "strong" : prefs.haptics)}>{l.label}</Pill>)}
+            </div>
+          </div>
+        )}
       </Group>
 
       <Group title="Stimme und Klang">

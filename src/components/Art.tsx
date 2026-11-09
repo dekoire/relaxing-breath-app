@@ -1,8 +1,8 @@
 import { Link } from "react-router";
-import { Heart } from "lucide-react";
+import { ChevronRight, Heart, LayoutGrid, List } from "lucide-react";
 import type { Exercise, Motif } from "@/data/exercises";
 import { categoryOf, durationLabel, totalSec } from "@/data/exercises";
-import { toggleFavorite, usePrefs } from "@/lib/prefs";
+import { toggleFavorite, usePrefs, type Layout } from "@/lib/prefs";
 import { imageOf } from "@/data/photos";
 
 /** Produktname an genau einer Stelle (Arbeitsname). */
@@ -97,6 +97,57 @@ export function ExerciseRow({ e, sub, onClick, to }: { e: Exercise; sub?: string
   const cls = "press flex w-full items-center gap-3.5 rounded-2xl p-2 text-left hover:bg-fg/[0.04]";
   if (to) return <Link to={to} className={cls}>{inner}</Link>;
   return <button type="button" onClick={onClick} className={cls}>{inner}</button>;
+}
+
+/**
+ * Längliche Kachel (Liste): links das Bild, das nach rechts weich in die Kartenfläche ausläuft, rechts Name, eine Zeile
+ * und Dauer. Gleiche Höhe für alle, damit die Liste ruhig wirkt. Für Übungen und Kategorien.
+ */
+/** Bild läuft nach rechts in die Karte aus (Maske, passt zu jeder Kartenfarbe) */
+const FADE = "linear-gradient(90deg, #000 22%, rgba(0,0,0,.6) 52%, rgba(0,0,0,.18) 78%, transparent 100%)";
+export function LongTile({ to, img, bg, title, sub, meta, right }: { to: string; img: string; bg: string; title: string; sub: string; meta?: string; right?: React.ReactNode }) {
+  return (
+    <div className="group relative">
+      <Link to={to} className="press relative flex min-h-[108px] items-stretch overflow-hidden rounded-[22px] border border-card-line bg-surface">
+        <span aria-hidden className="absolute inset-y-0 left-0 w-[58%] max-w-[260px] overflow-hidden" style={{ background: bg, WebkitMaskImage: FADE, maskImage: FADE }}>
+          <img src={img} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+        </span>
+        <span className="relative ml-[40%] flex min-w-0 flex-1 flex-col justify-center py-3.5 pr-12 pl-2 sm:ml-[180px]">
+          <span className="block truncate text-[16px] leading-6 font-semibold">{title}</span>
+          <span className="mt-0.5 line-clamp-2 text-[13.5px] leading-[19px] text-muted">{sub}</span>
+          {meta && <span className="mt-1 text-caption font-semibold text-soft tabular-nums">{meta}</span>}
+        </span>
+        {!right && <ChevronRight size={18} className="absolute top-1/2 right-4 -translate-y-1/2 text-muted" />}
+      </Link>
+      {right}
+    </div>
+  );
+}
+
+export function ExerciseLong({ e }: { e: Exercise }) {
+  const [prefs] = usePrefs();
+  const fav = prefs.favorites.includes(e.id);
+  return (
+    <LongTile to={`/uebung/${e.id}`} img={imageOf(e, 400)} bg={artBg(e)} title={e.name} sub={e.short} meta={durationLabel(totalSec(e, prefs.minutes[e.id] ?? e.minutes))}
+      right={<button type="button" onClick={() => toggleFavorite(e.id)} aria-pressed={fav} aria-label={fav ? "Aus Favoriten entfernen" : "Zu Favoriten"} className={`absolute top-1/2 right-2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full transition active:scale-90 ${fav ? "text-brand-400" : "text-muted hover:text-fg"}`}><Heart size={18} fill={fav ? "currentColor" : "none"} /></button>} />
+  );
+}
+
+/** Übungen als Mauerwerk oder Liste, je nach Einstellung */
+export function ExerciseGrid({ list }: { list: Exercise[] }) {
+  const [prefs] = usePrefs();
+  if (prefs.layout === "list") return <div className="grid gap-2.5 lg:grid-cols-2">{list.map((e) => <ExerciseLong key={e.id} e={e} />)}</div>;
+  return <div className="masonry">{list.map((e, k) => <ExerciseCard key={e.id} e={e} tall={k % 3 === 0} />)}</div>;
+}
+
+/** kleiner Schalter Kacheln | Liste (Symbole), gleiche Einstellung wie in den Einstellungen */
+export function LayoutSwitch() {
+  const [prefs, setPrefs] = usePrefs();
+  const opt = (id: Layout, I: typeof List, label: string) => (
+    <button type="button" role="radio" aria-checked={prefs.layout === id} aria-label={label} title={label} onClick={() => setPrefs({ layout: id })}
+      className={`grid h-9 w-10 place-items-center rounded-full transition-colors ${prefs.layout === id ? "bg-fg text-canvas" : "text-muted hover:text-fg"}`}><I size={17} /></button>
+  );
+  return <div role="radiogroup" aria-label="Ansicht" className="inline-flex rounded-full bg-fg/[0.07] p-0.5">{opt("tiles", LayoutGrid, "Kacheln")}{opt("list", List, "Liste")}</div>;
 }
 
 export const categoryLabel = (e: Exercise) => categoryOf(e.category).label;

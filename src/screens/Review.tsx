@@ -35,7 +35,7 @@ export default function Review() {
         <Big value={r.avgMood ? r.avgMood.toFixed(1).replace(".", ",") : "–"} label="Stimmung Ø (1–5)" />
         <Big value={r.lift != null ? `${r.lift > 0 ? "+" : ""}${r.lift.toFixed(1).replace(".", ",")}` : "–"} label="Nach dem Atmen" accent />
       </div>
-      {r.lift != null && <p className="mt-3 text-small leading-5 text-muted">{r.lift > 0 ? `Nach einer Übung ging es dir im Schnitt ${r.lift.toFixed(1).replace(".", ",")} Stufen besser.` : "Das Atmen hat deine Stimmung bisher wenig verändert – probier andere Übungen aus."}</p>}
+      {r.lift != null && <p className="mt-3 text-small leading-5 text-muted">{r.lift > 0 ? `Nach einer Übung ging es dir im Schnitt ${r.lift.toFixed(1).replace(".", ",")} Stufen besser.` : "Das Atmen hat deine Stimmung bisher wenig verändert. Probier andere Übungen aus."}</p>}
 
       <Section title="Stimmung diese Woche">
         <div className="flex h-44 items-end gap-2 rounded-3xl border border-card-line bg-surface p-4">

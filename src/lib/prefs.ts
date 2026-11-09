@@ -9,6 +9,8 @@ import type { Length } from "@/lib/checkin";
 
 /** Bild der Übung: Nova (Vorgabe, wie in Notara) oder die Blume */
 export type Look = "nova" | "flower";
+/** Übungen und Kategorien als Kacheln (Mauerwerk) oder als Liste länglicher Kacheln (Bild links) */
+export type Layout = "tiles" | "list";
 export type Prefs = {
   /** Stimme spricht mit */
   voice: boolean;
@@ -25,18 +27,19 @@ export type Prefs = {
   /** zuletzt gewählte Musik (an/aus merkt sich das Stück) */
   track: Track;
   look: Look;
+  layout: Layout;
   length: Length;
   favorites: string[];
   /** zuletzt gewählte Dauer je Übung */
   minutes: Record<string, number>;
 };
 
-export const DEFAULT_PREFS: Prefs = { voice: true, voiceName: "", readAloud: false, bowl: true, music: "off", volume: 0.35, haptics: "strong", hapticLevel: "strong", track: "pad", look: "nova", length: "normal", favorites: [], minutes: {} };
+export const DEFAULT_PREFS: Prefs = { voice: true, voiceName: "", readAloud: false, bowl: true, music: "off", volume: 0.35, haptics: "strong", hapticLevel: "strong", track: "pad", look: "nova", layout: "tiles", length: "normal", favorites: [], minutes: {} };
 const KEY = "atem:prefs";
 const EVT = "atem:prefs-change";
 
 export function readPrefs(): Prefs {
-  try { const p = { ...DEFAULT_PREFS, ...(JSON.parse(localStorage.getItem(KEY) ?? "{}") as Partial<Prefs>) }; if (p.look !== "flower") p.look = "nova"; return p; } catch { return DEFAULT_PREFS; }
+  try { const p = { ...DEFAULT_PREFS, ...(JSON.parse(localStorage.getItem(KEY) ?? "{}") as Partial<Prefs>) }; if (p.look !== "flower") p.look = "nova"; if (p.layout !== "list") p.layout = "tiles"; return p; } catch { return DEFAULT_PREFS; }
 }
 let syncer: ((json: string) => void) | undefined;
 /** Store meldet sich hier an, um Änderungen ins Konto zu schreiben */

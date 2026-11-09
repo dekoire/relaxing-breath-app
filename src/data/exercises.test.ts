@@ -63,3 +63,10 @@ describe("Suche", () => {
     expect(search("prufung").length).toBeGreaterThan(0);
   });
 });
+
+import { ARTICLES } from "./articles";
+describe("Artikel", () => {
+  it("verweisen nur auf vorhandene Übungen", () => {
+    for (const a of ARTICLES) for (const id of a.exercises) expect(EXERCISES.some((e) => e.id === id), `${a.id} → ${id}`).toBe(true);
+  });
+});

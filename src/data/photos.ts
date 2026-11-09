@@ -35,3 +35,9 @@ export function photoOf(e: Pick<Exercise, "id" | "art">): Photo {
 /** Bild-Adresse in passender Größe (Unsplash rechnet zu) */
 export const photoUrl = (p: Photo, w = 600) => `https://images.unsplash.com/photo-${p.id}?auto=format&fit=crop&w=${w}&q=72`;
 export const imageOf = (e: Pick<Exercise, "id" | "art" | "image">, w = 600) => e.image ?? photoUrl(photoOf(e), w);
+
+/** ein ruhiges Bild je Kategorie (Entdecken) */
+const CATEGORY_PHOTO: Record<string, Photo> = {
+  akut: WATER[0], beruhigen: SEA[0], schlafen: MOON[0], fokus: STONES[0], energie: LIGHT[0], balance: MOUNTAIN[0], koerper: FOREST[0], gut: FLOWER[1],
+};
+export const categoryImage = (id: string, w = 600) => photoUrl(CATEGORY_PHOTO[id] ?? SEA[1], w);

@@ -1,18 +1,18 @@
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router";
-import { BarChart3, Compass, Plus, Settings, Sun, type LucideIcon } from "lucide-react";
+import { BarChart3, Compass, Plus, Sun, UserRound, type LucideIcon } from "lucide-react";
 
 /**
  * Rahmen wie in Notara: Seite auf grauem Grund, unten am Handy eine schwebende, runde Leiste (gewählter Punkt nur mit
- * weichem Licht vom unteren Rand). Fünf Plätze: Heute · Entdecken · Check-in (Mitte, groß) · Rückblick · Einstellungen.
+ * weichem Licht vom unteren Rand). Fünf Plätze: Heute · Entdecken · Check-in (Mitte, groß) · Rückblick · Profil.
  * Mobil zuerst; am Rechner bleibt die Leiste unten und der Inhalt schmal in der Mitte (wie eine App).
  */
 type Nav = { href: string; label: string; icon: LucideIcon; match: (p: string) => boolean };
 const NAV: Nav[] = [
-  { href: "/", label: "Heute", icon: Sun, match: (p) => p === "/" },
+  { href: "/", label: "Heute", icon: Sun, match: (p) => p === "/" || p.startsWith("/artikel") },
   { href: "/entdecken", label: "Entdecken", icon: Compass, match: (p) => p.startsWith("/entdecken") || p.startsWith("/uebung") },
   { href: "/rueckblick", label: "Rückblick", icon: BarChart3, match: (p) => p.startsWith("/rueckblick") },
-  { href: "/einstellungen", label: "Profil", icon: Settings, match: (p) => p.startsWith("/einstellungen") },
+  { href: "/einstellungen", label: "Profil", icon: UserRound, match: (p) => p.startsWith("/einstellungen") },
 ];
 
 export function Shell({ children }: { children: React.ReactNode }) {

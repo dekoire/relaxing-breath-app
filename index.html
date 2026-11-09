@@ -13,11 +13,11 @@
     <meta name="apple-mobile-web-app-title" content="Atem" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <script>
-      // Design: Wie das Gerät (Standard), Dunkel oder Hell – dieselbe Regel wie src/lib/theme.ts
+      // Design: Dunkel (Standard), Hell oder wie das Gerät – dieselbe Regel wie src/lib/theme.ts
       (function () {
-        var c = "system";
-        try { c = localStorage.getItem("atem:theme") || "system"; } catch (e) {}
-        var t = c === "light" ? "light" : c === "dark" ? "dark" : window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        var c = "dark";
+        try { c = localStorage.getItem("atem:theme") || "dark"; } catch (e) {}
+        var t = c === "light" ? "light" : c !== "system" ? "dark" : window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
         document.documentElement.dataset.theme = t;
         document.querySelector('meta[name="theme-color"]').setAttribute("content", t === "light" ? "#f4f4f6" : "#1d2129");
         document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]').setAttribute("content", t === "light" ? "default" : "black-translucent");

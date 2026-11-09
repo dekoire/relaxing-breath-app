@@ -575,7 +575,7 @@ export const EXERCISES: Exercise[] = [
     minutes: 5, rounds: 3,
     category: "energie", level: "fortgeschritten",
     tags: ["energie", "morgen", "muede", "sport"],
-    caution: "Nur sitzend oder liegend. NIE im Wasser, beim Autofahren oder im Stehen – Ohnmachtsgefahr. Nicht in der Schwangerschaft, bei Herz-Kreislauf-Problemen oder Epilepsie.",
+    caution: "Nur sitzend oder liegend. NIE im Wasser, beim Autofahren oder im Stehen: Ohnmachtsgefahr. Nicht in der Schwangerschaft, bei Herz-Kreislauf-Problemen oder Epilepsie.",
     intro: "Wir machen Energie-Runden. Dreißig tiefe Atemzüge, dann halten wir entspannt. Bleib sitzen oder liegen.",
     art: { from: "#c9a8ff", to: "#5f2ee3", motif: "spiral" },
   },
@@ -636,7 +636,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: "dreiteilig",
     name: "Dreiteilige Atmung",
-    short: "Bauch, Brust, Schlüsselbein – ganz voll atmen.",
+    short: "Bauch, Brust, Schlüsselbein: ganz voll atmen.",
     why: "Dirga Pranayama füllt die Lunge von unten nach oben. Du lernst deinen Atem kennen und atmest danach freier.",
     how: ["Erst in den Bauch", "Dann in die Brust", "Dann bis unters Schlüsselbein", "Lang aus"],
     cycle: simple(p("in", 2, "In den Bauch"), p("in2", 2, "In die Brust"), p("in2", 1.5, "Bis zum Schlüsselbein"), p("out", 7, "Ganz ausatmen")),

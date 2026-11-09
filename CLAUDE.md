@@ -20,3 +20,10 @@
 - Reine Logik ohne React in `src/data/` und `src/lib/*.ts`, mit Tests (`npm test`). Neue Übung = Eintrag in `EXERCISES`, nur Schlagwörter aus `TAGS`.
 - Keine Heilversprechen; Vorsicht-Hinweise bei aktivierenden Übungen; bei sehr schlechter Stimmung TelefonSeelsorge zeigen.
 - Vor dem Push: `npx tsc --noEmit`, `npm test`, `npm run build`.
+
+## Stand Nov. 2026
+
+- **Dunkel ist Standard** (`atem:theme` leer = dunkel; Wahl Dunkel · Hell · Wie Gerät; `index.html` gleiche Regel).
+- **Kacheln | Liste** (`Prefs.layout`, Schalter oben rechts in Entdecken und im Profil): Liste = `LongTile`/`ExerciseLong` in `Art.tsx` (Bild links, läuft per Maske nach rechts in die Karte aus). Kategorien haben Fotos (`categoryImage`), dazu „Gut erforscht“ (`?gut=1`).
+- **Heute**: unter dem Check-in „Ich brauche jetzt Hilfe“ (direkt `/atmen/seufzer`, ohne Fragen), „Gut zu wissen“ = Artikel (`src/data/articles.ts`, Seite `/artikel/:id`).
+- Übung zeigt, wie gut sie erforscht ist (`EVIDENCE_LABEL`, Studie). Keine Gedankenstriche in sichtbaren Texten.

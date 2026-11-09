@@ -1,6 +1,6 @@
 import { useNavigate, useParams, useSearchParams } from "react-router";
-import { ChevronLeft, Heart, Play, TriangleAlert } from "lucide-react";
-import { categoryOf, durationLabel, exerciseById, rhythmLabel, tagOf, totalSec } from "@/data/exercises";
+import { ChevronLeft, FlaskConical, Heart, Play, TriangleAlert } from "lucide-react";
+import { EVIDENCE_LABEL, categoryOf, durationLabel, exerciseById, rhythmLabel, tagOf, totalSec } from "@/data/exercises";
 import { Photo, artBg } from "@/components/Art";
 import { photoOf } from "@/data/photos";
 import { BreatheView } from "@/components/Breathe";
@@ -21,7 +21,7 @@ export default function ExercisePage() {
   const total = totalSec(e, prefs.minutes[e.id] ?? e.minutes);
   return (
     <div>
-      <div className="relative -mx-4 -mt-4 overflow-hidden md:mx-0 md:mt-0 md:rounded-[28px]" style={{ background: artBg(e) }}>
+      <div className="relative -mx-5 -mt-5 overflow-hidden md:mx-0 md:mt-0 md:rounded-[28px]" style={{ background: artBg(e) }}>
         <Photo e={e} w={1080} />
         <span aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(29,33,41,0) 35%, rgba(29,33,41,.85) 100%)" }} />
         <div className="top-safe relative flex items-center justify-between px-5">
@@ -48,6 +48,12 @@ export default function ExercisePage() {
 
       <h2 className="mt-8 text-[22px] font-bold tracking-tight">Warum es hilft</h2>
       <p className="mt-2 text-body leading-7 text-soft">{e.why}</p>
+      {e.evidence && (
+        <button type="button" onClick={() => nav("/entdecken?gut=1")} className="mt-3 flex w-full items-center gap-3 rounded-2xl bg-fg/[0.05] px-4 py-3 text-left">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-tile bg-lavender text-brand-400"><FlaskConical size={17} /></span>
+          <span className="min-w-0"><span className="block text-small font-semibold">{EVIDENCE_LABEL[e.evidence]}</span>{e.study && <span className="block truncate text-caption text-muted">{e.study}</span>}</span>
+        </button>
+      )}
 
       <h2 className="mt-8 text-[22px] font-bold tracking-tight">So geht's</h2>
       <ol className="mt-3 grid gap-2.5">

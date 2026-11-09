@@ -1,5 +1,5 @@
 /**
- * Design: Wie das Gerät (Standard), Dunkel oder Hell. Gemerkt in `atem:theme`; index.html setzt `data-theme` schon
+ * Design: Dunkel (Standard), Hell oder wie das Gerät. Gemerkt in `atem:theme`; index.html setzt `data-theme` schon
  * vor dem ersten Bild (dieselbe Regel wie hier), dieser Hook hält es aktuell – auch wenn das Gerät umschaltet.
  */
 import { useEffect, useState } from "react";
@@ -11,9 +11,9 @@ const BG = { dark: "#1d2129", light: "#f4f4f6" } as const;
 export function readChoice(): ThemeChoice {
   try {
     const v = localStorage.getItem(KEY);
-    return v === "light" || v === "dark" ? v : "system";
+    return v === "light" || v === "system" ? v : "dark";
   } catch {
-    return "system";
+    return "dark";
   }
 }
 
@@ -48,7 +48,7 @@ export function useTheme() {
 /** Design setzen (auch von Nova im Chat) */
 export function setThemeChoice(c: ThemeChoice) {
   try {
-    if (c === "system") localStorage.removeItem(KEY);
+    if (c === "dark") localStorage.removeItem(KEY);
     else localStorage.setItem(KEY, c);
   } catch {
     /* egal */
