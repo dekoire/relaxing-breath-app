@@ -1,6 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
-import { ArrowRight, ChevronRight, Flame, LifeBuoy, Timer } from "lucide-react";
+import { ArrowRight, Bell, ChevronRight, Flame, LifeBuoy, Timer, X } from "lucide-react";
+import { useProgress } from "@/components/Progress";
+import { askNotify, notifySupported } from "@/components/Reminders";
 import { useStore } from "@/lib/store";
 import { usePrefs } from "@/lib/prefs";
 import { dayStats, streak, week } from "@/lib/stats";
@@ -25,7 +27,10 @@ const TIME_PICKS: Record<ReturnType<typeof partOf>, string[]> = {
 
 export default function Home() {
   const { checkins, sessions } = useStore();
-  const [prefs] = usePrefs();
+  const [prefs, setPrefs] = usePrefs();
+  const g = useProgress();
+  const [remindHidden, setRemindHidden] = useState(() => { try { return !!localStorage.getItem("atem:remind-ask-hidden"); } catch { return false; } });
+  const hideRemind = () => { try { localStorage.setItem("atem:remind-ask-hidden", "1"); } catch { /* egal */ } setRemindHidden(true); };
   const today = todayIso();
   const part = partOf();
   const s = dayStats(checkins, sessions, today);
@@ -81,12 +86,26 @@ export default function Home() {
         <ChevronRight size={18} className="text-muted" />
       </Link>
 
-      {/* Heute geschafft: eine ruhige Zeile statt drei Zahl-Kacheln (eine Null wirkt wie ein Vorwurf) */}
-      {(days > 0 || s.exercises > 0) && (
-        <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 px-1 text-small text-muted">
-          {days > 0 && <span className="inline-flex items-center gap-1.5"><Flame size={15} className="text-brand-400" /><b className="font-semibold text-fg">{days}</b> {days === 1 ? "Tag in Folge" : "Tage in Folge"}</span>}
-          <span className="inline-flex items-center gap-1.5"><Timer size={15} />{s.exercises ? <><b className="font-semibold text-fg">{s.minutes} Min.</b> heute geatmet</> : "Heute noch nicht geatmet"}</span>
-        </p>
+      {/* Timer und Fortschritt nebeneinander, ganz rund */}
+      <div className="mt-3 grid grid-cols-2 gap-2.5">
+        <Link to="/timer" className="press flex items-center gap-3 rounded-full border border-card-line bg-surface py-2 pr-4 pl-2">
+          <span className="accent-chip grid h-10 w-10 shrink-0 place-items-center rounded-full"><Timer size={18} /></span>
+          <span className="min-w-0"><span className="block text-[15px] font-semibold">Timer</span><span className="block truncate text-caption text-muted">Still atmen</span></span>
+        </Link>
+        <Link to="/rueckblick" className="press flex items-center gap-3 rounded-full border border-card-line bg-surface py-2 pr-4 pl-2">
+          <span className="accent-chip grid h-10 w-10 shrink-0 place-items-center rounded-full"><Flame size={18} /></span>
+          <span className="min-w-0"><span className="block truncate text-[15px] font-semibold">{days > 0 ? `${days} ${days === 1 ? "Tag" : "Tage"}` : `Stufe ${g.level.n}`}</span><span className="block truncate text-caption text-muted">{days > 0 ? "in Folge dabei" : `${g.points} Punkte`}</span></span>
+        </Link>
+      </div>
+
+      {/* einmal fragen, ob täglich erinnert werden soll */}
+      {!prefs.remind.on && !remindHidden && notifySupported() && (
+        <div className="mt-3 flex items-center gap-3 rounded-[22px] border border-card-line bg-surface py-3 pr-2 pl-3">
+          <span className="accent-chip grid h-10 w-10 shrink-0 place-items-center rounded-full"><Bell size={18} /></span>
+          <span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold">Täglich erinnern?</span><span className="block text-caption text-muted">Morgens um 8 und abends um 21 Uhr. Änderbar im Profil.</span></span>
+          <button type="button" onClick={async () => { if (await askNotify()) setPrefs({ remind: { ...prefs.remind, on: true } }); else hideRemind(); }} className="h-10 shrink-0 rounded-full bg-brand-500 px-4 text-small font-semibold text-white">Ja, bitte</button>
+          <button type="button" onClick={hideRemind} aria-label="Nicht jetzt" className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-muted hover:bg-fg/[0.06]"><X size={17} /></button>
+        </div>
       )}
 
       <Section title={last ? "Passend zu dir" : part === "evening" ? "Für deinen Abend" : part === "morning" ? "Für deinen Morgen" : "Für zwischendurch"} action={<Link to="/entdecken" className="text-small font-semibold text-muted hover:text-fg">Alle ansehen</Link>}>

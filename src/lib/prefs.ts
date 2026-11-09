@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { HapticLevel } from "@/lib/haptics";
 import type { Track } from "@/lib/sound";
 import type { Length } from "@/lib/checkin";
+import { DEFAULT_REMIND, type Remind } from "@/lib/remind";
 
 /** Bild der Übung: Nova (Vorgabe, wie in Notara) oder die Blume */
 export type Look = "nova" | "flower";
@@ -30,16 +31,20 @@ export type Prefs = {
   layout: Layout;
   length: Length;
   favorites: string[];
+  /** tägliche Erinnerung */
+  remind: Remind;
+  /** Timer: zuletzt gewählte Minuten und Gong zwischendurch (Minuten, 0 = aus) */
+  timer: { minutes: number; gong: number };
   /** zuletzt gewählte Dauer je Übung */
   minutes: Record<string, number>;
 };
 
-export const DEFAULT_PREFS: Prefs = { voice: true, voiceName: "", readAloud: false, bowl: true, music: "off", volume: 0.35, haptics: "strong", hapticLevel: "strong", track: "pad", look: "nova", layout: "tiles", length: "normal", favorites: [], minutes: {} };
+export const DEFAULT_PREFS: Prefs = { voice: true, voiceName: "", readAloud: false, bowl: true, music: "off", volume: 0.35, haptics: "strong", hapticLevel: "strong", track: "pad", look: "nova", layout: "tiles", length: "normal", favorites: [], remind: DEFAULT_REMIND, timer: { minutes: 5, gong: 0 }, minutes: {} };
 const KEY = "atem:prefs";
 const EVT = "atem:prefs-change";
 
 export function readPrefs(): Prefs {
-  try { const p = { ...DEFAULT_PREFS, ...(JSON.parse(localStorage.getItem(KEY) ?? "{}") as Partial<Prefs>) }; if (p.look !== "flower") p.look = "nova"; if (p.layout !== "list") p.layout = "tiles"; return p; } catch { return DEFAULT_PREFS; }
+  try { const p = { ...DEFAULT_PREFS, ...(JSON.parse(localStorage.getItem(KEY) ?? "{}") as Partial<Prefs>) }; if (p.look !== "flower") p.look = "nova"; if (p.layout !== "list") p.layout = "tiles"; p.remind = { ...DEFAULT_REMIND, ...p.remind }; return p; } catch { return DEFAULT_PREFS; }
 }
 let syncer: ((json: string) => void) | undefined;
 /** Store meldet sich hier an, um Änderungen ins Konto zu schreiben */

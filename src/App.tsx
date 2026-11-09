@@ -15,6 +15,9 @@ import CheckInPage from "@/screens/CheckIn";
 import Review from "@/screens/Review";
 import ArticlePage from "@/screens/Article";
 import Settings from "@/screens/Settings";
+import TimerPage from "@/screens/Timer";
+import { BadgeWatcher } from "@/components/Progress";
+import { RemindWatcher } from "@/components/Reminders";
 
 /** Nicht angemeldet: „/“ ist die schlichte Startseite, alles andere (/login, /register) die Anmeldung */
 function PublicSite({ login }: { login: React.ReactNode }) {
@@ -53,10 +56,13 @@ export function App() {
   return (
     <BrowserRouter>
       <DataSource>
+        <BadgeWatcher />
+        <RemindWatcher />
         <Routes>
           {/* Vollbild ohne Leiste */}
           <Route path="/checkin" element={<CheckInPage />} />
           <Route path="/atmen/:id" element={<BreathePage />} />
+          <Route path="/timer" element={<TimerPage />} />
           <Route path="*" element={
             <Shell>
               <Routes>

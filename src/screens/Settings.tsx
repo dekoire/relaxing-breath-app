@@ -6,6 +6,9 @@ import { useVoices, say } from "@/lib/speech";
 import { canVibrate, isNative, play, type Cue, type HapticLevel } from "@/lib/haptics";
 import { LENGTH, type Length } from "@/lib/checkin";
 import { PageTitle, Pill, Segmented } from "@/components/primitives";
+import { askNotify, notifySupported } from "@/components/Reminders";
+import { Capacitor } from "@capacitor/core";
+import type { Remind } from "@/lib/remind";
 
 /** Einstellungen wie die iOS-Einstellungen: Gruppen aus Zeilen auf weißen bzw. dunklen Karten */
 export default function Settings() {
@@ -14,6 +17,7 @@ export default function Settings() {
   const { account } = useStore();
   const voices = useVoices();
   const vib = canVibrate();
+  const setRemind = (patch: Partial<Remind>) => setPrefs({ remind: { ...prefs.remind, ...patch } });
   const LEARN: { cue: Cue; s: number; label: string; sub: string }[] = [
     { cue: "in", s: 4, label: "Einatmen", sub: "wird schneller und kräftiger" },
     { cue: "hold", s: 4, label: "Halten", sub: "ein weicher Doppel-Tipper" },
@@ -34,6 +38,23 @@ export default function Settings() {
           <span className="min-w-0 flex-1"><span className="block text-[16px] font-medium">Übungen zeigen als</span><span className="block text-small text-muted">{prefs.layout === "list" ? "Untereinander, Bild links" : "Große Bilder nebeneinander"}</span></span>
           <div className="w-44"><Segmented label="Übungen zeigen als" joined value={prefs.layout} onChange={(v: Layout) => setPrefs({ layout: v })} options={[{ id: "tiles", label: "Kacheln" }, { id: "list", label: "Liste" }]} /></div>
         </div>
+      </Group>
+
+      <Group title="Erinnerung" foot={!notifySupported() ? "Dieser Browser kann keine Mitteilungen zeigen. In der App fürs Handy geht es." : Capacitor.isNativePlatform() ? "Kommt auch, wenn die App zu ist. Nicht, wenn du an dem Tag schon geatmet hast." : "Im Browser nur, solange die App offen ist. In der App fürs Handy kommt sie immer."}>
+        <Toggle label="Jeden Tag erinnern" sub="Ein kurzer Hinweis, dass es Zeit für dich ist" on={prefs.remind.on} onChange={async (v) => { if (v && !(await askNotify())) return; setRemind({ on: v }); }} />
+        {prefs.remind.on && (["morning", "evening"] as const).map((p) => {
+          const on = p === "morning" ? prefs.remind.morning : prefs.remind.evening;
+          const t = p === "morning" ? prefs.remind.mTime : prefs.remind.eTime;
+          return (
+            <div key={p} className="flex min-h-[58px] items-center gap-3 border-t border-line px-4 py-2.5">
+              <button type="button" role="switch" aria-checked={on} onClick={() => setRemind(p === "morning" ? { morning: !on } : { evening: !on })} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 ${on ? "border-brand-500 bg-brand-500 text-white" : "border-fg/30"}`}>{on && <span className="h-2 w-2 rounded-full bg-white" />}</span>
+                <span className="text-[16px] font-medium">{p === "morning" ? "Morgens" : "Abends"}</span>
+              </button>
+              <input type="time" value={t} disabled={!on} onChange={(e) => setRemind(p === "morning" ? { mTime: e.target.value } : { eTime: e.target.value })} aria-label={p === "morning" ? "Uhrzeit morgens" : "Uhrzeit abends"} className="h-10 rounded-full border border-card-line bg-surface-2 px-4 text-[15px] tabular-nums disabled:opacity-40" />
+            </div>
+          );
+        })}
       </Group>
 
       <Group title="Vibration" foot={vib ? "So führt dich die Übung auch ohne Kopfhörer, wie die Apple Watch." : isNative() ? undefined : "Vibration gibt es in der App fürs iPhone und Android und in Android-Browsern. Safari am iPhone kann nicht vibrieren."}>

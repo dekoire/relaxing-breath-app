@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
-import { BarChart3, Quote, Trash2 } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, BarChart3, Eye, Lightbulb, Minus, Quote, Trash2, TrendingUp } from "lucide-react";
 import { useStore } from "@/lib/store";
-import { report, week } from "@/lib/stats";
+import { report } from "@/lib/stats";
+import { compare, insights, moodSeries } from "@/lib/insights";
+import { BadgeGrid, ProgressCard, useProgress } from "@/components/Progress";
 import { BODY, CONTROL, MOODS, QUADRANT, quadrantOf } from "@/lib/checkin";
 import { exerciseById } from "@/data/exercises";
 import { EmptyState, PageTitle, Section, Segmented, Button } from "@/components/primitives";
@@ -17,7 +19,10 @@ export default function Review() {
   const { checkins, sessions, removeCheckin } = useStore();
   const [range, setRange] = useState<"7" | "30">("7");
   const r = useMemo(() => report(checkins, sessions, Number(range)), [checkins, sessions, range]);
-  const w = week(checkins, sessions);
+  const dev = useMemo(() => compare(checkins, sessions, Number(range)), [checkins, sessions, range]);
+  const series = useMemo(() => moodSeries(checkins, Number(range)), [checkins, range]);
+  const notes = useMemo(() => insights(checkins, sessions, Number(range)), [checkins, sessions, range]);
+  const g = useProgress();
   const list = [...checkins].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   if (!checkins.length && !sessions.length) return (
     <div>
@@ -29,23 +34,44 @@ export default function Review() {
     <div>
       <PageTitle title="Rückblick" right={<div className="w-44"><Segmented label="Zeitraum" joined value={range} onChange={setRange} options={[{ id: "7", label: "7 Tage" }, { id: "30", label: "30 Tage" }]} /></div>} />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Big value={r.checkins} label="Check-ins" />
-        <Big value={r.minutes} label="Minuten geatmet" />
-        <Big value={r.avgMood ? MOODS[Math.round(r.avgMood) - 1]?.label ?? "·" : "·"} label="So ging es dir meistens" />
-        <Big value={r.lift == null ? "·" : r.lift > 0.2 ? "Besser" : r.lift < -0.2 ? "Schlechter" : "Gleich"} label="Nach dem Atmen" accent />
-      </div>
-      {r.lift != null && <p className="mt-3 text-small leading-5 text-muted">{r.lift > 0 ? "Nach einer Atemübung ging es dir meistens besser." : "Das Atmen hat bisher wenig verändert. Probier mal andere Übungen aus."}</p>}
+      <ProgressCard />
 
-      <Section title="Deine Stimmung diese Woche">
-        <div className="flex h-44 items-end gap-2 rounded-3xl border border-card-line bg-surface p-4">
-          {w.map((d) => (
+      <Section title="So hast du dich entwickelt">
+        <p className="-mt-1 mb-3 text-small text-muted">Die letzten {range} Tage im Vergleich zu den {range} Tagen davor.</p>
+        <div className="grid grid-cols-2 gap-2.5">
+          <Delta label="Tage dabei" now={dev.now.activeDays} before={dev.before.activeDays} />
+          <Delta label="Minuten geatmet" now={dev.now.minutes} before={dev.before.minutes} />
+          <Delta label="So ging es dir meistens" now={dev.now.mood} before={dev.before.mood} word />
+          <Delta label="Nach dem Atmen" now={dev.now.lift} before={dev.before.lift} lift />
+        </div>
+      </Section>
+
+      <Section title={range === "7" ? "Deine Stimmung diese Woche" : "Deine Stimmung im Monat"}>
+        <div className={`flex h-44 items-end rounded-3xl border border-card-line bg-surface p-4 ${range === "7" ? "gap-2" : "gap-[3px]"}`}>
+          {series.map((d, k) => (
             <div key={d.date} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
-              <div className="flex w-full flex-1 items-end"><div className="w-full rounded-xl transition-all" style={{ height: d.mood ? `${(d.mood / 5) * 100}%` : "6%", background: d.mood ? MOOD_FLAT[Math.round(d.mood)] : "var(--color-surface-3)" }} /></div>
-              <span className="text-caption font-semibold text-muted">{new Date(`${d.date}T12:00:00`).toLocaleDateString("de-DE", { weekday: "short" }).slice(0, 2)}</span>
+              <div className="flex w-full flex-1 items-end"><div className={`w-full transition-all ${range === "7" ? "rounded-xl" : "rounded-full"}`} style={{ height: d.mood ? `${(d.mood / 5) * 100}%` : "6%", background: d.mood ? MOOD_FLAT[Math.round(d.mood)] : "var(--color-surface-3)" }} /></div>
+              <span className="h-4 text-caption font-semibold text-muted">{range === "7" ? new Date(`${d.date}T12:00:00`).toLocaleDateString("de-DE", { weekday: "short" }).slice(0, 2) : k % 7 === 0 || k === series.length - 1 ? new Date(`${d.date}T12:00:00`).getDate() + "." : ""}</span>
             </div>
           ))}
         </div>
+      </Section>
+
+      {notes.length > 0 && (
+        <Section title="Was mir auffällt">
+          <div className="grid gap-2.5">
+            {notes.map((n) => (
+              <p key={n.text} className="flex items-start gap-3 rounded-[22px] border border-card-line bg-surface p-4 text-body leading-6">
+                <span className="accent-chip grid h-9 w-9 shrink-0 place-items-center rounded-full">{n.kind === "good" ? <TrendingUp size={17} /> : n.kind === "tip" ? <Lightbulb size={17} /> : <Eye size={17} />}</span>
+                <span className="pt-1.5">{n.text}</span>
+              </p>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      <Section title="Abzeichen" action={<span className="text-small text-muted">{g.badges.filter((b) => b.earned).length} von {g.badges.length}</span>}>
+        <BadgeGrid list={[...g.badges].sort((a, b) => Number(b.earned) - Number(a.earned) || b.now / b.goal - a.now / a.goal)} />
       </Section>
 
       {r.emotions.length > 0 && <Section title="Häufigste Gefühle"><Bars items={r.emotions} /></Section>}
@@ -53,7 +79,7 @@ export default function Review() {
       {r.influences.length > 0 && <Section title="Was dich beschäftigt hat"><Bars items={r.influences} /></Section>}
       {r.control.length > 0 && (
         <Section title="Konntest du etwas ändern?">
-          <div className="grid grid-cols-3 gap-3">{CONTROL.map((c) => <Big key={c.v} value={r.control.find(([v]) => v === c.v)?.[1] ?? 0} label={c.label} />)}</div>
+          <Bars items={CONTROL.map((c) => [c.label, r.control.find(([v]) => v === c.v)?.[1] ?? 0] as [string, number])} />
         </Section>
       )}
       {r.exercises.length > 0 && (
@@ -94,8 +120,22 @@ export default function Review() {
   );
 }
 
-function Big({ value, label, accent }: { value: React.ReactNode; label: string; accent?: boolean }) {
-  return <div className={`rounded-3xl px-4 py-4 ${accent ? "bg-brand-500 text-white" : "border border-card-line bg-surface"}`}><p className="text-[28px] leading-9 font-bold tabular-nums">{value}</p><p className={`text-caption leading-4 ${accent ? "text-white/75" : "text-muted"}`}>{label}</p></div>;
+/** Wert jetzt mit kleinem Pfeil gegenüber vorher (höher = besser) */
+function Delta({ label, now, before, word, lift }: { label: string; now?: number; before?: number; word?: boolean; lift?: boolean }) {
+  const show = (v?: number) => v == null ? "·" : word ? MOODS[Math.round(v) - 1]?.label ?? "·" : lift ? (v > 0.2 ? "Besser" : v < -0.2 ? "Schlechter" : "Gleich") : String(v);
+  const d = now != null && before != null ? now - before : undefined;
+  const step = word || lift ? 0.3 : 0.5;
+  const dir = d == null ? undefined : d > step ? "up" : d < -step ? "down" : "same";
+  return (
+    <div className="rounded-[22px] border border-card-line bg-surface px-4 py-3.5">
+      <p className="text-caption text-muted">{label}</p>
+      <p className="mt-0.5 truncate text-[22px] leading-8 font-bold tabular-nums">{show(now)}</p>
+      <p className="mt-0.5 flex items-center gap-1 text-caption text-muted">
+        {dir === "up" ? <ArrowUpRight size={14} className="text-fg" /> : dir === "down" ? <ArrowDownRight size={14} /> : <Minus size={14} />}
+        {before == null ? "vorher noch nichts" : `vorher ${show(before)}`}
+      </p>
+    </div>
+  );
 }
 
 function Bars({ items }: { items: [string, number][] }) {
