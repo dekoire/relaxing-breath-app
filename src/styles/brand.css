@@ -137,3 +137,8 @@ button:active .mood-face { transform: scale(.9); }
    Fläche immer grau (Nutzerwunsch): hell = Grau mit kräftigem Lila, dunkel = helles Glas mit fast weißer Schrift. */
 .accent-chip { background: rgb(17 17 17 / 0.07); color: #5b43f5; }
 [data-theme="dark"] .accent-chip { background: rgb(255 255 255 / 0.1); color: #e6dfff; }
+
+/* Atem-Ring beim Halten: bleibt stehen und pulsiert leise */
+@keyframes ring-pulse { 0%, 100% { opacity: 1; stroke-width: 1.8; } 50% { opacity: .45; stroke-width: 3.2; } }
+.ring-pulse { animation: ring-pulse 1.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .ring-pulse { animation: none; } }

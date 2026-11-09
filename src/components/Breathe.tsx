@@ -138,7 +138,6 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
   const dur = step ? step.s * 1000 : 1500;
   /** vor dem Start und während der Einleitung halb offen – nie nur ein Punkt */
   const half = stage === "pick" || (stage === "run" && idx < 0);
-  const progress = stage === "run" ? 1 - left / (total * 1000) : stage === "done" ? 1 : 0;
   const mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
   const vibOk = canVibrate();
   const voices = useVoices();
@@ -174,7 +173,7 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
 
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-6">
         <div className="relative grid place-items-center">
-          <ProgressRing p={progress} />
+          <PhaseRing fill={stage === "run" && step ? (open ? 1 : 0) : stage === "done" ? 1 : 0} ms={stage === "run" && step ? dur : 600} hold={stage === "run" && !!step && (kind === "hold" || kind === "rest")} />
           <div className="absolute inset-0 grid place-items-center">
             {prefs.look === "flower" ? <Flower open={open} half={half} ms={dur} still={stage !== "run"} /> : <NovaBreath open={open} half={half} ms={dur} still={stage !== "run"} />}
           </div>
@@ -285,12 +284,17 @@ function openBefore(list: { kind: PhaseKind }[], idx: number): boolean {
 
 const SIZE = "h-[min(78vw,340px,34dvh)] w-[min(78vw,340px,34dvh)]";
 
-function ProgressRing({ p }: { p: number }) {
+/**
+ * Ring = der aktuelle Atemzug (Nutzerwunsch): beim Einatmen läuft er in genau dieser Zeit voll, beim Ausatmen
+ * wieder zurück, beim Halten bleibt er stehen und pulsiert. Die Gesamtzeit steht oben als Uhr.
+ */
+function PhaseRing({ fill, ms, hold }: { fill: number; ms: number; hold: boolean }) {
   const r = 48, c = 2 * Math.PI * r;
   return (
-    <svg viewBox="0 0 100 100" className={`${SIZE} -rotate-90`} aria-hidden>
-      <circle cx="50" cy="50" r={r} fill="none" strokeWidth="0.8" className="ring-track" />
-      <circle cx="50" cy="50" r={r} fill="none" stroke="#b9a6ff" strokeWidth="0.9" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - p)} style={{ transition: "stroke-dashoffset .3s linear" }} />
+    <svg viewBox="0 0 100 100" className={`${SIZE} -rotate-90 overflow-visible`} aria-hidden>
+      <circle cx="50" cy="50" r={r} fill="none" strokeWidth="1" className="ring-track" />
+      <circle cx="50" cy="50" r={r} fill="none" stroke="#b9a6ff" strokeWidth="1.8" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - fill)}
+        className={hold ? "ring-pulse" : ""} style={{ transition: `stroke-dashoffset ${ms}ms cubic-bezier(.45,0,.55,1)` }} />
     </svg>
   );
 }
