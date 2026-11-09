@@ -190,3 +190,34 @@ export function MoreButton({ items, title, className = "", light }: { items: She
     </>
   );
 }
+
+/**
+ * Liste gleich großer Karten (Nutzerregel: in einer Gruppe sehen alle Karten gleich aus). Alle so hoch wie die
+ * höchste; Rundung für alle gleich: bis zwei Zeilen Text ganz rund, ab drei Zeilen normal (22 px).
+ * `lead` = Kreis links (Nummer oder Symbol).
+ */
+export function EqualList({ items, className = "" }: { items: { key: string; lead: React.ReactNode; text: React.ReactNode }[]; className?: string }) {
+  const box = useRef<HTMLOListElement>(null);
+  const [round, setRound] = useState(true);
+  useLayoutEffect(() => {
+    const measure = () => {
+      const texts = [...(box.current?.querySelectorAll<HTMLElement>("[data-eq-text]") ?? [])];
+      const lh = texts[0] ? parseFloat(getComputedStyle(texts[0]).lineHeight) || 24 : 24;
+      setRound(Math.max(0, ...texts.map((t) => Math.round(t.scrollHeight / lh))) <= 2);
+    };
+    measure();
+    const ro = typeof ResizeObserver === "undefined" ? undefined : new ResizeObserver(measure);
+    if (box.current) ro?.observe(box.current);
+    return () => ro?.disconnect();
+  }, [items.length]);
+  return (
+    <ol ref={box} className={`grid auto-rows-fr gap-2.5 ${className}`}>
+      {items.map((it) => (
+        <li key={it.key} className={`flex items-center gap-3.5 bg-fg/[0.05] ${round ? "rounded-full py-2 pr-6 pl-2" : "rounded-[22px] py-3 pr-5 pl-3"}`}>
+          <span className="accent-chip grid h-9 w-9 shrink-0 place-items-center rounded-full text-small font-bold [&>svg]:size-[17px]">{it.lead}</span>
+          <span data-eq-text className="min-w-0 text-body leading-6">{it.text}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}

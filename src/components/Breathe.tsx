@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AudioLines, Bell, BellOff, Check, Clock, Flower2, SlidersHorizontal, Sparkles, Wind, Music, TriangleAlert, Vibrate, Volume1, Volume2, VolumeX, X } from "lucide-react";
-import { type Exercise, type PhaseKind, durationLabel, flexible, gainOf, rhythmWords, steps as stepsOf, totalSec } from "@/data/exercises";
+import { AudioLines, Bell, BellOff, Check, Flower2, SlidersHorizontal, Music, TriangleAlert, Vibrate, Volume1, Volume2, VolumeX, X } from "lucide-react";
+import { type Exercise, type PhaseKind, durationLabel, flexible, rhythmWords, steps as stepsOf, totalSec } from "@/data/exercises";
 import { bell, startMusic, unlockBreathAudio, TRACKS, type Pad, type Track } from "@/lib/sound";
 import { play, canVibrate, isNative, type HapticLevel } from "@/lib/haptics";
 import { hush, say as speak, useVoices } from "@/lib/speech";
@@ -140,7 +140,6 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
   const half = stage === "pick" || (stage === "run" && idx < 0);
   const progress = stage === "run" ? 1 - left / (total * 1000) : stage === "done" ? 1 : 0;
   const mm = Math.floor(left / 60000), ss = Math.floor((left % 60000) / 1000);
-  const trackName = TRACKS.find((t) => t.id === prefs.music)?.label ?? "Aus";
   const vibOk = canVibrate();
   const voices = useVoices();
 
@@ -173,29 +172,6 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
         <button type="button" onClick={onClose} aria-label="Schließen" className="grid h-11 w-11 place-items-center rounded-full bg-white/[0.08] text-white/80 hover:bg-white/[0.14]"><X size={19} /></button>
       </div>
 
-      {stage === "pick" ? (
-        /* vor dem Start: ruhige Zusammenfassung – was dich erwartet, was du davon hast */
-        <div className="mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col justify-center overflow-y-auto px-6">
-          <div className="mx-auto mt-4 mb-6 h-28 w-28">{prefs.look === "flower" ? <Flower open={false} half ms={1200} still /> : <NovaBreath open={false} half ms={1200} still />}</div>
-          <h1 className="mt-3 text-center text-[28px] leading-9 font-semibold tracking-tight">{e.name}</h1>
-          <p className="mx-auto mt-1 max-w-[19rem] text-center text-[15px] leading-6 text-white/60">{e.short}</p>
-          <div className="mt-7 space-y-4">
-            <div>
-              <p className="mb-2 text-[12px] font-semibold tracking-wide text-white/45 uppercase">Was dich erwartet</p>
-              <ul className="space-y-2.5 text-[15px] leading-6 text-white/85">
-                <li className="flex gap-3"><Clock size={18} className="mt-0.5 shrink-0 text-[#b9a6ff]" />{durationLabel(total)}</li>
-                <li className="flex gap-3"><Wind size={18} className="mt-0.5 shrink-0 text-[#b9a6ff]" />{rhythmWords(e)}</li>
-                <li className="flex gap-3"><AudioLines size={18} className="mt-0.5 shrink-0 text-[#b9a6ff]" />{guideLine(voice, bowl, music !== "off" ? trackName : "", vibOn)}</li>
-              </ul>
-            </div>
-            <div>
-              <p className="mb-2 text-[12px] font-semibold tracking-wide text-white/45 uppercase">Was du davon hast</p>
-              <p className="flex gap-3 text-[15px] leading-6 text-white/85"><Sparkles size={18} className="mt-0.5 shrink-0 text-[#b9a6ff]" />{gainOf(e)}</p>
-            </div>
-            {e.caution && <p className="flex gap-3 text-[13px] leading-5 text-white/55"><TriangleAlert size={16} className="mt-0.5 shrink-0" />{e.caution}</p>}
-          </div>
-        </div>
-      ) : (
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-6">
         <div className="relative grid place-items-center">
           <ProgressRing p={progress} />
@@ -205,7 +181,7 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
         </div>
         {/* feste Höhen: Wort und Zeile darunter springen nicht, das Bild bleibt stehen */}
         <p key={`${stage}${idx}`} className="breathe-word mt-5 flex h-10 items-center justify-center text-center text-[26px] font-light tracking-wide text-white/90">
-          {stage === "done" ? (result?.completed ? "Schön gemacht." : "Gut, dass du da warst.") : step ? step.word : "Mach es dir bequem"}
+          {stage === "pick" ? "Bereit?" : stage === "done" ? (result?.completed ? "Schön gemacht." : "Gut, dass du da warst.") : step ? step.word : "Mach es dir bequem"}
         </p>
         <div className="flex h-[88px] w-full flex-col items-center justify-start overflow-hidden">
           {stage === "run" && step && (step.kind === "in" || step.kind === "out") && step.s >= 2 && !step.thought ? (
@@ -214,16 +190,16 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
             </span>
           ) : (
             <p className="mx-auto mt-1 line-clamp-3 max-w-[20rem] text-center text-[15px] leading-6 text-white/60">
-              {stage === "run" ? (step ? step.thought ?? step.hint ?? step.blockLabel ?? "" : e.intro) : "Nimm diese Ruhe mit."}
+              {stage === "run" ? (step ? step.thought ?? step.hint ?? step.blockLabel ?? "" : e.intro) : stage === "pick" ? `${rhythmWords(e)} · ${durationLabel(total)}` : "Nimm diese Ruhe mit."}
             </p>
           )}
         </div>
       </div>
-      )}
 
       <div className="bottom-safe mx-auto w-full max-w-md px-5 pt-3">
         {stage === "pick" && (
           <>
+            {e.caution && <p className="mb-3 flex gap-2.5 rounded-[22px] bg-white/[0.07] px-4 py-3 text-[13px] leading-[19px] text-white/75"><TriangleAlert size={17} className="mt-px shrink-0" />{e.caution}</p>}
             {flexible(e) && (
               <div className="mb-4 grid grid-cols-4 gap-1 rounded-full bg-white/[0.07] p-1">
                 {[1, 3, 5, 10].map((x) => <button key={x} type="button" onClick={() => setMinutes(x)} className={`h-11 rounded-full text-[15px] font-semibold transition ${x === minutes ? "bg-white text-[#141522]" : "text-white/70 hover:text-white"}`}>{x} Min.</button>)}
@@ -377,10 +353,6 @@ function AirIcon({ kind, ms }: { kind: "in" | "out"; ms: number }) {
   );
 }
 
-function guideLine(voice: boolean, bowl: boolean, track: string, vib: boolean): string {
-  const parts = [voice ? "Eine Stimme sagt dir, wann du atmest" : "", bowl ? "Klangschale" : "", track ? `Musik: ${track}` : "", vib ? "Vibration gibt den Takt vor" : ""].filter(Boolean);
-  return parts.length ? parts.join(" · ") : "Ganz still, du folgst einfach dem Bild";
-}
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
   return <section><p className="mb-2 text-[12px] font-semibold tracking-wide text-white/45 uppercase">{title}</p>{children}</section>;
 }

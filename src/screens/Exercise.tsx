@@ -5,7 +5,7 @@ import { EVIDENCE_LABEL, durationLabel, exerciseById, rhythmWords, tagOf, totalS
 import { Photo, artBg, useExerciseMenu } from "@/components/Art";
 import { photoOf } from "@/data/photos";
 import { BreatheView } from "@/components/Breathe";
-import { Badge, EmptyState, MoreButton } from "@/components/primitives";
+import { Badge, EmptyState, EqualList, MoreButton } from "@/components/primitives";
 import { usePrefs } from "@/lib/prefs";
 import { useStore } from "@/lib/store";
 import { newId, todayIso } from "@/lib/types";
@@ -50,14 +50,7 @@ function Detail({ e, total, fav, nav }: { e: NonNullable<ReturnType<typeof exerc
       {e.caution && <p className="mt-6 flex gap-3 rounded-[22px] bg-fg/[0.05] px-5 py-4 text-small leading-[21px] text-soft"><TriangleAlert size={19} className="shrink-0" />{e.caution}</p>}
 
       <h2 className="mt-10 text-[22px] font-bold tracking-tight">So geht's</h2>
-      <ol className="mt-4 grid gap-2.5">
-        {e.how.map((h, k) => (
-          <li key={h} className={`flex items-center gap-3.5 bg-fg/[0.05] ${h.length <= 60 ? "rounded-full py-2 pr-6 pl-2" : "rounded-[22px] py-3 pr-5 pl-3"}`}>
-            <span className="accent-chip grid h-9 w-9 shrink-0 place-items-center rounded-full text-small font-bold">{k + 1}</span>
-            <span className="text-body leading-6">{h}</span>
-          </li>
-        ))}
-      </ol>
+      <EqualList className="mt-4" items={e.how.map((h, k) => ({ key: h, lead: k + 1, text: h }))} />
 
       <button type="button" onClick={() => setMore((x) => !x)} aria-expanded={more} className="mt-10 flex h-12 w-full items-center justify-between rounded-full bg-fg/[0.06] px-5 text-[15px] font-semibold hover:bg-fg/[0.1]">
         Mehr über diese Übung <ChevronDown size={18} className={`text-muted transition-transform ${more ? "rotate-180" : ""}`} />

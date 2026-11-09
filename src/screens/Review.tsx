@@ -7,7 +7,7 @@ import { compare, insights, moodSeries } from "@/lib/insights";
 import { BadgeGrid, ProgressCard, useProgress } from "@/components/Progress";
 import { BODY, CONTROL, MOODS, QUADRANT, quadrantOf } from "@/lib/checkin";
 import { exerciseById } from "@/data/exercises";
-import { EmptyState, PageTitle, Section, Segmented, Button } from "@/components/primitives";
+import { EmptyState, EqualList, PageTitle, Section, Segmented, Button } from "@/components/primitives";
 import { MoodFace, MOOD_FLAT } from "@/components/MoodFace";
 import { ExerciseRow } from "@/components/Art";
 
@@ -59,14 +59,7 @@ export default function Review() {
 
       {notes.length > 0 && (
         <Section title="Was mir auffällt">
-          <div className="grid gap-2.5">
-            {notes.map((n) => (
-              <p key={n.text} className="flex items-start gap-3 rounded-[22px] border border-card-line bg-surface p-4 text-body leading-6">
-                <span className="accent-chip grid h-9 w-9 shrink-0 place-items-center rounded-full">{n.kind === "good" ? <TrendingUp size={17} /> : n.kind === "tip" ? <Lightbulb size={17} /> : <Eye size={17} />}</span>
-                <span className="pt-1.5">{n.text}</span>
-              </p>
-            ))}
-          </div>
+          <EqualList items={notes.map((n) => ({ key: n.text, lead: n.kind === "good" ? <TrendingUp /> : n.kind === "tip" ? <Lightbulb /> : <Eye />, text: n.text }))} />
         </Section>
       )}
 
