@@ -41,14 +41,17 @@ export function ProgressCard({ link }: { link?: boolean }) {
 /** Abzeichen als Raster: verdiente hell, offene blass mit Fortschritt */
 export function BadgeGrid({ list }: { list: Badge[] }) {
   return (
-    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+    <div className="grid auto-rows-fr grid-cols-2 gap-2.5 sm:grid-cols-3">
       {list.map((b) => (
-        <div key={b.id} className={`rounded-[22px] border border-card-line p-4 ${b.earned ? "bg-surface" : "bg-surface/50"}`}>
+        <div key={b.id} className={`flex flex-col rounded-[22px] border border-card-line p-4 ${b.earned ? "bg-surface" : "bg-surface/50"}`}>
           <span className={`grid h-11 w-11 place-items-center rounded-full ${b.earned ? "bg-brand-500 text-white" : "bg-fg/[0.07] text-muted"}`}>{b.earned ? <Award size={20} /> : <Lock size={17} />}</span>
           <p className={`mt-3 text-[15px] leading-5 font-semibold ${b.earned ? "" : "text-soft"}`}>{b.title}</p>
-          <p className="mt-0.5 text-caption leading-4 text-muted">{b.text}</p>
-          {!b.earned && b.goal > 1 && <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-fg/[0.08]"><span className="block h-full rounded-full bg-fg/40" style={{ width: `${(b.now / b.goal) * 100}%` }} /></div>}
-          {!b.earned && b.goal > 1 && <p className="mt-1 text-label text-muted tabular-nums">{b.now} von {b.goal}</p>}
+          <p className="mt-0.5 line-clamp-2 text-caption leading-4 text-muted">{b.text}</p>
+          {/* Fuß bei allen gleich, damit jede Kachel gleich hoch ist */}
+          <div className="mt-auto pt-3">
+            <div className="h-1.5 overflow-hidden rounded-full bg-fg/[0.08]"><span className={`block h-full rounded-full ${b.earned ? "bg-brand-500" : "bg-fg/40"}`} style={{ width: `${(b.now / b.goal) * 100}%` }} /></div>
+            <p className="mt-1 text-label text-muted tabular-nums">{b.earned ? "Geschafft" : b.goal > 1 ? `${b.now} von ${b.goal}` : "Noch offen"}</p>
+          </div>
         </div>
       ))}
     </div>

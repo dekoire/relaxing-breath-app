@@ -23,6 +23,8 @@ export type Block = { phases: Phase[]; repeat: number; /** Name des Abschnitts, 
 
 export type Category = "beruhigen" | "schlafen" | "fokus" | "energie" | "balance" | "koerper" | "akut";
 export type Level = "leicht" | "mittel" | "fortgeschritten";
+import type { Track } from "@/lib/sound";
+
 export type Motif = "flower" | "wave" | "moon" | "sun" | "square" | "triangle" | "circle" | "drop" | "leaf" | "flame" | "mountain" | "spiral" | "heart" | "bee" | "lungs" | "hand" | "stairs";
 
 export type Exercise = {
@@ -57,6 +59,8 @@ export type Exercise = {
   evidence?: Evidence;
   /** kurze Quelle, z. B. „Balban et al., 2023“ */
   study?: string;
+  /** Musik, die zur Übung passt und standardmäßig läuft (kräftige Übungen: Trommeln) */
+  music?: Track;
 };
 export type Evidence = "stark" | "gut" | "erste";
 export const EVIDENCE_LABEL: Record<Evidence, string> = { stark: "Sehr gut erforscht", gut: "Gut erforscht", erste: "Erste Studien" };
@@ -944,6 +948,106 @@ export const EXERCISES: Exercise[] = [
     intro: "Das war viel. Bevor du etwas sagst, holen wir deinen Körper runter.",
     art: { from: "#7b5cff", to: "#341a5e", motif: "flame" },
   },
+  // ——— Kraftvoll und Leistung (Nutzerwunsch: nicht nur Wellness, auch Konzentration und Optimierung) ———
+  {
+    id: "wim-hof",
+    name: "Wim-Hof-Methode",
+    short: "Drei Runden: 30 tiefe Atemzüge, leer halten, erholen.",
+    why: "Viele tiefe Atemzüge senken kurz das Kohlendioxid im Blut, danach hältst du mit leerer Lunge. In einer Studie (Kox et al., 2014) veränderte das Training messbar die Stressreaktion des Körpers. Viele fühlen sich danach wach und klar.",
+    how: ["30-mal tief einatmen und locker ausatmen", "Ausatmen und mit leerer Lunge halten, solange es angenehm ist", "Tief einatmen und 15 Sekunden halten", "Das Ganze dreimal"],
+    cycle: [
+      { phases: [p("in", 1.8, "Tief ein"), p("out", 1.2, "Locker aus")], repeat: 30, label: "30 Atemzüge" },
+      { phases: [p("rest", 45, "Leer halten", "ganz entspannt, Kraft sparen")], repeat: 1, label: "Leer halten" },
+      { phases: [p("in", 3, "Tief einatmen"), p("hold", 15, "Halten", "voll halten"), p("out", 4, "Loslassen")], repeat: 1, label: "Erholen" },
+    ],
+    minutes: 8, rounds: 3,
+    category: "energie", level: "fortgeschritten",
+    tags: ["energie", "morgen", "sport", "fokus", "muede"],
+    caution: "Nur sitzend oder liegend. NIE im Wasser, beim Autofahren oder im Stehen: Ohnmachtsgefahr. Nicht in der Schwangerschaft, bei Herz-Kreislauf-Problemen, Bluthochdruck oder Epilepsie. Kribbeln ist normal, bei Schwindel aufhören.",
+    intro: "Wir machen die Wim-Hof-Methode. Drei Runden. Dreißig tiefe Atemzüge, dann hältst du mit leerer Lunge. Bleib sitzen oder liegen.",
+    art: { from: "#8fb6ff", to: "#1d3b8a", motif: "mountain" },
+    evidence: "gut", study: "Kox et al., 2014, PNAS",
+    music: "drums",
+  },
+  {
+    id: "holotrop",
+    name: "Holotropes Atmen (sanft)",
+    short: "Schnell und verbunden atmen, mit Trommeln. Danach nachspüren.",
+    why: "Beim holotropen Atmen atmest du tiefer und schneller als sonst, ohne Pause zwischen Ein und Aus, getragen von Musik. Viele erleben dabei starke Gefühle und danach tiefe Ruhe. Das hier ist eine kurze, sanfte Fassung. Die lange Form gehört in eine begleitete Gruppe.",
+    how: ["Durch den Mund verbunden atmen, ohne Pause", "Der Musik folgen, tiefer werden", "Am Ende ganz normal atmen und nachspüren"],
+    cycle: [
+      { phases: [p("in", 2, "Ein"), p("out", 2, "Aus")], repeat: 45, label: "Ankommen" },
+      { phases: [p("in", 1.5, "Ein", "tief und verbunden"), p("out", 1.5, "Aus")], repeat: 80, label: "Verbundenes Atmen" },
+      { phases: [p("rest", 90, "Nachspüren", "ganz normal atmen, nichts machen")], repeat: 1, label: "Nachspüren" },
+    ],
+    minutes: 10, rounds: 1,
+    category: "energie", level: "fortgeschritten",
+    tags: ["achtsam", "energie", "traurig", "ausgebrannt"],
+    caution: "Starke Übung. Nur liegend, nie allein, wenn es dein erstes Mal ist. Nicht bei Herz-Kreislauf-Problemen, Bluthochdruck, Epilepsie, Grünem Star, psychischen Erkrankungen, in der Schwangerschaft oder nach Operationen. Bei Schwindel oder Krämpfen sofort normal atmen.",
+    intro: "Wir machen eine sanfte Form des holotropen Atmens. Leg dich hin. Atme verbunden durch den Mund und folge den Trommeln.",
+    art: { from: "#ff9a8b", to: "#5b1f6a", motif: "flame" },
+    music: "tribal",
+  },
+  {
+    id: "fokus-start",
+    name: "Fokus-Start",
+    short: "Vor Arbeit oder Lernen: 4 ein, 2 halten, 6 aus.",
+    why: "Ein ruhiger, gleichmäßiger Rhythmus mit etwas längerem Ausatmen senkt die Aufregung, ohne müde zu machen. Gut, bevor du dich lange konzentrieren willst.",
+    how: ["4 Sekunden durch die Nase ein", "2 Sekunden halten", "6 Sekunden aus", "Danach direkt mit der Aufgabe anfangen"],
+    cycle: simple(p("in", 4, undefined, NOSE), p("hold", 2), p("out", 6, undefined, NOSE)),
+    minutes: 3,
+    category: "fokus", level: "leicht",
+    tags: ["fokus", "pruefung", "buero", "grübeln"],
+    intro: "Wir machen den Fokus-Start. Vier ein, zwei halten, sechs aus. Danach legst du los.",
+    art: { from: "#9fb0c9", to: "#263042", motif: "triangle" },
+  },
+  {
+    id: "lern-pause",
+    name: "Lernpause",
+    short: "2 Minuten zwischen zwei Lernrunden. Augen weg vom Bildschirm.",
+    why: "Kurze Pausen mit ruhigem Atmen helfen dem Kopf, das Gelernte zu sortieren, und machen die nächste Runde leichter. Am besten nach 25 bis 50 Minuten Arbeit.",
+    how: ["Weg vom Bildschirm, in die Ferne schauen", "5 Sekunden ein, 5 Sekunden aus", "Schultern locker lassen"],
+    cycle: simple(p("in", 5, undefined, NOSE), p("out", 5, undefined, NOSE)),
+    minutes: 2,
+    category: "fokus", level: "leicht",
+    tags: ["fokus", "pruefung", "buero", "erholung"],
+    intro: "Lernpause. Schau weg vom Bildschirm, in die Ferne. Fünf ein, fünf aus.",
+    art: { from: "#a7c4b5", to: "#24352e", motif: "leaf" },
+  },
+  {
+    id: "co2-toleranz",
+    name: "Ausdauer: CO₂-Toleranz",
+    short: "Ruhig atmen, dann kurz leer halten. Trainiert die Ausdauer.",
+    why: "Wer Kohlendioxid besser aushält, atmet beim Sport und unter Stress ruhiger und seltener. Kurze Pausen nach dem Ausatmen gewöhnen den Körper sanft daran.",
+    how: ["3 Sekunden ein, 3 Sekunden aus durch die Nase", "Nach dem Ausatmen kurz leer halten", "Jede Runde ein bisschen länger"],
+    cycle: [
+      { phases: [p("in", 3, undefined, NOSE), p("out", 3, undefined, NOSE)], repeat: 4, label: "Ruhig atmen" },
+      { phases: [p("rest", 10, "Leer halten", "entspannt, nur solange es angenehm ist")], repeat: 1, label: "Halten" },
+      { phases: [p("in", 3, undefined, NOSE), p("out", 3, undefined, NOSE)], repeat: 4, label: "Ruhig atmen" },
+      { phases: [p("rest", 15, "Leer halten", "entspannt")], repeat: 1, label: "Länger halten" },
+    ],
+    minutes: 4, rounds: 3,
+    category: "fokus", level: "mittel",
+    tags: ["sport", "fokus", "kurzatmig"],
+    caution: "Nur im Sitzen. Nie im Wasser oder beim Autofahren. Bei Schwindel normal weiteratmen.",
+    intro: "Wir trainieren die Ausdauer. Ruhig durch die Nase atmen, dann kurz leer halten.",
+    art: { from: "#7fb7d9", to: "#16304a", motif: "drop" },
+  },
+  {
+    id: "nasen-sport",
+    name: "Nasenatmung beim Sport",
+    short: "Nur durch die Nase, gleichmäßig. Beim Laufen oder Radfahren.",
+    why: "Durch die Nase atmest du langsamer und tiefer. Viele bleiben so länger im ruhigen Bereich und erholen sich schneller.",
+    how: ["Mund zu, nur durch die Nase", "3 Schritte ein, 3 Schritte aus", "Wird es zu schwer, Tempo kurz rausnehmen"],
+    cycle: simple(p("in", 3, undefined, NOSE), p("out", 3, undefined, NOSE)),
+    minutes: 5,
+    category: "fokus", level: "mittel",
+    tags: ["sport", "energie", "unterwegs"],
+    intro: "Nasenatmung beim Sport. Mund zu, drei ein, drei aus.",
+    art: { from: "#b5c99a", to: "#2f3a1f", motif: "stairs" },
+    music: "drums",
+  },
+
 ];
 
 /* Mehr Wege zur selben Übung: Suchwörter und Situationen, unter denen eine Übung auch erscheinen soll */

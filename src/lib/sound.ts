@@ -57,12 +57,14 @@ export function bell(volume = 0.32) {
 export type Pad = { swell: (open: number) => void; setVolume: (v: number) => void; stop: () => void };
 
 /** N362: Hintergrundmusik zum Auswählen, alles im Browser erzeugt (keine Dateien, keine Lizenzen) */
-export type Track = "pad" | "rain" | "sea" | "drone";
+export type Track = "pad" | "rain" | "sea" | "drone" | "drums" | "tribal";
 export const TRACKS: { id: Track; label: string; sub: string }[] = [
   { id: "pad", label: "Klangteppich", sub: "Warm und ruhig, geht mit dem Atem" },
   { id: "rain", label: "Regen", sub: "Leiser Regen am Fenster" },
   { id: "sea", label: "Meer", sub: "Wellen kommen und gehen" },
   { id: "drone", label: "Tiefer Ton", sub: "Ein ruhiger, schwebender Grundton" },
+  { id: "drums", label: "Trommeln", sub: "Tief und kraftvoll, für Wim Hof und Sport" },
+  { id: "tribal", label: "Stammestrommeln", sub: "Schnell und treibend, für holotropes Atmen" },
 ];
 /** Lautstärke 0–1 (Regler) → Verstärkung; Vorgabe 0,35 ist leiser als früher (0,06) */
 export const MUSIC_MAX = 0.12;
@@ -144,6 +146,65 @@ export function startMusic(track: Track, volume = MUSIC_DEFAULT): Pad | undefine
     // Welle etwa alle 9 s
     lfo(0.11, 0.65, g.gain);
     lfo(0.11, 350, lp.frequency);
+  } else if (track === "drums" || track === "tribal") {
+    // kräftige Trommeln: tiefer Grundton (A1/E2) und Schläge, live erzeugt; „tribal“ schneller mit Rassel
+    lp.frequency.value = 1800;
+    swellBase = 1500; swellSpan = 800;
+    [[55, 0.35], [82.4, 0.18]].forEach(([f, a]) => {
+      const o = c.createOscillator();
+      o.type = "sawtooth";
+      o.frequency.value = f;
+      const f2 = c.createBiquadFilter();
+      f2.type = "lowpass";
+      f2.frequency.value = 220;
+      const g = c.createGain();
+      g.gain.value = a * 0.5;
+      o.connect(f2).connect(g).connect(lp);
+      start(o);
+    });
+    const hit = (t: number, freq: number, amp: number, decay: number) => {
+      const o = c.createOscillator();
+      o.type = "sine";
+      o.frequency.setValueAtTime(freq * 2.2, t);
+      o.frequency.exponentialRampToValueAtTime(freq, t + 0.08);
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(amp, t + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+      o.connect(g).connect(lp);
+      o.start(t); o.stop(t + decay + 0.05);
+    };
+    const shake = (t: number, amp: number) => {
+      const n = noise(c, false);
+      const hp = c.createBiquadFilter();
+      hp.type = "highpass";
+      hp.frequency.value = 5000;
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(amp, t + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+      n.connect(hp).connect(g).connect(master);
+      n.start(t); n.stop(t + 0.12);
+    };
+    const tribal = track === "tribal";
+    const beat = tribal ? 60 / 116 : 60 / 72;
+    // Muster je Takt (4 Schläge): [Schlag, Tonhöhe, Stärke]
+    const pattern: [number, number, number][] = tribal
+      ? [[0, 62, 1], [0.5, 110, 0.45], [1, 62, 0.8], [1.75, 110, 0.4], [2, 62, 1], [2.5, 92, 0.5], [3, 62, 0.7], [3.5, 110, 0.5]]
+      : [[0, 52, 1], [1, 52, 0.55], [2, 52, 0.95], [2.5, 78, 0.45], [3, 52, 0.55]];
+    let next = c.currentTime + 0.2;
+    const tick = () => {
+      while (next < c.currentTime + 1.2) {
+        for (const [b, f, a] of pattern) {
+          hit(next + b * beat, f, a * 0.9, tribal ? 0.45 : 0.8);
+          if (tribal) shake(next + b * beat + beat / 2, 0.12);
+        }
+        next += 4 * beat;
+      }
+    };
+    tick();
+    const timer = window.setInterval(tick, 400);
+    nodes.push({ stop: () => window.clearInterval(timer) } as unknown as AudioScheduledSourceNode);
   } else {
     lp.frequency.value = 420;
     swellBase = 380; swellSpan = 300;

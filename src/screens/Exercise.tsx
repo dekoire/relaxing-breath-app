@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
-import { ChevronDown, ChevronLeft, FlaskConical, Play, TriangleAlert } from "lucide-react";
-import { EVIDENCE_LABEL, durationLabel, exerciseById, rhythmWords, tagOf, totalSec } from "@/data/exercises";
+import { AudioLines, ChevronDown, ChevronLeft, FlaskConical, Play, TriangleAlert, VolumeX } from "lucide-react";
+import { EVIDENCE_LABEL, durationLabel, exerciseById, flexible, rhythmWords, tagOf, totalSec } from "@/data/exercises";
 import { Photo, artBg, useExerciseMenu } from "@/components/Art";
 import { photoOf } from "@/data/photos";
 import { BreatheView } from "@/components/Breathe";
-import { Badge, EmptyState, EqualList, MoreButton } from "@/components/primitives";
+import { EmptyState, EqualList, MoreButton, Pill } from "@/components/primitives";
+import { TagMark } from "@/components/TagLook";
+import { hush, say, useVoices } from "@/lib/speech";
 import { usePrefs } from "@/lib/prefs";
 import { useStore } from "@/lib/store";
 import { newId, todayIso } from "@/lib/types";
@@ -27,6 +29,8 @@ export default function ExercisePage() {
  */
 function Detail({ e, total, nav }: { e: NonNullable<ReturnType<typeof exerciseById>>; total: number; nav: ReturnType<typeof useNavigate> }) {
   const menu = useExerciseMenu(e);
+  const [prefs, setPrefs] = usePrefs();
+  const voices = useVoices();
   const [more, setMore] = useState(false);
   return (
     <div>
@@ -41,6 +45,24 @@ function Detail({ e, total, nav }: { e: NonNullable<ReturnType<typeof exerciseBy
 
       <button type="button" onClick={() => nav(`/atmen/${e.id}`)} className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-full bg-brand-500 text-[17px] font-semibold text-white"><Play size={18} fill="currentColor" /> Starten · {durationLabel(total)}</button>
       <p className="mt-3 text-center text-small text-muted">{e.cycle.length > 1 ? `${e.cycle.length} Teile` : rhythmWords(e)} · <span className="capitalize">{e.level}</span></p>
+
+      {/* vor dem Start einstellen: wie lange und welche Stimme */}
+      <div className="mt-6 grid gap-2.5">
+        {flexible(e) && (
+          <div className="grid grid-cols-4 gap-1 rounded-full bg-fg/[0.06] p-1" role="radiogroup" aria-label="Dauer">
+            {[1, 3, 5, 10].map((x) => { const on = x === (prefs.minutes[e.id] ?? e.minutes); return (
+              <button key={x} type="button" role="radio" aria-checked={on} onClick={() => setPrefs({ minutes: { ...prefs.minutes, [e.id]: x } })} className={`h-11 rounded-full text-[15px] font-semibold transition ${on ? "bg-fg text-canvas" : "text-muted hover:text-fg"}`}>{x} Min.</button>
+            ); })}
+          </div>
+        )}
+        <MoreButton label="Stimme wählen" title="Stimme" className="flex h-14 w-full items-center gap-3 rounded-full bg-fg/[0.06] py-2 pr-5 pl-2 text-left hover:bg-fg/[0.09]"
+          items={[{ label: "Ohne Stimme", icon: <VolumeX />, onClick: () => { hush(); setPrefs({ voice: false }); } },
+            ...(voices.length ? voices : [{ name: "" } as SpeechSynthesisVoice]).map((v) => ({ label: v.name || "Stimme des Handys", icon: <AudioLines />, onClick: () => { setPrefs({ voice: true, voiceName: v.name }); void say("Einatmen. Und langsam ausatmen.", { voiceName: v.name }); } }))]}>
+          <span className="accent-chip grid h-10 w-10 shrink-0 place-items-center rounded-full">{prefs.voice ? <AudioLines size={18} /> : <VolumeX size={18} />}</span>
+          <span className="min-w-0 flex-1"><span className="block text-caption text-muted">Stimme</span><span className="block truncate text-[15px] font-semibold">{prefs.voice ? prefs.voiceName || voices[0]?.name || "Stimme des Handys" : "Ohne Stimme"}</span></span>
+          <ChevronDown size={18} className="text-muted" />
+        </MoreButton>
+      </div>
 
       {e.caution && <p className="mt-6 flex gap-3 rounded-[22px] bg-fg/[0.05] px-5 py-4 text-small leading-[21px] text-soft"><TriangleAlert size={19} className="shrink-0" />{e.caution}</p>}
 
@@ -65,7 +87,7 @@ function Detail({ e, total, nav }: { e: NonNullable<ReturnType<typeof exerciseBy
           )}
           <section>
             <h3 className="text-[17px] font-semibold">Hilft bei</h3>
-            <div className="mt-3 flex flex-wrap gap-2">{e.tags.map((t) => <button key={t} type="button" onClick={() => nav(`/entdecken?tag=${t}`)}><Badge>{tagOf(t)?.label ?? t}</Badge></button>)}</div>
+            <div className="mt-3 flex flex-wrap gap-2">{e.tags.map((t) => <Pill key={t} icon={<TagMark id={t} group={tagOf(t)?.group ?? ""} />} onClick={() => nav(`/entdecken?tag=${t}`)}>{tagOf(t)?.label ?? t}</Pill>)}</div>
           </section>
           <p className="text-caption leading-5 text-muted">Foto: {e.image ? "eigenes Bild" : `${photoOf(e).by} · Unsplash`}. Atemübungen ersetzen keine ärztliche oder psychotherapeutische Behandlung.</p>
         </div>

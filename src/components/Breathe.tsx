@@ -38,7 +38,10 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
   const [picking, setPicking] = useState<"adjust" | null>(null);
   const [result, setResult] = useState<{ seconds: number; completed: boolean }>();
   // jedes für sich an/aus, in jeder Kombination
-  const voice = prefs.voice, bowl = prefs.bowl, music: Music = prefs.music;
+  // Übungen mit eigener Musik (Trommeln bei Wim Hof, holotropem Atmen) starten damit; Änderungen gelten dann nur für diese Übung
+  const [own, setOwn] = useState<Music | undefined>(e.music);
+  const voice = prefs.voice, bowl = prefs.bowl, music: Music = own ?? prefs.music;
+  const pickMusic = (m: Music) => { if (m !== "off") unlockBreathAudio(); if (e.music) setOwn(m); else setPrefs(m === "off" ? { music: "off" } : { music: m, track: m }); };
   const live = useRef({ voice, bowl, haptics: prefs.haptics as HapticLevel, voiceName: prefs.voiceName });
   live.current = { voice, bowl, haptics: prefs.haptics, voiceName: prefs.voiceName };
   const padRef = useRef<Pad | undefined>(undefined);
@@ -157,7 +160,7 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
         {ctrl("vib", <Vibrate />, "Vibration", vibOn, () => setPrefs({ haptics: prefs.haptics === "off" ? prefs.hapticLevel : "off" }), !vibOk)}
         {ctrl("voice", voice ? <AudioLines /> : <VolumeX />, "Stimme", voice, () => { setPrefs({ voice: !voice }); if (voice) hush(); })}
         {ctrl("bowl", bowl ? <Bell /> : <BellOff />, "Klangschale", bowl, () => { setPrefs({ bowl: !bowl }); if (!bowl) { unlockBreathAudio(); bell(0.22); } })}
-        {ctrl("music", <Music />, "Musik", music !== "off", () => { if (music === "off") { unlockBreathAudio(); setPrefs({ music: prefs.track }); } else setPrefs({ music: "off" }); })}
+        {ctrl("music", <Music />, "Musik", music !== "off", () => pickMusic(music === "off" ? (e.music ?? prefs.track) : "off"))}
       </div>
       <button type="button" onClick={() => setPicking("adjust")} className="mx-auto mt-2 flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[13.5px] font-semibold text-white/60 hover:bg-white/[0.08] hover:text-white"><SlidersHorizontal size={15} /> Anpassen</button>
     </>
@@ -259,8 +262,8 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
             </Group>
             <Group title="Musik">
               <div className="grid gap-1">
-                <Row on={music === "off"} onClick={() => setPrefs({ music: "off" })}>Keine Musik</Row>
-                {TRACKS.map((t) => <Row key={t.id} on={music === t.id} sub={t.sub} onClick={() => { unlockBreathAudio(); setPrefs({ music: t.id, track: t.id }); }}>{t.label}</Row>)}
+                <Row on={music === "off"} onClick={() => pickMusic("off")}>Keine Musik</Row>
+                {TRACKS.map((t) => <Row key={t.id} on={music === t.id} sub={t.sub} onClick={() => pickMusic(t.id)}>{t.label}</Row>)}
               </div>
               <div className={`mt-3 flex items-center gap-3 transition ${music === "off" ? "opacity-40" : ""}`}>
                 <Volume1 size={17} className="shrink-0 text-white/40" />

@@ -159,7 +159,7 @@ export function Section({ title, action, children, className = "" }: { title: st
  * Einträge ganz rund; `danger` rot. Escape oder Tippen daneben schließt.
  */
 export type SheetItem = { label: string; icon?: React.ReactNode; onClick: () => void; sub?: string };
-export function MoreButton({ items, title, className = "", light }: { items: SheetItem[]; title?: string; className?: string; light?: boolean }) {
+export function MoreButton({ items, title, className = "", light, children, label }: { items: SheetItem[]; title?: string; className?: string; light?: boolean; children?: React.ReactNode; label?: string }) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (!open) return;
@@ -169,10 +169,14 @@ export function MoreButton({ items, title, className = "", light }: { items: She
   }, [open]);
   return (
     <>
-      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(true); }} aria-label="Mehr" aria-haspopup="dialog"
-        className={`grid h-9 w-9 shrink-0 place-items-center rounded-full transition ${light ? "bg-black/30 text-white backdrop-blur hover:bg-black/40" : "text-muted hover:bg-fg/[0.07] hover:text-fg"} ${className}`}>
-        <MoreHorizontal size={19} />
-      </button>
+      {children ? (
+        <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(true); }} aria-label={label} aria-haspopup="dialog" className={className}>{children}</button>
+      ) : (
+        <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(true); }} aria-label="Mehr" aria-haspopup="dialog"
+          className={`grid h-9 w-9 shrink-0 place-items-center rounded-full transition ${light ? "bg-black/30 text-white backdrop-blur hover:bg-black/40" : "text-muted hover:bg-fg/[0.07] hover:text-fg"} ${className}`}>
+          <MoreHorizontal size={19} />
+        </button>
+      )}
       {open && createPortal(
         <div className="fixed inset-0 z-[500] flex items-end justify-center bg-black/45 sm:items-center" onClick={() => setOpen(false)}>
           <div role="dialog" aria-modal aria-label={title ?? "Mehr"} onClick={(e) => e.stopPropagation()} className="reveal-up w-full max-w-md rounded-t-[28px] bg-surface p-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:rounded-[28px]">
