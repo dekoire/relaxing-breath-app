@@ -1,5 +1,6 @@
-import { Link } from "react-router";
-import { ChevronRight, Heart, LayoutGrid, List } from "lucide-react";
+import { Link, useNavigate } from "react-router";
+import { ChevronRight, Compass, Heart, LayoutGrid, List, Play, Share2 } from "lucide-react";
+import { MoreButton, type SheetItem } from "@/components/primitives";
 import type { Exercise, Motif } from "@/data/exercises";
 import { categoryOf, durationLabel, totalSec } from "@/data/exercises";
 import { toggleFavorite, usePrefs, type Layout } from "@/lib/prefs";
@@ -59,10 +60,24 @@ export function Photo({ e, w = 600, className = "" }: { e: Exercise; w?: number;
   );
 }
 
-/** Karte wie bei Pinterest: großes Bild, darunter Name und eine Zeile; Höhe wechselt für das Mauerwerk */
+/** Was hinter „⋯“ einer Übung steht: Starten, Favorit, Ähnliche, Teilen (überall gleich) */
+export function useExerciseMenu(e: Exercise): SheetItem[] {
+  const nav = useNavigate();
+  const [prefs] = usePrefs();
+  const fav = prefs.favorites.includes(e.id);
+  return [
+    { label: "Jetzt starten", icon: <Play />, onClick: () => nav(`/atmen/${e.id}`) },
+    { label: fav ? "Aus Favoriten entfernen" : "Zu Favoriten", icon: <Heart />, onClick: () => toggleFavorite(e.id) },
+    { label: "Ähnliche Übungen", icon: <Compass />, sub: categoryOf(e.category).label, onClick: () => nav(`/entdecken?kat=${e.category}`) },
+    { label: "Teilen", icon: <Share2 />, onClick: () => { const url = `${location.origin}/uebung/${e.id}`; if (navigator.share) void navigator.share({ title: e.name, text: e.short, url }).catch(() => undefined); else void navigator.clipboard?.writeText(url); } },
+  ];
+}
+
+/** Karte wie bei Pinterest: großes Bild, darunter Name mit „⋯“ und eine Zeile; Höhe wechselt für das Mauerwerk */
 export function ExerciseCard({ e, tall, minutes }: { e: Exercise; tall?: boolean; minutes?: number }) {
   const [prefs] = usePrefs();
   const fav = prefs.favorites.includes(e.id);
+  const menu = useExerciseMenu(e);
   return (
     <div className="group relative">
       <Link to={`/uebung/${e.id}`} className="press block">
@@ -70,14 +85,14 @@ export function ExerciseCard({ e, tall, minutes }: { e: Exercise; tall?: boolean
           <Photo e={e} className="transition-transform duration-500 group-hover:scale-[1.03]" />
           <span className="absolute bottom-2.5 left-2.5 rounded-full bg-black/35 px-2.5 py-1 text-[12px] font-semibold text-white backdrop-blur">{durationLabel(totalSec(e, minutes ?? e.minutes))}</span>
         </div>
-        <div className="px-1 pt-2">
-          <p className="text-[15px] leading-5 font-semibold">{e.name}</p>
-          <p className="mt-0.5 line-clamp-2 text-[13px] leading-[18px] text-muted">{e.short}</p>
-        </div>
       </Link>
-      <button type="button" onClick={() => toggleFavorite(e.id)} aria-pressed={fav} aria-label={fav ? "Aus Favoriten entfernen" : "Zu Favoriten"} className="absolute top-2.5 right-2.5 grid h-9 w-9 place-items-center rounded-full bg-black/30 text-white backdrop-blur transition active:scale-90">
-        <Heart size={17} fill={fav ? "currentColor" : "none"} />
-      </button>
+      <div className="flex items-start gap-1 pt-2 pl-1">
+        <Link to={`/uebung/${e.id}`} className="min-w-0 flex-1">
+          <p className="flex items-center gap-1.5 text-[15px] leading-5 font-semibold"><span className="min-w-0 truncate">{e.name}</span>{fav && <Heart size={13} fill="currentColor" className="shrink-0 text-brand-400" aria-label="Favorit" />}</p>
+          <p className="mt-0.5 line-clamp-2 text-[13px] leading-[18px] text-muted">{e.short}</p>
+        </Link>
+        <MoreButton items={menu} title={e.name} className="-mt-1.5" />
+      </div>
     </div>
   );
 }
@@ -130,9 +145,10 @@ const firstSentence = (t: string) => (/^[^.!?]{12,}[.!?]/.exec(t)?.[0] ?? t);
 export function ExerciseLong({ e }: { e: Exercise }) {
   const [prefs] = usePrefs();
   const fav = prefs.favorites.includes(e.id);
+  const menu = useExerciseMenu(e);
   return (
-    <LongTile to={`/uebung/${e.id}`} img={imageOf(e, 400)} bg={artBg(e)} title={e.name} sub={firstSentence(e.short)} meta={durationLabel(totalSec(e, prefs.minutes[e.id] ?? e.minutes))}
-      right={<button type="button" onClick={() => toggleFavorite(e.id)} aria-pressed={fav} aria-label={fav ? "Aus Favoriten entfernen" : "Zu Favoriten"} className={`absolute top-1/2 right-2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full transition active:scale-90 ${fav ? "text-brand-400" : "text-muted hover:text-fg"}`}><Heart size={18} fill={fav ? "currentColor" : "none"} /></button>} />
+    <LongTile to={`/uebung/${e.id}`} img={imageOf(e, 400)} bg={artBg(e)} title={fav ? `${e.name} ♥` : e.name} sub={firstSentence(e.short)} meta={durationLabel(totalSec(e, prefs.minutes[e.id] ?? e.minutes))}
+      right={<MoreButton items={menu} title={e.name} className="absolute top-1/2 right-2 -translate-y-1/2" />} />
   );
 }
 

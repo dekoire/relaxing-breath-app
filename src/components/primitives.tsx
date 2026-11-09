@@ -1,6 +1,7 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router";
-import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, MoreHorizontal, type LucideIcon } from "lucide-react";
 
 /**
  * Basis-Bausteine 1:1 aus Notara (src/components/primitives.tsx, dort aus Finastry). Seiten setzen sich nur aus
@@ -150,5 +151,42 @@ export function Section({ title, action, children, className = "" }: { title: st
       <div className="mb-3 flex items-center justify-between gap-3"><h2 className="text-[22px] leading-7 font-bold tracking-tight">{title}</h2>{action}</div>
       {children}
     </section>
+  );
+}
+
+/**
+ * „⋯“-Knopf mit Blatt von unten (wie Pinterest): Nebensachen hinter drei Punkten, vorne bleibt nur das Wichtige.
+ * Einträge ganz rund; `danger` rot. Escape oder Tippen daneben schließt.
+ */
+export type SheetItem = { label: string; icon?: React.ReactNode; onClick: () => void; sub?: string };
+export function MoreButton({ items, title, className = "", light }: { items: SheetItem[]; title?: string; className?: string; light?: boolean }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [open]);
+  return (
+    <>
+      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(true); }} aria-label="Mehr" aria-haspopup="dialog"
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-full transition ${light ? "bg-black/30 text-white backdrop-blur hover:bg-black/40" : "text-muted hover:bg-fg/[0.07] hover:text-fg"} ${className}`}>
+        <MoreHorizontal size={19} />
+      </button>
+      {open && createPortal(
+        <div className="fixed inset-0 z-[500] flex items-end justify-center bg-black/45 sm:items-center" onClick={() => setOpen(false)}>
+          <div role="dialog" aria-modal aria-label={title ?? "Mehr"} onClick={(e) => e.stopPropagation()} className="reveal-up w-full max-w-md rounded-t-[28px] bg-surface p-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:rounded-[28px]">
+            <span aria-hidden className="mx-auto mb-2 block h-1 w-10 rounded-full bg-fg/15 sm:hidden" />
+            {title && <p className="truncate px-3 pt-1 pb-2 text-small font-semibold text-muted">{title}</p>}
+            {items.map((it) => (
+              <button key={it.label} type="button" onClick={() => { setOpen(false); it.onClick(); }} className="flex min-h-[54px] w-full items-center gap-3.5 rounded-full px-3 text-left hover:bg-fg/[0.06]">
+                {it.icon && <span className="accent-chip grid h-9 w-9 shrink-0 place-items-center rounded-full [&>svg]:size-[17px]">{it.icon}</span>}
+                <span className="min-w-0"><span className="block text-[16px] font-medium">{it.label}</span>{it.sub && <span className="block truncate text-caption text-muted">{it.sub}</span>}</span>
+              </button>
+            ))}
+            <button type="button" onClick={() => setOpen(false)} className="mt-1 h-12 w-full rounded-full bg-fg/[0.07] text-[15px] font-semibold">Schließen</button>
+          </div>
+        </div>, document.body)}
+    </>
   );
 }

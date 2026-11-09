@@ -39,7 +39,7 @@ export default function Discover() {
   return (
     <div>
       <PageTitle title="Entdecken" sub={`${EXERCISES.length} Atemübungen`} right={<LayoutSwitch />} />
-      <div className="sticky top-[env(safe-area-inset-top)] z-20 -mx-5 bg-page/90 px-5 pt-1 pb-3 backdrop-blur-xl md:-mx-6 md:px-6">
+      <div className="sticky top-[env(safe-area-inset-top)] z-20 -mx-6 bg-page/90 px-6 pt-1 pb-3 backdrop-blur-xl md:-mx-8 md:px-8">
         <label className="relative block">
           <span className="sr-only">Suchen</span>
           <Search size={20} className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-muted" />

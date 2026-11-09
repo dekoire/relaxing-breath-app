@@ -20,7 +20,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   useEffect(() => { window.scrollTo(0, 0); }, [path]);
   return (
     <div className="min-h-dvh bg-page">
-      <main className="mx-auto w-full max-w-3xl px-5 pt-[calc(env(safe-area-inset-top)+20px)] pb-[calc(var(--bottom-nav-height)+2.5rem)] md:px-6 md:pt-[calc(env(safe-area-inset-top)+36px)]">
+      <main className="mx-auto w-full max-w-3xl px-6 pt-[calc(env(safe-area-inset-top)+20px)] pb-[calc(var(--bottom-nav-height)+2.5rem)] md:px-8 md:pt-[calc(env(safe-area-inset-top)+36px)]">
         {children}
       </main>
       <div aria-hidden className="nav-shade pointer-events-none fixed inset-x-0 bottom-0 z-[29] h-24" />
