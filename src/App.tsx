@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router";
+import { BrowserRouter, HashRouter, Navigate, Route, Routes } from "react-router";
+
+/** Demo zum Durchklicken (eine Datei-Seite ohne Server): Adressen hinter # statt echter Pfade */
+const Router = import.meta.env.VITE_HASH_ROUTER ? HashRouter : BrowserRouter;
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import { CONVEX_URL } from "@/lib/convex";
 import { ConvexStoreProvider, LocalStoreProvider } from "@/lib/store";
@@ -54,7 +57,7 @@ function DataSource({ children }: { children: React.ReactNode }) {
 export function App() {
   useTheme();
   return (
-    <BrowserRouter>
+    <Router>
       <DataSource>
         <BadgeWatcher />
         <RemindWatcher />
@@ -80,6 +83,6 @@ export function App() {
           } />
         </Routes>
       </DataSource>
-    </BrowserRouter>
+    </Router>
   );
 }
