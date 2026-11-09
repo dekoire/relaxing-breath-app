@@ -246,7 +246,7 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
               <>
                 <p className="text-center text-[15px] font-semibold text-white/80">Wie fühlst du dich jetzt?</p>
                 <div className="mb-2 grid grid-cols-5 gap-1.5">
-                  {[1, 2, 3, 4, 5].map((v) => <button key={v} type="button" onClick={() => finishWith(v)} aria-label={`Stimmung ${v} von 5`} className="grid h-16 place-items-center rounded-2xl bg-white/[0.07] text-white transition hover:bg-white/[0.14] active:scale-95"><MoodFace mood={v} size={34} /></button>)}
+                  {[1, 2, 3, 4, 5].map((v) => <button key={v} type="button" onClick={() => finishWith(v)} aria-label={`Stimmung ${v} von 5`} className="grid h-16 place-items-center rounded-full bg-white/[0.07] text-white transition hover:bg-white/[0.14] active:scale-95"><MoodFace mood={v} size={34} /></button>)}
                 </div>
               </>
             )}
@@ -393,7 +393,7 @@ function Seg({ value, onChange, options }: { value: string; onChange: (v: string
 }
 function Row({ on, sub, onClick, children }: { on: boolean; sub?: string; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button type="button" onClick={onClick} className={`flex min-h-[52px] w-full items-center gap-3 rounded-2xl px-3.5 py-2 text-left ${on ? "bg-white/[0.1]" : "hover:bg-white/[0.05]"}`}>
+    <button type="button" onClick={onClick} className={`flex min-h-[52px] w-full items-center gap-3 rounded-full px-5 py-2 text-left ${on ? "bg-white/[0.1]" : "hover:bg-white/[0.05]"}`}>
       <span className="min-w-0 flex-1"><span className={`block truncate text-[15.5px] ${on ? "font-semibold" : ""}`}>{children}</span>{sub && <span className="block truncate text-[12.5px] text-white/50">{sub}</span>}</span>
       {on && <Check size={17} />}
     </button>

@@ -72,7 +72,7 @@ export default function Home() {
       )}
 
       {/* Sofort-Hilfe: immer da, ohne Fragen direkt in die Übung */}
-      <Link to="/atmen/seufzer" className="press mt-3 flex items-center gap-3.5 rounded-[22px] border border-card-line bg-surface px-4 py-3.5">
+      <Link to="/atmen/seufzer" className="press mt-3 flex items-center gap-3.5 rounded-full border border-card-line bg-surface py-2.5 pr-5 pl-2.5">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-500 text-white"><LifeBuoy size={21} /></span>
         <span className="min-w-0 flex-1">
           <span className="block text-[16px] font-semibold">Ich brauche jetzt Hilfe</span>

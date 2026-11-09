@@ -29,3 +29,4 @@
 - **Wischbare Reihen** immer mit `.hscroll` (`brand.css`): bis an den Rand, aber Anfang, Ende und Einrasten bündig mit dem Seiteninhalt (nie ganz links). Keine eigenen `-mx`/`px`-Kombinationen.
 - Übung zeigt, wie gut sie erforscht ist (`EVIDENCE_LABEL`, Studie). Keine Gedankenstriche in sichtbaren Texten.
 - **Texte für alle, ohne Fachwörter**: keine Wörter wie stoisch, Reflexion, Niveau, neutral, Ø oder Zahlen wie „3/5“ in der Oberfläche (Philosophie nur in Artikeln). Stimmung heißt Sehr gut · Gut · Geht so · Eher schlecht · Sehr schlecht. Sätze kurz, eine Aussage, eine klare Anweisung („Tipp alles an, was passt.“). Gleiche Sache, gleiches Wort: Übung, Check-in („Wie geht's dir?“), Atemübung.
+- **Rundungen**: Knöpfe, Felder und Auswahl-Kacheln mit kurzem Text (eine bis zwei kurze Zeilen) ganz rund (`rounded-full`, Symbol links im Kreis); Karten mit viel Text oder Bild normal gerundet (22–28 px).

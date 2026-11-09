@@ -182,7 +182,7 @@ function TITLES(step: StepId, questions: string[], part: ReturnType<typeof partO
 
 function Tile({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button type="button" onClick={onClick} aria-pressed={on} className={`press flex min-h-[72px] w-full items-center gap-4 rounded-[22px] px-5 py-3 text-left ${on ? "bg-brand-500 text-white" : "bg-surface shadow-[inset_0_0_0_1px_var(--color-card-line)] hover:bg-surface-2"}`}>
+    <button type="button" onClick={onClick} aria-pressed={on} className={`press flex min-h-[68px] w-full items-center gap-4 rounded-full px-6 py-3 text-left ${on ? "bg-brand-500 text-white" : "bg-surface shadow-[inset_0_0_0_1px_var(--color-card-line)] hover:bg-surface-2"}`}>
       {children}
       {on && <Check size={20} className="ml-auto shrink-0" />}
     </button>

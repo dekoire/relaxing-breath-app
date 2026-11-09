@@ -49,15 +49,15 @@ export default function ExercisePage() {
       <h2 className="mt-8 text-[22px] font-bold tracking-tight">Warum es hilft</h2>
       <p className="mt-2 text-body leading-7 text-soft">{e.why}</p>
       {e.evidence && (
-        <button type="button" onClick={() => nav("/entdecken?gut=1")} className="mt-3 flex w-full items-center gap-3 rounded-2xl bg-fg/[0.05] px-4 py-3 text-left">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-tile bg-lavender text-brand-400"><FlaskConical size={17} /></span>
+        <button type="button" onClick={() => nav("/entdecken?gut=1")} className="mt-3 flex w-full items-center gap-3 rounded-full bg-fg/[0.05] py-2 pr-5 pl-2 text-left">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-lavender text-brand-400"><FlaskConical size={17} /></span>
           <span className="min-w-0"><span className="block text-small font-semibold">{EVIDENCE_LABEL[e.evidence]}</span>{e.study && <span className="block truncate text-caption text-muted">{e.study}</span>}</span>
         </button>
       )}
 
       <h2 className="mt-8 text-[22px] font-bold tracking-tight">So geht's</h2>
       <ol className="mt-3 grid gap-2.5">
-        {e.how.map((h, k) => <li key={h} className="flex gap-3 rounded-2xl border border-card-line bg-surface px-4 py-3.5"><span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-lavender text-small font-bold text-brand-400">{k + 1}</span><span className="text-body leading-6">{h}</span></li>)}
+        {e.how.map((h, k) => <li key={h} className={`flex items-center gap-3 border border-card-line bg-surface ${h.length <= 34 ? "rounded-full py-2 pr-5 pl-2" : "rounded-[22px] px-4 py-3.5"}`}><span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-lavender text-small font-bold text-brand-400">{k + 1}</span><span className="text-body leading-6">{h}</span></li>)}
       </ol>
       {e.cycle.length > 1 && (
         <div className="mt-3 grid gap-2">

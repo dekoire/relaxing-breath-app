@@ -53,7 +53,7 @@ export default function Settings() {
         {voices.length > 0 && (
           <label className="flex items-center gap-3 border-t border-line px-4 py-3">
             <span className="flex-1 text-[16px] font-medium">Welche Stimme</span>
-            <select value={prefs.voiceName} onChange={(e) => { setPrefs({ voiceName: e.target.value }); void say("Einatmen. Und langsam ausatmen.", { voiceName: e.target.value }); }} className="h-10 max-w-[55%] border border-card-line pl-4 text-small">
+            <select value={prefs.voiceName} onChange={(e) => { setPrefs({ voiceName: e.target.value }); void say("Einatmen. Und langsam ausatmen.", { voiceName: e.target.value }); }} className="h-10 max-w-[55%] rounded-full border border-card-line bg-surface-2 pr-3 pl-4 text-small">
               <option value="">Wie das Handy</option>
               {voices.map((v) => <option key={v.name} value={v.name}>{v.name}</option>)}
             </select>
