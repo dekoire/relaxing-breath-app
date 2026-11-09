@@ -83,13 +83,13 @@ export function ExerciseCard({ e, tall, minutes }: { e: Exercise; tall?: boolean
       <Link to={`/uebung/${e.id}`} className="press block">
         <div className="relative overflow-hidden rounded-[22px]" style={{ background: artBg(e), aspectRatio: tall ? "3 / 4" : "1 / 1" }}>
           <Photo e={e} className="transition-transform duration-500 group-hover:scale-[1.03]" />
-          <span className="absolute bottom-2.5 left-2.5 rounded-full bg-black/35 px-2.5 py-1 text-[12px] font-semibold text-white backdrop-blur">{durationLabel(totalSec(e, minutes ?? e.minutes))}</span>
         </div>
       </Link>
       <div className="flex items-start gap-1 pt-2 pl-1">
         <Link to={`/uebung/${e.id}`} className="min-w-0 flex-1">
           <p className="flex items-center gap-1.5 text-[15px] leading-5 font-semibold"><span className="min-w-0 truncate">{e.name}</span>{fav && <Heart size={13} fill="currentColor" className="shrink-0 text-brand-400" aria-label="Favorit" />}</p>
           <p className="mt-0.5 line-clamp-2 text-[13px] leading-[18px] text-muted">{e.short}</p>
+          <p className="mt-1 text-caption font-semibold text-soft tabular-nums">{durationLabel(totalSec(e, minutes ?? e.minutes))}</p>
         </Link>
         <MoreButton items={menu} title={e.name} className="-mt-1.5" />
       </div>
