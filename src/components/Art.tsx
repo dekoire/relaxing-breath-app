@@ -114,7 +114,7 @@ export function LongTile({ to, img, bg, title, sub, meta, right }: { to: string;
         </span>
         <span className="relative ml-[40%] flex min-w-0 flex-1 flex-col justify-center py-4 pr-12 pl-2 sm:ml-[180px]">
           <span className="line-clamp-2 text-[16px] leading-[21px] font-semibold">{title}</span>
-          <span className="mt-1 line-clamp-2 text-[13.5px] leading-[19px] text-muted">{sub}</span>
+          <span className="mt-1 line-clamp-2 text-[13.5px] leading-[19px] text-muted/90">{sub}</span>
           {meta && <span className="mt-1.5 text-caption font-semibold text-soft tabular-nums">{meta}</span>}
         </span>
         {!right && <ChevronRight size={18} className="absolute top-1/2 right-4 -translate-y-1/2 text-muted" />}
@@ -124,11 +124,14 @@ export function LongTile({ to, img, bg, title, sub, meta, right }: { to: string;
   );
 }
 
+/** in der Liste nur der erste Satz, damit es ruhig bleibt */
+const firstSentence = (t: string) => (/^[^.!?]{12,}[.!?]/.exec(t)?.[0] ?? t);
+
 export function ExerciseLong({ e }: { e: Exercise }) {
   const [prefs] = usePrefs();
   const fav = prefs.favorites.includes(e.id);
   return (
-    <LongTile to={`/uebung/${e.id}`} img={imageOf(e, 400)} bg={artBg(e)} title={e.name} sub={e.short} meta={durationLabel(totalSec(e, prefs.minutes[e.id] ?? e.minutes))}
+    <LongTile to={`/uebung/${e.id}`} img={imageOf(e, 400)} bg={artBg(e)} title={e.name} sub={firstSentence(e.short)} meta={durationLabel(totalSec(e, prefs.minutes[e.id] ?? e.minutes))}
       right={<button type="button" onClick={() => toggleFavorite(e.id)} aria-pressed={fav} aria-label={fav ? "Aus Favoriten entfernen" : "Zu Favoriten"} className={`absolute top-1/2 right-2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full transition active:scale-90 ${fav ? "text-brand-400" : "text-muted hover:text-fg"}`}><Heart size={18} fill={fav ? "currentColor" : "none"} /></button>} />
   );
 }

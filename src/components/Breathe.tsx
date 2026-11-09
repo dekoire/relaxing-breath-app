@@ -158,7 +158,7 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
         {ctrl("look", prefs.look === "flower" ? <Flower2 /> : <Nova size={22} />, prefs.look === "flower" ? "Blume" : "Nova", true, () => setPrefs({ look: prefs.look === "flower" ? "nova" : "flower" }))}
         {ctrl("vib", <Vibrate />, "Vibration", vibOn, () => setPrefs({ haptics: prefs.haptics === "off" ? prefs.hapticLevel : "off" }), !vibOk)}
         {ctrl("voice", voice ? <AudioLines /> : <VolumeX />, "Stimme", voice, () => { setPrefs({ voice: !voice }); if (voice) hush(); })}
-        {ctrl("bowl", bowl ? <Bell /> : <BellOff />, "Schale", bowl, () => { setPrefs({ bowl: !bowl }); if (!bowl) { unlockBreathAudio(); bell(0.22); } })}
+        {ctrl("bowl", bowl ? <Bell /> : <BellOff />, "Klangschale", bowl, () => { setPrefs({ bowl: !bowl }); if (!bowl) { unlockBreathAudio(); bell(0.22); } })}
         {ctrl("music", <Music />, "Musik", music !== "off", () => { if (music === "off") { unlockBreathAudio(); setPrefs({ music: prefs.track }); } else setPrefs({ music: "off" }); })}
       </div>
       <button type="button" onClick={() => setPicking("adjust")} className="mx-auto mt-2 flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[13.5px] font-semibold text-white/60 hover:bg-white/[0.08] hover:text-white"><SlidersHorizontal size={15} /> Anpassen</button>
@@ -378,8 +378,8 @@ function AirIcon({ kind, ms }: { kind: "in" | "out"; ms: number }) {
 }
 
 function guideLine(voice: boolean, bowl: boolean, track: string, vib: boolean): string {
-  const parts = [voice ? "Nova spricht dich durch" : "", bowl ? "Klangschale" : "", track ? `Musik: ${track}` : "", vib ? "Vibration hält den Takt" : ""].filter(Boolean);
-  return parts.length ? parts.join(" · ") : "Ganz leise, du folgst dem Bild";
+  const parts = [voice ? "Eine Stimme sagt dir, wann du atmest" : "", bowl ? "Klangschale" : "", track ? `Musik: ${track}` : "", vib ? "Vibration gibt den Takt vor" : ""].filter(Boolean);
+  return parts.length ? parts.join(" · ") : "Ganz still, du folgst einfach dem Bild";
 }
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
   return <section><p className="mb-2 text-[12px] font-semibold tracking-wide text-white/45 uppercase">{title}</p>{children}</section>;

@@ -31,7 +31,7 @@ export default function Settings() {
         </div>
         <p className="flex items-center gap-2 px-4 pb-3 text-small text-muted">{theme === "system" ? <Monitor size={15} /> : theme === "light" ? <Sun size={15} /> : <Moon size={15} />} {theme === "system" ? "Folgt deinem Gerät" : theme === "light" ? "Immer hell" : "Immer dunkel"}</p>
         <div className="flex items-center gap-3 border-t border-line px-4 py-2.5">
-          <span className="min-w-0 flex-1"><span className="block text-[16px] font-medium">Übungen zeigen als</span><span className="block text-small text-muted">{prefs.layout === "list" ? "Liste mit Bild links" : "Kacheln wie bei Pinterest"}</span></span>
+          <span className="min-w-0 flex-1"><span className="block text-[16px] font-medium">Übungen zeigen als</span><span className="block text-small text-muted">{prefs.layout === "list" ? "Untereinander, Bild links" : "Große Bilder nebeneinander"}</span></span>
           <div className="w-44"><Segmented label="Übungen zeigen als" joined value={prefs.layout} onChange={(v: Layout) => setPrefs({ layout: v })} options={[{ id: "tiles", label: "Kacheln" }, { id: "list", label: "Liste" }]} /></div>
         </div>
       </Group>
@@ -49,23 +49,23 @@ export default function Settings() {
       </Group>
 
       <Group title="Stimme und Klang">
-        <Toggle label="Stimme spricht mit" on={prefs.voice} onChange={(v) => setPrefs({ voice: v })} />
+        <Toggle label="Stimme sagt an, wann du atmest" on={prefs.voice} onChange={(v) => setPrefs({ voice: v })} />
         {voices.length > 0 && (
           <label className="flex items-center gap-3 border-t border-line px-4 py-3">
-            <span className="flex-1 text-[16px] font-medium">Stimme</span>
+            <span className="flex-1 text-[16px] font-medium">Welche Stimme</span>
             <select value={prefs.voiceName} onChange={(e) => { setPrefs({ voiceName: e.target.value }); void say("Einatmen. Und langsam ausatmen.", { voiceName: e.target.value }); }} className="h-10 max-w-[55%] border border-card-line pl-4 text-small">
-              <option value="">Automatisch</option>
+              <option value="">Wie das Handy</option>
               {voices.map((v) => <option key={v.name} value={v.name}>{v.name}</option>)}
             </select>
           </label>
         )}
-        <Toggle label="Klangschale" on={prefs.bowl} onChange={(v) => setPrefs({ bowl: v })} />
+        <Toggle label="Klangschale" sub="Leiser Ton, wenn du umschaltest" on={prefs.bowl} onChange={(v) => setPrefs({ bowl: v })} />
       </Group>
 
       <Group title="Check-in">
         <div className="p-3"><Segmented label="Länge" joined value={prefs.length} onChange={(v: Length) => setPrefs({ length: v })} options={(Object.keys(LENGTH) as Length[]).map((k) => ({ id: k, label: LENGTH[k].label }))} /></div>
-        <p className="px-4 pb-3 text-small text-muted">{LENGTH[prefs.length].sub} zum Reflektieren nach den Fragen zum Gefühl.</p>
-        <Toggle label="Fragen vorlesen" on={prefs.readAloud} onChange={(v) => setPrefs({ readAloud: v })} />
+        <p className="px-4 pb-3 text-small text-muted">{LENGTH[prefs.length].sub}, nach den Fragen zum Gefühl.</p>
+        <Toggle label="Fragen laut vorlesen" on={prefs.readAloud} onChange={(v) => setPrefs({ readAloud: v })} />
       </Group>
 
       <Group title="Konto" foot={account.demo ? "Demo: Konto und Daten bleiben nur in diesem Browser." : undefined}>

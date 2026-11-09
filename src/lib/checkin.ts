@@ -17,16 +17,16 @@ export type Quadrant = "angespannt" | "lebendig" | "schwer" | "ruhig";
 export type Control = "ganz" | "teils" | "nicht";
 
 export const MOODS: { v: number; label: string }[] = [
-  { v: 1, label: "Sehr unangenehm" },
-  { v: 2, label: "Unangenehm" },
-  { v: 3, label: "Neutral" },
-  { v: 4, label: "Angenehm" },
-  { v: 5, label: "Sehr angenehm" },
+  { v: 1, label: "Sehr schlecht" },
+  { v: 2, label: "Eher schlecht" },
+  { v: 3, label: "Geht so" },
+  { v: 4, label: "Gut" },
+  { v: 5, label: "Sehr gut" },
 ];
 export const ENERGY: { v: Energy; label: string; sub: string }[] = [
-  { v: 1, label: "Wenig Energie", sub: "müde, schwer, leer" },
-  { v: 2, label: "Mittel", sub: "weder noch" },
-  { v: 3, label: "Viel Energie", sub: "aufgedreht, wach, unter Strom" },
+  { v: 1, label: "Wenig Energie", sub: "müde, schlapp, leer" },
+  { v: 2, label: "Etwas Energie", sub: "ganz normal" },
+  { v: 3, label: "Viel Energie", sub: "wach, aufgedreht, unter Strom" },
 ];
 
 export function quadrantOf(mood: number, energy: Energy): Quadrant {
@@ -35,10 +35,10 @@ export function quadrantOf(mood: number, energy: Energy): Quadrant {
   return energy === 3 ? "angespannt" : energy === 1 ? "schwer" : "ruhig";
 }
 export const QUADRANT: Record<Quadrant, { label: string; sub: string; goal: string[]; color: string }> = {
-  angespannt: { label: "Angespannt", sub: "unangenehm, viel Energie", goal: ["ruhe", "stress"], color: "#8b6bff" },
-  schwer: { label: "Schwer", sub: "unangenehm, wenig Energie", goal: ["balance", "energie"], color: "#6b6f86" },
-  lebendig: { label: "Lebendig", sub: "angenehm, viel Energie", goal: ["fokus", "balance"], color: "#b9a6ff" },
-  ruhig: { label: "Ruhig", sub: "angenehm, wenig Energie", goal: ["achtsam", "dankbar"], color: "#9a98b0" },
+  angespannt: { label: "Angespannt", sub: "schlecht und unter Strom", goal: ["ruhe", "stress"], color: "#8b6bff" },
+  schwer: { label: "Schwer", sub: "schlecht und schlapp", goal: ["balance", "energie"], color: "#6b6f86" },
+  lebendig: { label: "Lebendig", sub: "gut und wach", goal: ["fokus", "balance"], color: "#b9a6ff" },
+  ruhig: { label: "Ruhig", sub: "gut und entspannt", goal: ["achtsam", "dankbar"], color: "#9a98b0" },
 };
 
 /** Gefühlswörter je Feld (Mood Meter), jedes mit Schlagwörtern für die Übung */
@@ -85,9 +85,9 @@ export const INFLUENCES = ["Arbeit", "Schule / Studium", "Beziehung", "Familie",
 
 /** Stoisch: Dichotomie der Kontrolle (Epiktet, Handbüchlein 1) – Antwort und ein Satz dazu */
 export const CONTROL: { v: Control; label: string; reply: string }[] = [
-  { v: "ganz", label: "Ja, das liegt bei mir", reply: "Dann ist es deine Aufgabe, nicht deine Last. Ein kleiner Schritt reicht für heute." },
-  { v: "teils", label: "Teilweise", reply: "Trenne die Teile: Um deinen Teil kümmerst du dich, den Rest darfst du loslassen." },
-  { v: "nicht", label: "Nein, eigentlich nicht", reply: "„Nicht die Dinge beunruhigen uns, sondern unsere Meinungen über die Dinge.“ (Epiktet) Was du ändern kannst, ist dein Blick darauf." },
+  { v: "ganz", label: "Ja", reply: "Dann überleg dir einen kleinen Schritt. Mehr musst du heute nicht schaffen." },
+  { v: "teils", label: "Zum Teil", reply: "Kümmer dich um deinen Teil. Den Rest darfst du loslassen." },
+  { v: "nicht", label: "Nein", reply: "Dann darfst du es loslassen. Ändern kannst du nur, wie du darüber denkst." },
 ];
 
 export function partOf(d = new Date()): Part {
@@ -101,10 +101,10 @@ export const PART_TITLE: Record<Part, string> = { morning: "Guten Morgen", day: 
 /* ---------- Stoische Fragen (aus Notara `stoic.ts`) ---------- */
 
 export const VARIANTS: Record<string, string[]> = {
-  intention: ["Worauf kommt es heute an? Nenn eine Sache, die du wirklich gut machen willst.", "Was ist heute das Eine, das zählt?", "Wenn heute nur eine Sache klappt: welche soll es sein?", "Wofür willst du dir heute am meisten Zeit nehmen?"],
+  intention: ["Worauf kommt es heute an?", "Was ist heute das Eine, das zählt?", "Wenn heute nur eine Sache klappt: welche soll es sein?", "Wofür willst du dir heute am meisten Zeit nehmen?"],
   hard: ["Was könnte heute schwierig werden, und wie willst du dann reagieren?", "Wo könnte es heute haken, und was machst du dann?", "Was könnte dich heute aus der Ruhe bringen, und wie bleibst du gelassen?"],
   good: ["Was ist dir heute gelungen?", "Worauf bist du heute stolz?", "Was lief heute gut, auch wenn es klein war?"],
-  behind: ["Wo bist du heute hinter dir zurückgeblieben?", "Was würdest du heute anders machen?", "Wo hast du heute nicht so gehandelt, wie du es willst?"],
+  behind: ["Was lief heute nicht so gut?", "Was würdest du heute anders machen?", "Wo hast du heute nicht so gehandelt, wie du es willst?"],
   lesson: ["Was machst du morgen besser?", "Was nimmst du dir für morgen vor?", "Was willst du morgen anders angehen?"],
   day: ["Was beschäftigt dich gerade?", "Was geht dir gerade durch den Kopf?", "Was ist gerade wichtig für dich?"],
   gratitude: ["Wofür bist du heute dankbar?", "Was war heute ein kleiner guter Moment?", "Wem bist du gerade dankbar, und warum?"],
@@ -123,9 +123,9 @@ export function vary(key: keyof typeof VARIANTS, history: { date: string; answer
 
 export type Length = "short" | "normal" | "long";
 export const LENGTH: Record<Length, { label: string; sub: string; n: number }> = {
-  short: { label: "Kurz", sub: "1 Frage", n: 1 },
-  normal: { label: "Normal", sub: "2 Fragen", n: 2 },
-  long: { label: "In Ruhe", sub: "3 Fragen", n: 3 },
+  short: { label: "Kurz", sub: "1 Frage zum Nachdenken", n: 1 },
+  normal: { label: "Normal", sub: "2 Fragen zum Nachdenken", n: 2 },
+  long: { label: "In Ruhe", sub: "3 Fragen zum Nachdenken", n: 3 },
 };
 
 /** stoische Fragen je Tageszeit, die wichtigsten zuerst; greift den Vorsatz vom Morgen bzw. die Lehre von gestern auf */
@@ -183,12 +183,14 @@ const TAG_SAY: Record<string, string> = {
   traurig: "wenn es schwer ist", ueberfordert: "wenn alles zu viel ist", grübeln: "gegen Grübeln", dankbar: "verstärkt Dankbarkeit",
   schlaf: "zum Einschlafen", fokus: "für Fokus", energie: "für Energie", ruhe: "zum Runterkommen", balance: "bringt in die Mitte",
 };
+const FOR_STATE: Record<Quadrant, string> = { angespannt: "Hilft beim Runterkommen", schwer: "Gibt dir sanft Energie", lebendig: "Hilft dir, klar zu bleiben", ruhig: "Hält die Ruhe" };
 function reasonText(e: Exercise, why: string[], q: Quadrant, part: Part): string {
   const first = why.find((t) => TAG_SAY[t]);
-  if (first) return `${TAG_SAY[first][0].toUpperCase()}${TAG_SAY[first].slice(1)}: ${e.short}`;
-  if (part === "evening" && e.tags.includes("schlaf")) return `Passt zum Abend: ${e.short}`;
-  if (part === "morning" && e.tags.includes("morgen")) return `Guter Start in den Tag: ${e.short}`;
-  return `Passt, wenn du dich ${QUADRANT[q].label.toLowerCase()} fühlst: ${e.short}`;
+  // ein kurzer Grund, dann was man tut (zwei einfache Sätze statt eines Doppelpunkt-Satzes)
+  if (first) return `${TAG_SAY[first][0].toUpperCase()}${TAG_SAY[first].slice(1)}. ${e.short}`;
+  if (part === "evening" && e.tags.includes("schlaf")) return `Passt zum Abend. ${e.short}`;
+  if (part === "morning" && e.tags.includes("morgen")) return `Guter Start in den Tag. ${e.short}`;
+  return `${FOR_STATE[q]}. ${e.short}`;
 }
 
 /** Hinweis auf Hilfe bei sehr schlechter Stimmung */

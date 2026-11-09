@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { ArrowRight, Check, ChevronLeft, Clock, Hand, Mic, Sparkles, Square, Volume2, VolumeX, Wind, X, LifeBuoy } from "lucide-react";
+import { ArrowRight, Check, ChevronLeft, Clock, Hand, Mic, Square, Volume2, VolumeX, Wind, X, LifeBuoy } from "lucide-react";
 import { BODY, CONTROL, CRISIS, EMOTIONS, ENERGY, INFLUENCES, MOODS, PART_TITLE, QUADRANT, partOf, quadrantOf, recommend, reflectQuestions, type Control, type Energy } from "@/lib/checkin";
 import { MoodFace } from "@/components/MoodFace";
 import { ExerciseRow, Photo } from "@/components/Art";
@@ -88,18 +88,11 @@ export default function CheckInPage() {
         <div className="mt-7">
           {step === "intro" && (
             <div className="space-y-6">
-              <div>
-                <p className="mb-2.5 text-caption font-semibold tracking-wide text-muted uppercase">Was dich erwartet</p>
-                <ul className="space-y-2.5 text-body leading-6">
-                  <li className="flex gap-3"><Clock size={19} className="mt-0.5 shrink-0 text-brand-400" />Etwa 2 Minuten, {order.length - 2} kurze Fragen</li>
-                  <li className="flex gap-3"><Hand size={19} className="mt-0.5 shrink-0 text-brand-400" />Fast alles zum Antippen, nichts ist Pflicht</li>
-                  <li className="flex gap-3"><Wind size={19} className="mt-0.5 shrink-0 text-brand-400" />Am Ende eine passende Atemübung</li>
-                </ul>
-              </div>
-              <div>
-                <p className="mb-2.5 text-caption font-semibold tracking-wide text-muted uppercase">Was du davon hast</p>
-                <p className="flex gap-3 text-body leading-6"><Sparkles size={19} className="mt-0.5 shrink-0 text-brand-400" />Du merkst, wie es dir wirklich geht, und atmest genau so, wie es dir jetzt guttut. Mit der Zeit siehst du deine Muster.</p>
-              </div>
+              <ul className="space-y-3 text-body leading-6">
+                <li className="flex gap-3"><Clock size={19} className="mt-0.5 shrink-0 text-brand-400" />Dauert etwa 2 Minuten</li>
+                <li className="flex gap-3"><Hand size={19} className="mt-0.5 shrink-0 text-brand-400" />Einfach antippen, du kannst alles überspringen</li>
+                <li className="flex gap-3"><Wind size={19} className="mt-0.5 shrink-0 text-brand-400" />Am Ende bekommst du eine passende Atemübung</li>
+              </ul>
             </div>
           )}
           {step === "mood" && (
@@ -144,13 +137,13 @@ export default function CheckInPage() {
                 <button type="button" onClick={() => start(picks[0].exercise.id)} className="press relative block w-full overflow-hidden rounded-[28px] p-5 text-left text-white" style={{ background: "#262b35" }}>
                   <Photo e={picks[0].exercise} w={900} />
                   <span aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(42,47,59,.55) 0%, rgba(29,33,41,.8) 100%)" }} />
-                  <span className="relative text-small font-semibold text-white/75">Für dich jetzt</span>
+                  <span className="relative text-small font-semibold text-white/75">Passt am besten</span>
                   <span className="relative mt-1 block text-[26px] leading-8 font-bold">{picks[0].exercise.name}</span>
                   <span className="relative mt-2 block max-w-[85%] text-body leading-6 text-white/85">{picks[0].reason}</span>
                   <span className="relative mt-5 inline-flex h-12 items-center gap-2 rounded-full bg-white px-5 text-[16px] font-semibold text-[#141522]">Jetzt atmen <ArrowRight size={18} /></span>
                 </button>
               )}
-              <p className="mt-6 mb-1 text-small font-semibold text-muted">Oder lieber</p>
+              <p className="mt-6 mb-1 text-small font-semibold text-muted">Oder eine von diesen</p>
               {picks.slice(1).map((p) => <ExerciseRow key={p.exercise.id} e={p.exercise} sub={p.reason} onClick={() => start(p.exercise.id)} />)}
             </>
           )}
@@ -160,7 +153,7 @@ export default function CheckInPage() {
       <footer className="shrink-0 border-t border-line bg-page" style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
         <div className="mx-auto flex max-w-xl gap-2 px-5 pt-3">
           {step === "result" ? (
-            <button type="button" onClick={saveOnly} className="h-14 flex-1 rounded-full bg-fg/[0.08] text-[16px] font-semibold hover:bg-fg/[0.13]">Ohne Übung speichern</button>
+            <button type="button" onClick={saveOnly} className="h-14 flex-1 rounded-full bg-fg/[0.08] text-[16px] font-semibold hover:bg-fg/[0.13]">Nur speichern, ohne Übung</button>
           ) : (
             <>
               {!auto && <button type="button" onClick={next} className="h-14 rounded-full px-5 text-[16px] font-semibold text-muted hover:text-fg">Überspringen</button>}
@@ -175,15 +168,15 @@ export default function CheckInPage() {
 
 function TITLES(step: StepId, questions: string[], part: ReturnType<typeof partOf>): { over: string; q: string; sub?: string } {
   switch (step) {
-    case "intro": return { over: PART_TITLE[part], q: "Kurzer Check-in" };
-    case "mood": return { over: PART_TITLE[part], q: "Wie geht's dir gerade?", sub: "Ganz ehrlich, ohne nachzudenken." };
-    case "energy": return { over: "Energie", q: "Wie viel Energie hast du?" };
-    case "words": return { over: "Gefühl benennen", q: "Welches Wort passt am besten?", sub: "Bis zu drei. Ein Gefühl zu benennen nimmt ihm schon etwas Wucht." };
-    case "body": return { over: "Körper", q: "Was spürst du im Körper?", sub: "Danach suche ich die passende Atemübung aus." };
-    case "influence": return { over: "Hintergrund", q: "Was beeinflusst dich gerade?" };
-    case "control": return { over: "Stoisch", q: "Liegt das, was dich beschäftigt, in deiner Hand?", sub: "Epiktet: Manches liegt bei uns, anderes nicht." };
-    case "result": return { over: "Danke fürs Hinschauen", q: "Lass uns atmen." };
-    default: { const k = Number(step.slice(1)); return { over: `Reflexion ${k + 1} von ${questions.length}`, q: questions[k], sub: "Ein Satz reicht. Tippen oder sprechen." }; }
+    case "intro": return { over: PART_TITLE[part], q: "Wie geht's dir?", sub: "Ein paar kurze Fragen. Danach weißt du, was dir jetzt guttut." };
+    case "mood": return { over: PART_TITLE[part], q: "Wie fühlst du dich gerade?", sub: "Nimm das Erste, was dir einfällt." };
+    case "energy": return { over: "Energie", q: "Wie viel Energie hast du gerade?" };
+    case "words": return { over: "Gefühl", q: "Welches Wort passt am besten?", sub: "Du kannst bis zu drei antippen." };
+    case "body": return { over: "Körper", q: "Was merkst du im Körper?", sub: "Tipp alles an, was passt." };
+    case "influence": return { over: "Was dich beschäftigt", q: "Woran liegt es gerade?", sub: "Tipp alles an, was passt." };
+    case "control": return { over: "Kurz nachdenken", q: "Kannst du daran etwas ändern?", sub: "Manches liegt in deiner Hand, manches nicht." };
+    case "result": return { over: "Danke dir", q: "Das tut dir jetzt gut." };
+    default: { const k = Number(step.slice(1)); return { over: `Frage ${k + 1} von ${questions.length}`, q: questions[k], sub: "Ein Satz reicht. Schreib ihn hin oder tipp aufs Mikrofon und sprich." }; }
   }
 }
 
@@ -217,7 +210,7 @@ function Answer({ value, onChange }: { value: string; onChange: (v: string) => v
   const d = useDictation((t) => onChange(`${base.current ? `${base.current} ` : ""}${t}`));
   return (
     <div className="relative">
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={5} placeholder="Schreib hier …" className="w-full resize-none rounded-[22px] border border-card-line bg-surface px-5 py-4 pr-16 text-[17px] leading-7 placeholder:text-muted focus:border-brand-500 focus:outline-none" data-own-focus />
+      <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={5} placeholder="Schreib hier deine Antwort …" className="w-full resize-none rounded-[22px] border border-card-line bg-surface px-5 py-4 pr-16 text-[17px] leading-7 placeholder:text-muted focus:border-brand-500 focus:outline-none" data-own-focus />
       {d.supported && (
         <button type="button" onClick={() => { if (d.on) d.stop(); else { base.current = value; d.start(); } }} aria-label={d.on ? "Diktieren stoppen" : "Antwort sprechen"} className={`absolute right-3 bottom-4 grid h-11 w-11 place-items-center rounded-full ${d.on ? "animate-pulse bg-brand-500 text-white" : "bg-fg/[0.08] hover:bg-fg/[0.13]"}`}>{d.on ? <Square size={15} fill="currentColor" /> : <Mic size={19} />}</button>
       )}

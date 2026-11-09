@@ -56,9 +56,9 @@ export function DemoLogin({ onDone }: { onDone: (email: string) => void }) {
 
 /** dieselben drei Versprechen wie auf der Website: festhalten, erinnern, planen (je mit Farbe des Bereichs) */
 const POINTS = [
-  { icon: Smile, color: "#6d4aff", title: "Hinspüren", text: "Jeden Tag kurz fragen: Wie geht's dir? Und stoisch reflektieren." },
-  { icon: Wind, color: "#8b6bff", title: "Atmen", text: "Über 40 Atemübungen, passend zu Gefühl, Körper und Ziel." },
-  { icon: Vibrate, color: "#4a4a55", title: "Spüren", text: "Mit Vibration: atmen ohne Kopfhörer, Handy in der Tasche." },
+  { icon: Smile, color: "#6d4aff", title: "Hinspüren", text: "Jeden Tag kurz fragen: Wie geht's dir? Und kurz über den Tag nachdenken." },
+  { icon: Wind, color: "#8b6bff", title: "Atmen", text: "Über 50 Atemübungen, passend zu deinem Gefühl." },
+  { icon: Vibrate, color: "#4a4a55", title: "Spüren", text: "Mit Vibration: atmen ohne Kopfhörer, das Handy in der Tasche." },
 ];
 
 function Field({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
@@ -199,7 +199,7 @@ function LoginView({ onSubmit, demoMode = false, reset }: { onSubmit: Submit; de
         <div className="mx-auto w-full max-w-xl px-12 py-12">
           <Nova size={130} label="Nova" />
           <h2 className="mt-8 text-[36px] leading-[42px] font-[680] tracking-tight">Ein Atemzug. <span className="text-brand-500">Dann weiter.</span></h2>
-          <p className="mt-3 max-w-md text-[16px] leading-7 text-soft">Jeden Tag ein bisschen gelassener, wie ein Stoiker.</p>
+          <p className="mt-3 max-w-md text-[16px] leading-7 text-soft">Jeden Tag ein bisschen gelassener.</p>
           {/* reine Aufzählung (nicht anklickbar): Symbol in Farbe, Titel, ein Satz, ohne Rahmen und Trennlinien */}
           <ul className="mt-10 grid gap-6">
             {POINTS.map(({ icon: Icon, color, title, text }) => (

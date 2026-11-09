@@ -5,7 +5,7 @@ import { useStore } from "@/lib/store";
 import { usePrefs } from "@/lib/prefs";
 import { dayStats, streak, week } from "@/lib/stats";
 import { PART_TITLE, partOf, recommend, QUADRANT, quadrantOf } from "@/lib/checkin";
-import { EXERCISES, exerciseById } from "@/data/exercises";
+import { exerciseById } from "@/data/exercises";
 import { todayIso } from "@/lib/types";
 import { ARTICLES, articleImage } from "@/data/articles";
 import { ExerciseCard, ExerciseRow, LogoMark } from "@/components/Art";
@@ -53,7 +53,7 @@ export default function Home() {
           <span className="absolute top-5 right-5"><Nova size={64} /></span>
           <p className="relative text-small font-semibold text-white/75">Check-in · 2 Minuten</p>
           <p className="relative mt-1 text-[30px] leading-9 font-bold">Wie geht's dir?</p>
-          <p className="relative mt-2 max-w-[80%] text-body leading-6 text-white/80">Kurz hinspüren, reflektieren, dann die passende Atemübung.</p>
+          <p className="relative mt-2 max-w-[80%] text-body leading-6 text-white/80">Ein paar Fragen, dann bekommst du die Atemübung, die dir jetzt guttut.</p>
           <span className="relative mt-6 inline-flex h-12 items-center gap-2 rounded-full bg-white px-5 text-[16px] font-semibold text-[#141522]">Los geht's <ArrowRight size={18} /></span>
         </Link>
       ) : (
@@ -63,11 +63,11 @@ export default function Home() {
             <div className="min-w-0 flex-1">
               <p className="text-small font-semibold text-muted">Heute · {QUADRANT[quadrantOf(last.mood, last.energy)].label}</p>
               <p className="truncate text-[20px] leading-7 font-semibold">{last.emotions.length ? last.emotions.join(", ") : "Eingecheckt"}</p>
-              {last.moodAfter != null && <p className="text-small text-muted">Nach dem Atmen: {last.moodAfter > last.mood ? "besser" : last.moodAfter < last.mood ? "schwerer" : "gleich"}</p>}
+              {last.moodAfter != null && <p className="text-small text-muted">Nach dem Atmen: {last.moodAfter > last.mood ? "besser" : last.moodAfter < last.mood ? "schlechter" : "gleich"}</p>}
             </div>
           </div>
           {last.answers[0] && <p className="mt-4 border-l-2 border-brand-500 pl-3 text-body leading-6 text-soft">„{last.answers[0].a}“</p>}
-          <Link to="/checkin" className="mt-5 grid h-12 place-items-center rounded-full bg-fg/[0.08] text-[15px] font-semibold hover:bg-fg/[0.13]">Noch einmal einchecken</Link>
+          <Link to="/checkin" className="mt-5 grid h-12 place-items-center rounded-full bg-fg/[0.08] text-[15px] font-semibold hover:bg-fg/[0.13]">Wie geht's dir jetzt?</Link>
         </div>
       )}
 
@@ -76,7 +76,7 @@ export default function Home() {
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brand-500 text-white"><LifeBuoy size={21} /></span>
         <span className="min-w-0 flex-1">
           <span className="block text-[16px] font-semibold">Ich brauche jetzt Hilfe</span>
-          <span className="block text-small text-muted">Ohne Fragen, 1 Minute ruhiger</span>
+          <span className="block text-small text-muted">Startet sofort und beruhigt in 1 Minute</span>
         </span>
         <ChevronRight size={18} className="text-muted" />
       </Link>
@@ -89,7 +89,7 @@ export default function Home() {
         </p>
       )}
 
-      <Section title={last ? "Passt zu dir jetzt" : part === "evening" ? "Für deinen Abend" : part === "morning" ? "Für deinen Morgen" : "Für zwischendurch"} action={<Link to="/entdecken" className="text-small font-semibold text-muted hover:text-fg">Alle {EXERCISES.length}</Link>}>
+      <Section title={last ? "Passend zu dir" : part === "evening" ? "Für deinen Abend" : part === "morning" ? "Für deinen Morgen" : "Für zwischendurch"} action={<Link to="/entdecken" className="text-small font-semibold text-muted hover:text-fg">Alle ansehen</Link>}>
         <div className="hscroll snap-x gap-3">
           {picks.map((e) => <div key={e.id} className="w-[46%] shrink-0 snap-start sm:w-[30%]"><ExerciseCard e={e} tall /></div>)}
         </div>

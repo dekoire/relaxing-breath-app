@@ -28,3 +28,4 @@
 - **Heute**: unter dem Check-in „Ich brauche jetzt Hilfe“ (direkt `/atmen/seufzer`, ohne Fragen), „Gut zu wissen“ = Artikel (`src/data/articles.ts`, Seite `/artikel/:id`).
 - **Wischbare Reihen** immer mit `.hscroll` (`brand.css`): bis an den Rand, aber Anfang, Ende und Einrasten bündig mit dem Seiteninhalt (nie ganz links). Keine eigenen `-mx`/`px`-Kombinationen.
 - Übung zeigt, wie gut sie erforscht ist (`EVIDENCE_LABEL`, Studie). Keine Gedankenstriche in sichtbaren Texten.
+- **Texte für alle, ohne Fachwörter**: keine Wörter wie stoisch, Reflexion, Niveau, neutral, Ø oder Zahlen wie „3/5“ in der Oberfläche (Philosophie nur in Artikeln). Stimmung heißt Sehr gut · Gut · Geht so · Eher schlecht · Sehr schlecht. Sätze kurz, eine Aussage, eine klare Anweisung („Tipp alles an, was passt.“). Gleiche Sache, gleiches Wort: Übung, Check-in („Wie geht's dir?“), Atemübung.

@@ -108,7 +108,7 @@ export const TAGS: Tag[] = [
   { id: "balance", label: "Gleichgewicht", group: "ziel", words: ["balance", "gleichgewicht", "ausgleich", "mitte", "zentrieren", "erden", "geerdet"] },
   { id: "achtsam", label: "Achtsamkeit", group: "ziel", words: ["achtsam", "achtsamkeit", "meditation", "meditieren", "präsent", "im moment"] },
   { id: "erholung", label: "Erholung", group: "ziel", words: ["erholung", "erholen", "regeneration", "auftanken", "kraft sammeln"] },
-  { id: "stoisch", label: "Gelassenheit (stoisch)", group: "ziel", words: ["stoisch", "stoiker", "stoa", "kontrolle", "loslassen", "akzeptieren", "seneca", "marc aurel", "epiktet"] },
+  { id: "stoisch", label: "Gelassenheit", group: "ziel", words: ["stoisch", "stoiker", "stoa", "kontrolle", "loslassen", "akzeptieren", "seneca", "marc aurel", "epiktet"] },
   // Situation
   { id: "pruefung", label: "Prüfung", group: "situation", words: ["prüfung", "klausur", "test", "examen", "bewerbung", "vorstellungsgespräch"] },
   { id: "auftritt", label: "Auftritt", group: "situation", words: ["auftritt", "präsentation", "vortrag", "rede", "lampenfieber", "meeting", "bühne"] },
@@ -377,7 +377,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: "zaehlen",
     name: "Atemzüge zählen",
-    short: "Zen: bis zehn zählen, dann von vorn.",
+    short: "Bis zehn zählen, dann von vorn. Beruhigt den Kopf.",
     why: "Die älteste Meditation: Atemzüge zählen. Schweift der Kopf ab, fängst du freundlich bei eins an. Trainiert Ruhe und Aufmerksamkeit.",
     how: ["Natürlich einatmen", "Beim Ausatmen innerlich zählen", "Bei zehn wieder bei eins beginnen"],
     cycle: simple(p("in", 4), p("out", 6)),
@@ -516,7 +516,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: "sonne",
     name: "Sonnen-Atmung",
-    short: "Rechts ein, links aus. Aktivierend.",
+    short: "Rechts ein, links aus. Macht wach.",
     why: "Surya Bhedana, das Gegenstück zur Mond-Atmung: durch das rechte Nasenloch einatmen gilt im Yoga als wärmend und weckend.",
     how: ["Linkes Nasenloch schließen", "Rechts einatmen", "Rechts schließen, links ausatmen"],
     cycle: simple(p("in", 4, "Rechts einatmen", "links zu"), p("hold", 2), p("out", 4, "Links ausatmen", "rechts zu")),
@@ -662,7 +662,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: "sanft-weniger",
     name: "Sanft weniger atmen",
-    short: "Leise und klein atmen. Gegen Hyperventilieren.",
+    short: "Leise und klein atmen. Wenn du zu schnell atmest.",
     why: "Wer zu viel und zu schnell atmet, bekommt Kribbeln und Schwindel. Bewusst kleiner atmen mit kurzer Pause bringt das Gleichgewicht zurück (nach Buteyko).",
     how: ["Leise durch die Nase ein, nur ein bisschen", "Leise aus", "Kurze Pause, bevor der nächste Atemzug kommt"],
     cycle: simple(p("in", 3, "Klein einatmen", "leise, durch die Nase"), p("out", 3, "Leise aus"), p("rest", 3, "Pause", "warten, bis der Atem kommt")),
@@ -718,7 +718,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: "schmerz",
     name: "In den Schmerz atmen",
-    short: "Hinatmen statt wegdrücken.",
+    short: "Bei Schmerzen: hinatmen statt wegdrücken.",
     why: "Wer gegen Schmerz anspannt, verstärkt ihn oft. Langsames Atmen und Weichwerden um die Stelle herum kann ihn erträglicher machen.",
     how: ["Einatmen und freundlich zur Stelle hinspüren", "Ausatmen und den Bereich drumherum weich werden lassen"],
     cycle: simple(p("in", 4, "Hinspüren"), p("out", 8, "Drumherum weich werden")),
@@ -828,7 +828,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: "abend",
     name: "Stoischer Abend",
-    short: "Senecas Rückblick mit dem Atem.",
+    short: "Den Tag in Ruhe abschließen.",
     why: "Seneca prüfte jeden Abend den Tag, freundlich und ohne Urteil. Mit dem Atem verbunden fällt das Loslassen leichter, dann kommt der Schlaf.",
     how: ["Ruhig und lang ausatmen", "Jede Runde eine Frage an den Tag"],
     cycle: simple(p("in", 4), p("out", 7)),

@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { BarChart3, Quote, Trash2 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { report, week } from "@/lib/stats";
-import { BODY, CONTROL, QUADRANT, quadrantOf } from "@/lib/checkin";
+import { BODY, CONTROL, MOODS, QUADRANT, quadrantOf } from "@/lib/checkin";
 import { exerciseById } from "@/data/exercises";
 import { EmptyState, PageTitle, Section, Segmented, Button } from "@/components/primitives";
 import { MoodFace, MOOD_FLAT } from "@/components/MoodFace";
@@ -22,7 +22,7 @@ export default function Review() {
   if (!checkins.length && !sessions.length) return (
     <div>
       <PageTitle title="Rückblick" />
-      <EmptyState icon={<BarChart3 />} title="Noch nichts zum Zurückblicken" text="Mach deinen ersten Check-in. Nach ein paar Tagen siehst du hier deine Muster." action={<Button href="/checkin">Check-in starten</Button>} />
+      <EmptyState icon={<BarChart3 />} title="Noch nichts zum Zurückblicken" text="Mach deinen ersten Check-in. Nach ein paar Tagen siehst du hier, wie es dir ging und was dir hilft." action={<Button href="/checkin">Check-in starten</Button>} />
     </div>
   );
   return (
@@ -32,12 +32,12 @@ export default function Review() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Big value={r.checkins} label="Check-ins" />
         <Big value={r.minutes} label="Minuten geatmet" />
-        <Big value={r.avgMood ? r.avgMood.toFixed(1).replace(".", ",") : "–"} label="Stimmung Ø (1–5)" />
-        <Big value={r.lift != null ? `${r.lift > 0 ? "+" : ""}${r.lift.toFixed(1).replace(".", ",")}` : "–"} label="Nach dem Atmen" accent />
+        <Big value={r.avgMood ? MOODS[Math.round(r.avgMood) - 1]?.label ?? "·" : "·"} label="So ging es dir meistens" />
+        <Big value={r.lift == null ? "·" : r.lift > 0.2 ? "Besser" : r.lift < -0.2 ? "Schlechter" : "Gleich"} label="Nach dem Atmen" accent />
       </div>
-      {r.lift != null && <p className="mt-3 text-small leading-5 text-muted">{r.lift > 0 ? `Nach einer Übung ging es dir im Schnitt ${r.lift.toFixed(1).replace(".", ",")} Stufen besser.` : "Das Atmen hat deine Stimmung bisher wenig verändert. Probier andere Übungen aus."}</p>}
+      {r.lift != null && <p className="mt-3 text-small leading-5 text-muted">{r.lift > 0 ? "Nach einer Atemübung ging es dir meistens besser." : "Das Atmen hat bisher wenig verändert. Probier mal andere Übungen aus."}</p>}
 
-      <Section title="Stimmung diese Woche">
+      <Section title="Deine Stimmung diese Woche">
         <div className="flex h-44 items-end gap-2 rounded-3xl border border-card-line bg-surface p-4">
           {w.map((d) => (
             <div key={d.date} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
@@ -50,9 +50,9 @@ export default function Review() {
 
       {r.emotions.length > 0 && <Section title="Häufigste Gefühle"><Bars items={r.emotions} /></Section>}
       {r.body.length > 0 && <Section title="Im Körper"><Bars items={r.body.map(([id, n]) => [BODY.find((b) => b.id === id)?.label ?? id, n])} /></Section>}
-      {r.influences.length > 0 && <Section title="Was dich beeinflusst"><Bars items={r.influences} /></Section>}
+      {r.influences.length > 0 && <Section title="Was dich beschäftigt hat"><Bars items={r.influences} /></Section>}
       {r.control.length > 0 && (
-        <Section title="Stoisch: in deiner Hand?">
+        <Section title="Konntest du etwas ändern?">
           <div className="grid grid-cols-3 gap-3">{CONTROL.map((c) => <Big key={c.v} value={r.control.find(([v]) => v === c.v)?.[1] ?? 0} label={c.label} />)}</div>
         </Section>
       )}
@@ -62,7 +62,7 @@ export default function Review() {
         </Section>
       )}
       {r.lessons.length > 0 && (
-        <Section title="Deine Gedanken">
+        <Section title="Was du aufgeschrieben hast">
           <div className="grid gap-3">
             {r.lessons.map((l, k) => (
               <figure key={k} className="rounded-3xl border border-card-line bg-surface p-5">
@@ -82,7 +82,7 @@ export default function Review() {
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-white" style={{ background: MOOD_FLAT[Math.round(c.mood)] }}><MoodFace mood={c.mood} size={26} /></span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[15px] font-semibold">{c.emotions.join(", ") || QUADRANT[quadrantOf(c.mood, c.energy)].label}</p>
-                <p className="truncate text-small text-muted">{new Date(c.createdAt).toLocaleString("de-DE", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}{c.exerciseId ? ` · ${exerciseById(c.exerciseId)?.name ?? ""}` : ""}{c.moodAfter ? ` · danach ${c.moodAfter}/5` : ""}</p>
+                <p className="truncate text-small text-muted">{new Date(c.createdAt).toLocaleString("de-DE", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}{c.exerciseId ? ` · ${exerciseById(c.exerciseId)?.name ?? ""}` : ""}{c.moodAfter ? ` · danach ${c.moodAfter > c.mood ? "besser" : c.moodAfter < c.mood ? "schlechter" : "gleich"}` : ""}</p>
               </div>
               <button type="button" onClick={() => { if (confirm("Diesen Check-in löschen?")) removeCheckin(c.id); }} aria-label="Löschen" className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-muted hover:bg-fg/[0.06] hover:text-fg"><Trash2 size={17} /></button>
             </div>

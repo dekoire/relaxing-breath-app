@@ -30,7 +30,7 @@ export default function ExercisePage() {
         </div>
         <div className="h-56" />
         <div className="relative px-5 pb-6 text-white">
-          <p className="text-small font-semibold text-white/70">{categoryOf(e.category).label} · {e.level}</p>
+          <p className="text-small font-semibold text-white/70">{categoryOf(e.category).label}</p>
           <h1 className="mt-1 text-[32px] leading-[38px] font-bold tracking-tight">{e.name}</h1>
           <p className="mt-2 text-body leading-6 text-white/85">{e.short}</p>
         </div>
@@ -41,7 +41,7 @@ export default function ExercisePage() {
       <div className="mt-5 grid grid-cols-3 gap-3 text-center">
         <Fact label="Rhythmus" value={e.cycle.length > 1 ? `${e.cycle.length} Teile` : rhythmLabel(e)} />
         <Fact label="Dauer" value={durationLabel(total)} />
-        <Fact label="Niveau" value={e.level} />
+        <Fact label="Schwierigkeit" value={e.level} />
       </div>
 
       {e.caution && <p className="mt-5 flex gap-3 rounded-2xl bg-fg/[0.05] px-4 py-3.5 text-small leading-[21px] text-soft"><TriangleAlert size={19} className="shrink-0 text-brand-400" />{e.caution}</p>}
