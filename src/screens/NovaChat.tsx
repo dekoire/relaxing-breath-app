@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { ArrowUp, ChevronLeft, Play } from "lucide-react";
 import { EXERCISES, durationLabel, exerciseById, totalSec, type Exercise } from "@/data/exercises";
-import { NEEDS, advise, greeting, needOf, type NeedId, type Today } from "@/lib/nova";
+import { NEEDS, advise, greeting, needOf, offTopic, type NeedId, type Today } from "@/lib/nova";
 import { partOf } from "@/lib/checkin";
 import { useStore } from "@/lib/store";
 import { todayIso } from "@/lib/types";
@@ -38,6 +38,8 @@ export default function NovaChat() {
 
   /** feste Fragen ohne KI: Bedürfnis → Zeit → Empfehlung */
   const local = (answer: string) => {
+    const off = offTopic(answer);
+    if (off) { say({ from: "nova", text: off.text, exercise: off.exercise }); setQuick(NEEDS.map((x) => x.label)); return; }
     if (!need) {
       const n = NEEDS.find((x) => x.label === answer)?.id ?? needOf(answer);
       if (!n) { say({ from: "nova", text: "Danke, dass du das teilst. Was würde dir jetzt am meisten helfen?" }); setQuick(NEEDS.map((x) => x.label)); return; }
@@ -64,7 +66,8 @@ export default function NovaChat() {
       try {
         const r = await fetch("/api/nova", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
           messages: [...msgs, mine].map((m) => ({ role: m.from === "me" ? "user" : "assistant", content: m.text })),
-          today: { minutes: t.minutes, done: t.doneIds.map((id) => exerciseById(id)?.name ?? id), part: t.part, mood: [...checkins].filter((c) => c.date === today).pop()?.mood },
+          today: { minutes: t.minutes, done: t.doneIds.map((id) => exerciseById(id)?.name ?? id), part: t.part, mood: [...checkins].filter((c) => c.date === today).pop()?.mood,
+            recent: [...checkins].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5).map((c) => `${c.date} ${c.part}: Stimmung ${c.mood}/5, Energie ${c.energy}/3, ${c.emotions.join(", ") || "ohne Wort"}${c.moodAfter ? `, danach ${c.moodAfter}/5` : ""}`) },
           exercises: EXERCISES.map((e) => ({ id: e.id, name: e.name, tags: e.tags, level: e.level, minutes: e.minutes })),
         }) });
         if (!r.ok) throw new Error(String(r.status));

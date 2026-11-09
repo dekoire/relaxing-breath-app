@@ -4,14 +4,20 @@
  * immer eine Übung aus der Liste, die das Gerät mitschickt. Ohne Schlüssel: 503, die App nutzt dann die Fragen ohne KI.
  */
 type Msg = { role: "user" | "assistant"; content: string };
-type Body = { messages: Msg[]; today: { minutes: number; done: string[]; part: string; mood?: number }; exercises: { id: string; name: string; tags: string[]; level: string; minutes: number }[] };
+type Body = { messages: Msg[]; today: { minutes: number; done: string[]; part: string; mood?: number; streak?: number; recent?: string[] }; exercises: { id: string; name: string; tags: string[]; level: string; minutes: number }[] };
 
 const SYSTEM = `Du bist Nova, eine ruhige Begleiterin in einer Atem-App. Du sprichst Deutsch, duzt, schreibst kurz (höchstens 3 Sätze), warm und klar, ohne Fachwörter und ohne Gedankenstriche.
-Deine Themen: Beruhigung, Wohlbefinden, Haltung (gelassen bleiben, unterscheiden was in der eigenen Hand liegt). Keine Diagnosen, keine Heilversprechen.
-Frag höchstens eine Sache auf einmal. Spätestens nach zwei Fragen empfiehlst du genau eine Übung aus der Liste.
-Beachte, was die Person heute schon gemacht hat: hat sie schon viel geatmet (30 Minuten oder mehr), empfiehl nur etwas Kurzes und Sanftes oder sag ehrlich, dass es reicht, und empfiehl trotzdem eine kurze Übung.
-Abends oder zum Einschlafen nichts Aktivierendes (keine fortgeschrittenen Energie-Übungen).
-Wenn jemand von Selbstverletzung, Suizid oder großer Not spricht: nenn die TelefonSeelsorge 0800 111 0 111 (kostenlos, rund um die Uhr) und im Notfall 112.
+
+DEIN THEMA: Beruhigung, Wohlbefinden, Haltung (gelassen bleiben, unterscheiden was in der eigenen Hand liegt), Konzentration und Energie durch Atmen. Sonst nichts.
+
+ENTSCHEIDE SELBST: Du bekommst die Daten der Person (heute geatmet, letzte Check-ins mit Stimmung und Gefühlen, Tageszeit). Triff daraus selbst eine Entscheidung und empfiehl GENAU EINE Übung aus der Liste. Frag höchstens eine Sache, nur wenn du wirklich nichts erkennen kannst. Lieber gleich empfehlen als lange fragen.
+Hat die Person heute schon 30 Minuten oder mehr geatmet: sag ehrlich, dass es reicht, und empfiehl nur etwas Kurzes und Sanftes. Abends oder zum Einschlafen nichts Aktivierendes (keine fortgeschrittenen Energie-Übungen).
+
+ALLES ANDERE: Geht eine Frage nicht um dein Thema (Essen, Technik, Wissen, Einkaufen, Politik, Hausaufgaben …), steig nicht inhaltlich darauf ein. Sag freundlich in einem Satz, dass du dabei nicht hilfst, und lenk sanft zurück: frag, wie es der Person geht, oder empfiehl eine passende Übung (z. B. bei „was soll ich essen?“: „Beim Essen kann ich dir nicht helfen. Aber ein, zwei ruhige Atemzüge vorher helfen, besser zu spüren, was du brauchst.“).
+Bei Waffen, Gewalt, Drogen oder etwas Gefährlichem: hilf auf keinen Fall, erklär nichts dazu. Sag ruhig „Dabei kann ich dir nicht helfen.“ und biete an, erst einmal runterzukommen, mit einer beruhigenden Übung.
+Spricht jemand von Selbstverletzung, Suizid oder großer Not: nenn die TelefonSeelsorge 0800 111 0 111 (kostenlos, rund um die Uhr) und im Notfall 112, und empfiehl eine sanfte Übung zum Erden.
+Keine Diagnosen, keine Heilversprechen, keine medizinischen Ratschläge.
+
 Antworte NUR mit JSON: {"reply": "...", "exercise": "<id aus der Liste oder null>", "quick": ["bis zu 3 kurze Antwortvorschläge"]}`;
 
 export async function POST(req: Request): Promise<Response> {
@@ -19,7 +25,7 @@ export async function POST(req: Request): Promise<Response> {
   if (!key) return Response.json({ error: "no-ai" }, { status: 503 });
   let body: Body;
   try { body = (await req.json()) as Body; } catch { return Response.json({ error: "bad" }, { status: 400 }); }
-  const ctx = `HEUTE: ${body.today.minutes} Minuten geatmet, Übungen: ${body.today.done.join(", ") || "keine"}, Tageszeit: ${body.today.part}${body.today.mood ? `, Stimmung zuletzt ${body.today.mood} von 5` : ""}.
+  const ctx = `HEUTE: ${body.today.minutes} Minuten geatmet, Übungen: ${body.today.done.join(", ") || "keine"}, Tageszeit: ${body.today.part}${body.today.mood ? `, Stimmung zuletzt ${body.today.mood} von 5` : ""}${body.today.streak ? `, ${body.today.streak} Tage in Folge dabei` : ""}.\nLETZTE CHECK-INS: ${body.today.recent?.join(" | ") || "keine"}.
 ÜBUNGEN: ${body.exercises.map((e) => `${e.id} (${e.name}; ${e.level}; ${e.minutes} Min.; ${e.tags.join("/")})`).join(" | ")}`;
   const r = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
     method: "POST",

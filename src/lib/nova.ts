@@ -72,3 +72,18 @@ export function advise(need: NeedId, minutesAvailable: number, t: Today, seed = 
     : `${n.say} Ich empfehle dir „${exercise.name}“.`;
   return { exercise, text, thought: THOUGHTS[(seed + need.length) % THOUGHTS.length], short: much };
 }
+
+/**
+ * Nicht Novas Thema (ohne KI): Gefährliches klar ablehnen und beruhigen, Alltagsfragen freundlich zurücklenken.
+ * Gibt nichts zurück, wenn der Satz zum Thema passt.
+ */
+const DANGER = /waffe|kalaschnikow|pistole|gewehr|messer|bombe|sprengstoff|töten|umbringen|verletzen|drogen|koks|kokain|heroin|hacken/i;
+const CRISIS = /suizid|selbstmord|nicht mehr leben|mich umbringen|ritzen|selbstverletz/i;
+const OTHER = /essen|rezept|kochen|wetter|einkauf|kaufen|preis|politik|fußball|hausaufgabe|programmier|code|film|serie|reise|auto/i;
+export function offTopic(text: string): { text: string; exercise: Exercise } | undefined {
+  const calm = exerciseById("laenger-aus")!;
+  if (CRISIS.test(text)) return { text: "Danke, dass du es mir sagst. Bitte sprich jetzt mit einem Menschen: TelefonSeelsorge 0800 111 0 111, kostenlos und rund um die Uhr. Im Notfall 112. Wenn du magst, atmen wir dabei ganz ruhig.", exercise: exerciseById("erden-54321") ?? calm };
+  if (DANGER.test(text)) return { text: "Dabei kann ich dir nicht helfen. Aber vielleicht hilft es, erst einmal runterzukommen. Atmen wir kurz zusammen?", exercise: exerciseById("seufzer") ?? calm };
+  if (OTHER.test(text) && !needOf(text)) return { text: "Dabei kann ich dir nicht helfen, ich bin für Ruhe und Wohlbefinden da. Ein paar ruhige Atemzüge helfen aber, klarer zu spüren, was du gerade brauchst.", exercise: calm };
+  return undefined;
+}

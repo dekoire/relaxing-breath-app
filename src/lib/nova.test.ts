@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { advise, greeting, needOf } from "./nova";
+import { advise, greeting, needOf, offTopic } from "./nova";
 
 describe("Nova", () => {
   it("versteht freie Sätze", () => {
@@ -17,5 +17,11 @@ describe("Nova", () => {
     expect(a.short).toBe(true);
     expect(a.text).toMatch(/schon viel/);
     expect(greeting({ minutes: 40, doneIds: [], part: "day" })).toMatch(/40 Minuten/);
+  });
+  it("lehnt Fremdes ab und lenkt zurück", () => {
+    expect(offTopic("Ich hätte gerne eine Kalaschnikow")?.text).toMatch(/nicht helfen.*runterzukommen/);
+    expect(offTopic("Was soll ich heute essen?")?.text).toMatch(/nicht helfen/);
+    expect(offTopic("Ich bin gestresst")).toBeUndefined();
+    expect(offTopic("Ich will nicht mehr leben")?.text).toMatch(/0800 111 0 111/);
   });
 });
