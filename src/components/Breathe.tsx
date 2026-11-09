@@ -176,7 +176,7 @@ export function BreatheView({ exercise: e, minutes: m0, onClose, onDone, askMood
       {stage === "pick" ? (
         /* vor dem Start: ruhige Zusammenfassung – was dich erwartet, was du davon hast */
         <div className="mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col justify-center overflow-y-auto px-6">
-          <div className="mx-auto h-28 w-28">{prefs.look === "flower" ? <Flower open={false} half ms={1200} still /> : <NovaBreath open={false} half ms={1200} still />}</div>
+          <div className="mx-auto mt-4 mb-6 h-28 w-28">{prefs.look === "flower" ? <Flower open={false} half ms={1200} still /> : <NovaBreath open={false} half ms={1200} still />}</div>
           <h1 className="mt-3 text-center text-[28px] leading-9 font-semibold tracking-tight">{e.name}</h1>
           <p className="mx-auto mt-1 max-w-[19rem] text-center text-[15px] leading-6 text-white/60">{e.short}</p>
           <div className="mt-7 space-y-4">

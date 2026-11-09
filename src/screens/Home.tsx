@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router";
-import { ArrowRight, Flame, Timer, Wind } from "lucide-react";
+import { ArrowRight, Flame, Timer } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { usePrefs } from "@/lib/prefs";
 import { dayStats, streak, week } from "@/lib/stats";
@@ -70,12 +70,13 @@ export default function Home() {
         </div>
       )}
 
-      {/* Heute geschafft */}
-      <div className="mt-4 grid grid-cols-3 gap-3">
-        <Stat icon={<Timer size={17} />} value={s.minutes} label="Min. geatmet" />
-        <Stat icon={<Wind size={17} />} value={s.exercises} label="Übungen" />
-        <Stat icon={<Flame size={17} />} value={days} label={days === 1 ? "Tag in Folge" : "Tage in Folge"} />
-      </div>
+      {/* Heute geschafft: eine ruhige Zeile statt drei Zahl-Kacheln (eine Null wirkt wie ein Vorwurf) */}
+      {(days > 0 || s.exercises > 0) && (
+        <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 px-1 text-small text-muted">
+          {days > 0 && <span className="inline-flex items-center gap-1.5"><Flame size={15} className="text-brand-400" /><b className="font-semibold text-fg">{days}</b> {days === 1 ? "Tag in Folge" : "Tage in Folge"}</span>}
+          <span className="inline-flex items-center gap-1.5"><Timer size={15} />{s.exercises ? <><b className="font-semibold text-fg">{s.minutes} Min.</b> heute geatmet</> : "Heute noch nicht geatmet"}</span>
+        </p>
+      )}
 
       <Section title={last ? "Passt zu dir jetzt" : part === "evening" ? "Für deinen Abend" : part === "morning" ? "Für deinen Morgen" : "Für zwischendurch"} action={<Link to="/entdecken" className="text-small font-semibold text-muted hover:text-fg">Alle {EXERCISES.length}</Link>}>
         <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 md:-mx-6 md:px-6">
@@ -109,12 +110,3 @@ export default function Home() {
   );
 }
 
-function Stat({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
-  return (
-    <div className="rounded-3xl border border-card-line bg-surface px-4 py-3.5">
-      <span className="grid h-8 w-8 place-items-center rounded-full bg-lavender text-brand-400">{icon}</span>
-      <p className="mt-2 text-[26px] leading-8 font-bold tabular-nums">{value}</p>
-      <p className="text-caption leading-4 text-muted">{label}</p>
-    </div>
-  );
-}
